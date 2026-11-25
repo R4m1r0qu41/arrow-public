@@ -18,7 +18,7 @@ base64          = "0.22"
 bytes           = "1"
 hex             = "0.4"
 http-body-util  = "0.1"
-tokio           = { version = "=1.44.2", features = ["full"] }
+tokio           = { version = "=1.54.1", features = ["full"] }
 hyper           = { version = "=1.10.1", features = ["http1", "client", "server"] }
 hyper-util      = { version = "0.1", features = ["client-legacy", "http1", "server", "tokio"] }
 # §4.4 — EIP-155 raw transaction signing. k256 provides minimal secp256k1 ECDSA

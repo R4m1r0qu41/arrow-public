@@ -21,7 +21,7 @@ path = "src/lib.rs"
 arrow-core       = { path = "../arrow-core" }
 arrow-transport  = { path = "../arrow-transport" }
 axum             = { version = "=0.8.9", features = ["json"] }
-tokio            = { version = "=1.44.2", features = ["full"] }
+tokio            = { version = "=1.54.1", features = ["full"] }
 serde            = { version = "1", features = ["derive"] }
 serde_json       = "1"
 toml             = "=0.8.8"
@@ -41,7 +41,7 @@ bytes   = "1"
 http-body-util = "0.1"
 hyper   = { version = "=1.10.1", features = ["http1", "client"] }
 hyper-util = { version = "0.1", features = ["client-legacy", "http1", "tokio"] }
-tokio   = { version = "=1.44.2", features = ["full"] }
+tokio   = { version = "=1.54.1", features = ["full"] }
 arrow-identity = { path = "../arrow-identity" }
 bs58 = "0.5"
 base64 = "0.22"

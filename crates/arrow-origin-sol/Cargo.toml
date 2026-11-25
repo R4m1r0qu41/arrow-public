@@ -23,7 +23,7 @@ http-body-util   = "0.1"
 hyper            = { version = "=1.10.1", features = ["http1", "client"] }
 hyper-util       = { version = "0.1", features = ["client-legacy", "http1", "tokio"] }
 reqwest          = { version = "0.13", default-features = false, features = ["json", "rustls"] }
-tokio            = { version = "=1.44.2", features = ["full"] }
+tokio            = { version = "=1.54.1", features = ["full"] }
 
 [dev-dependencies]
 arrow-core = { path = "../arrow-core" }
