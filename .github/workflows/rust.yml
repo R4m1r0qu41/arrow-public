@@ -13,7 +13,7 @@ jobs:
     name: Workspace checks (Job A)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
@@ -37,7 +37,7 @@ jobs:
           - cargo check -p arrow-node --no-default-features
           - cargo test -p arrow-transport --features replay-sqlite replay::tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
@@ -47,7 +47,7 @@ jobs:
     name: Supply-chain checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
@@ -64,7 +64,7 @@ jobs:
     name: Coverage report
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-local-devnet')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
@@ -139,7 +139,7 @@ jobs:
       ARROW_TESTNET_KEY: ${{ secrets.ARROW_TESTNET_KEY }}
       ARROW_TESTNET_RECIPIENT: ${{ secrets.ARROW_TESTNET_RECIPIENT }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.95.0
