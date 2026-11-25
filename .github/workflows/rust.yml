@@ -81,7 +81,7 @@ jobs:
         # gate is unambiguous and cannot silently no-op behind a report export.
         run: cargo llvm-cov report --fail-under-lines 80 --ignore-filename-regex '(^|/)main\.rs$'
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lcov
           path: lcov.info
