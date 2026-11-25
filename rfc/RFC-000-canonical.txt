@@ -1,0 +1,9 @@
+Arrow Protocol — RFC-000: Genesis Record
+Document ID: ARROW-RFC-000
+Title: Genesis Record — Canonical Message Standard
+Status: Foundational Record
+Version: 1.0
+Date of Record: 2026-04-15
+Genesis Timestamp: 2026-03-22T18:40:00Z
+Canonical Message String: Class:Origin:State:Policy:Finality:Confidence
+Genesis Example: 2:CST:FN:PR:1:C

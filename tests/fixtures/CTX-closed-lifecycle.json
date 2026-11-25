@@ -1,0 +1,14 @@
+{
+  "event_id": "ctx-closure-2026-07-07",
+  "arrow_code": "6:ETH:FN:CL:1:A",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-01T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000090",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "Context event (not a test case): canonical closure 6:*:FN:CL:1:* terminating lifecycle lfc-fixture-closed. Loaded as prior history for the LFC-007 fixtures F-26..F-30."
+  }
+}

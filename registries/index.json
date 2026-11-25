@@ -1,0 +1,224 @@
+{
+  "arrow_registries": {
+    "version": "1.6.0",
+    "description": "Canonical index of all Arrow Protocol controlled vocabulary registries. Registries are the source of truth. Specification documents reference registries — they do not redefine them.",
+    "governance": "Editor-controlled for v1.x. Registry extension process to be defined in v2.0.",
+    "v1_3_changes": [
+      "Added mandatory verification_regime field on every Origin Registry entry",
+      "Added new origin THR (THORChain)",
+      "Added new registry verification_regimes.json — five regimes binding Origins to verification infrastructure",
+      "Added new registry chain_registry.json — granular per-chain entries with chain_trust_flag",
+      "Added new registry sources.json — observation source typing for the Multi-Source Observation Layer",
+      "Extended reason_codes.json with divergence, observation state, registry versioning, chain trust, and legal-protocol composition codes",
+      "Extended object_types.json with chain_observation_state"
+    ],
+    "v1_3_1_changes": [
+      "Added new registry compliance_extensions.json — controlled vocabularies for extensions.* Compliance Module fields",
+      "Extended reason_codes.json with compliance codes: TRAVEL_RULE_ACKNOWLEDGED, TRAVEL_RULE_REJECTED, SANCTIONS_CLEARED, SANCTIONS_HIT, COMPLIANCE_HOLD, COMPLIANCE_RELEASED, LEGAL_INSTRUMENT_VOID",
+      "Extended object_types.json with compliance_attestation and legal_instrument_record"
+    ],
+    "v1_3_2_changes": [
+      "Added new registry channel_bindings.json — canonical registry for Arrow transport channel bindings",
+      "channel_bindings.json schema and validation semantics defined by Arrow Transport Model v1.0",
+      "No channel bindings registered in v1.3.2 — bindings are registered when external binding specifications are published"
+    ],
+    "v1_4_changes": [
+      "Added new registry bridge_registry.json — canonical registry for per-bridge trust, classification, economic consistency, and restoration metadata",
+      "Added new registry confidence_subprofiles.json — companion registry for default confidence ceilings and classification-bound defaults across bridge, chain, institutional, legal, and API subprofiles",
+      "Added new registry classification_binding_methods.json — controlled vocabulary for proof_semantics.classification_binding_method used by SEM-017 and MSG-005",
+      "Updated reason_codes.json with five reason codes for proof classification, regime ceilings, economic consistency, bridge trust revocation, and restoration blocking",
+      "Updated confidence.json C, D, and E definitions for cross-domain semantic consistency while preserving A and B semantics",
+      "Updated verification_regimes.json with classification_bound metadata and native_notarized_consensus"
+    ],
+    "v1_5_changes": [
+      "Field-4 registry: Added RW (Review Warranted) — mandatory output for LEG Confidence=E events (LEG-004). Permitted for all Classes.",
+      "Field-4 registry: Renamed TR 'Trusted' → 'Trigger'; renamed CL 'Clear' → 'Closed' to match spec-canonical names.",
+      "Field-4 registry: Added registry_note to HL recording namespace-collision history with states.json.",
+      "states.json: Added TL (Timelocked) with finality_permitted:[0]; corrected PD/CD finality_permitted to [0] per SEM-002/SEM-004.",
+      "states.json: Removed HL (namespace collision with Action HL) per §F-2.",
+      "states.json: Removed ER (validation outcome, not a persisted state) per §F-2.",
+      "verification_regimes.json: Renamed chain_native → native_canonical (spec-canonical name); chain_native retained as alias.",
+      "NEW finality_basis.json — controlled vocabulary for the finality_basis Tier-3 field (FB-001). Seven entries: optimistic_window, probabilistic, legal_appeal, custodial_clawback, staking_lock, vesting_schedule, protocol_pending.",
+      "NEW registries/leg_supra_jurisdictions.json — supra-national jurisdiction vocabulary for leg_jurisdiction.supra (EU, EBA, ESMA, ECB, UNSC, FATF, ICC, ICSID).",
+      "chain_registry.json: Upgraded to v2.0 schema — per-chain entries now use four blocks: protocol_required, advisory, provenance, anchoring.",
+      "verification_regimes.json: Added legal_oracle_structured regime (single source max_confidence C; B requires legal_attestation_panel, draft) per leg-amendment §5.3. Superseded in v1.5.2 by structured_legal_attestation and multiple_legal_attestation.",
+      "reason_codes.json: Added LEG range violation, LEG_SUPRA_SANCTIONS_FORCE, LEG_SUBTYPE_ABSENT.",
+      "compliance_extensions.json: Added local_forum to legal_instrument vocabulary per §F-9.2."
+    ],
+    "v1_5_1_changes": [
+      "Numbering reconciliation only — registry contents (controlled vocabularies, codes, identifiers) are unchanged from v1.5.",
+      "reason_codes.json: bumped to 1.5.1-draft. Descriptions for the LEG range violation, LEG_SUPRA_SANCTIONS_FORCE, and LEG_SUBTYPE_ABSENT updated to reference the v1.5.1 rule numbers (LEG-007→LEG-006, LEG-008→LEG-007, LEG-006→MSG-006).",
+      "registries/leg_supra_jurisdictions.json: UNSC and FATF entry notes updated to reference LEG-007 (was LEG-008 in v1.5).",
+      "LEG-009 and LEG-010 promoted into the live validation pipeline; leg_supra_jurisdictions.json moved out of drafts and marked active.",
+      "All other registries (origins, classes, states, controls, confidence, finality_basis, verification_regimes, chain_registry, bridge_registry, confidence_subprofiles, classification_binding_methods, channel_bindings, sources, object_types, compliance_extensions) are byte-identical to v1.5."
+    ],
+    "v1_5_2_changes": [
+      "Adapter expansion package: added EVM-family, Base, Arbitrum, Bitcoin, Solana, and cross-product conformance support in the Rust reference implementation.",
+      "channel_bindings.json: HTTP REST hardening v0.2 adds http-rest-local and https-rest deployment profiles and marks legacy http-rest inactive.",
+      "origins.json: Added BSE (Base — Coinbase optimistic L2 on Ethereum), origin_type: chain, verification_regime: optimistic_settled. BASE is 4 characters and cannot be a 3-char Arrow Origin; BSE is the registered Arrow origin code. Editor-reviewed addition for Phase 2 EVM-family adapter expansion.",
+      "origins.json: SOL verification_regime corrected from optimistic_settled to native_canonical. Solana is a PoH+PoS L1 with its own consensus — optimistic_settled is an ETH L2 rollup regime and was a misclassification. Observed natively at finalized commitment, SOL is native_canonical (max Confidence A). Editor-reviewed reclassification for Phase 4 Solana adapter expansion.",
+      "origins.json: Origin code POL migrated to PCY (name 'Policy', origin_type governance, verification_regime bonded_quorum unchanged). Naming-convention change only — the governance-body Origin keeps its semantics. POL is now freed and reserved for Polygon PoS. Repo-wide rename applied across all spec drafts, documentation, and the Rust reference implementation.",
+      "Field-4 registry migration: Codes PR/BL/HL/RW/TR/CL and downstream semantics are unchanged. Field-4 validation rules use CTL-001/CTL-002. Origin PCY remains the governance origin named Policy and is not a field-4 code.",
+      "origins.json: Added EMG (Emergency Authority), origin_type emergency_authority, verification_regime institutional_attestation (ceiling C). Additive emergency-authority registry patch; the governance origin_type pre-existed on PCY and was not added. CHA (Chain Authority) deferred. Only the additive registry metadata lands here.",
+      "chain_registry.json: ARB entry gains advisory.governance_capability (CHN-005) documenting the 21/04/2026 Arbitrum Security Council action — structured historical_compelled_transfer and sender_impersonation_via_upgrade (CapabilityDisclosure: status/source_ref/observed_at), plus emergency_upgrade_authority, multisig_threshold, upgrade_delay_seconds, emergency_upgrade_exit_window_seconds. Advisory only; CHN-006 forbids any Action effect; PRV-003 not triggered.",
+      "origins.json: Registered ORC (Oracle), origin_type oracle, verification_regime bonded_quorum (ceiling B). Resolves the phantom-origin gap flagged in the 2026-06-07 registry graduation audit (Item-3): ORC was referenced as a typical_origin in verification_regimes.json (bonded_quorum; native_notarized_consensus variant) and finality_basis.json, but was never present in origins.json. Registering it under bonded_quorum makes those cross-registry references valid without altering any regime; the native-notarized oracle remains a documented variant under native_notarized_consensus.",
+      "reason_codes.json: bumped to 1.5.2-draft. Version-label reconciliation only (registry graduation audit cross-cutting finding X-1) — aligns reason_codes with the 1.5.2-draft registry set. No reason-code identifiers, descriptions, or rule-number references change.",
+      "verification_regimes.json: Superseded the draft legal_oracle_structured regime with structured_legal_attestation (single Sibyl/LBRY-style structured proof, ceiling B) and multiple_legal_attestation (independent multi-Sibyl evidence, ceiling B). Added legal_native_attestation as a draft/reserved experimental regime; no current Origin depends on it.",
+      "confidence_subprofiles.json: Replaced legal_attestation_panel with structured_legal_attestation and multiple_legal_attestation. legal_authority_panel is now modeled as LEG authority/finality metadata, not a confidence subprofile.",
+      "Other registry vocabularies are semantically preserved except for the field-4 name migration and related prose/metadata alignment."
+    ],
+    "v1_6_changes": [
+      "actions.json is the canonical field-4 registry from v1.6.0. Codes PR/BL/HL/RW/TR/CL and semantics unchanged. Field-4 validation rule identifiers are ACT-001/ACT-002. This is the final field-4 name; the name is frozen under NAM-001 and the rule-ID permanence policy.",
+      "classes.json: Class 4 is CONTROL — the control-plane event class (registry updates, chain/bridge status transitions, protocol upgrades, validator/node topology changes, parameter changes, emergency declarations, supersession).",
+      "NEW control_subtypes.json (draft) — anchor vocabulary for Class 4 CONTROL events with per-subtype anchor_requirements. Inert while draft; SEM-021 reserved for its promotion to a mandatory gate.",
+      "actions.json: CL description records the v1.6 bidirectional Class 6 ⇔ Action CL binding (SEM-005 + new SEM-020).",
+      "reason_codes.json: bumped to 1.6.0; field-4 expectation metadata renamed expected_control → expected_action, descriptions aligned to Action terminology, and LEG range violation reason code renamed to LEG_ACTION_RANGE_VIOLATION.",
+      "confidence.json, bridge_registry.json, and compliance_extensions.json: active field-4 prose aligned to Action without changing registry codes or validation obligations.",
+      "Live registry package labels normalized to 1.6.0; per-entry added_version history and schema target_version history are preserved.",
+      "Naming-integrity lint (NAM-001) added to tools/validate-registries.js: no code or display name may appear in more than one canonical namespace (classes, origins, states, actions, confidence). Enforced in CI; the State-HL vs Action-HL collision class is now mechanically impossible.",
+      "Governance: rule identifiers are permanent from v1.6.0 — retired, never renumbered, never reused. CTL-001/CTL-002 are the last renamed rule IDs.",
+      "verification_regimes.json: NEW optional field pre_settlement_max_confidence — conditional SEM-015 ceiling applied while Finality=0. Set to B on optimistic_settled (A remains the settled ceiling), absent elsewhere. Makes the spec's long-standing 'A post-window / B pre-window' row validator-enforced instead of producer-advisory; FB-001 now also enforces requires_finality_eta (a dated window is required evidence for optimistic_window pending events).",
+      "RFC-010 implementation: TRG-001 live (TR action_target envelope + Classes {2,5}); LFC-007 live (post-closure lifecycle discipline, reason code POST_CLOSURE_VIOLATION added to reason_codes.json); LFC-008 live (closure expectation declaration — NEW closure_discipline field on all verification_regimes entries; bounded disciplines depth_exhaustion/window_exhaustion require closure_eta on settled Class 1 events). NEW registries/reserved_tokens.json + NAM-002 lint: rule-family prefixes and cross-repo tokens are machine-reserved; CL permanently barred as a prefix."
+    ],
+    "registries": [
+      {
+        "name": "origins",
+        "file": "origins.json",
+        "field": "Origin (position 2 in canonical message string)",
+        "description": "Asserting domains — chains, custodians, legal systems, oracles, policy/governance engines, and emergency authorities. Every entry carries a verification_regime."
+      },
+      {
+        "name": "classes",
+        "file": "classes.json",
+        "field": "Class (position 1 in canonical message string)",
+        "description": "Event classes — observe, instruct, condition, control (v1.6, was policy), transfer, close. Distinct namespace from the Action field (position 4)."
+      },
+      {
+        "name": "states",
+        "file": "states.json",
+        "field": "State (position 3 in canonical message string)",
+        "description": "Event condition states — final, pending, conditional, reversed, timelocked."
+      },
+      {
+        "name": "actions",
+        "file": "actions.json",
+        "field": "Action (position 4 in canonical message string)",
+        "description": "Downstream action instructions — proceed, block, hold, review, trigger, closed. actions.json is final from v1.6.0."
+      },
+      {
+        "name": "control_subtypes",
+        "file": "control_subtypes.json",
+        "field": "control_subtype (Event Object, Class 4 events)",
+        "description": "NEW v1.6 (draft) — Anchor vocabulary for Class 4 CONTROL events: which control surface the event changes and what it must reference. Inert while draft; SEM-021 reserved for promotion.",
+        "introduced_in": "1.6"
+      },
+      {
+        "name": "confidence",
+        "file": "confidence.json",
+        "field": "Confidence (position 6 in canonical message string)",
+        "description": "Verification strength — A through E. Maximum permitted level bounded by Origin verification_regime (SEM-015). v1.4 clarifies C, D, and E verification structure for cross-domain semantic consistency."
+      },
+      {
+        "name": "confidence_subprofiles",
+        "file": "confidence_subprofiles.json",
+        "field": "confidence_subprofile",
+        "description": "NEW v1.4 — Default confidence ceilings, classification-bound defaults, and rejection behavior for bridge, chain, institutional, legal, and API verification subprofiles. Referenced by BRG-006 and SEM-015.",
+        "introduced_in": "1.4"
+      },
+      {
+        "name": "classification_binding_methods",
+        "file": "classification_binding_methods.json",
+        "field": "proof_semantics.classification_binding_method",
+        "description": "NEW v1.4 — Controlled vocabulary for the mechanism by which source-domain output classification is proven, attested, audited, or inferred. Referenced by SEM-017 and MSG-005.",
+        "introduced_in": "1.4"
+      },
+      {
+        "name": "verification_regimes",
+        "file": "verification_regimes.json",
+        "field": "Origin.verification_regime",
+        "description": "NEW v1.3 — Regimes binding each Origin to its verification infrastructure. Sets Confidence ceiling per Origin. v1.4 adds classification_bound metadata and native_notarized_consensus. v1.5 renames chain_native → native_canonical (alias retained). v1.5.2 supersedes legal_oracle_structured with structured_legal_attestation and multiple_legal_attestation.",
+        "introduced_in": "1.3"
+      },
+      {
+        "name": "chain_registry",
+        "file": "chain_registry.json",
+        "field": "Event Object chain_id",
+        "description": "NEW v1.3 — Per-chain trust registry. v1.5 upgrades to v2.0 schema with four structured blocks per entry: protocol_required, advisory, provenance, and anchoring. v1.5.2 adds the optional advisory.governance_capability sub-block (CHN-005; advisory only; CHN-006 forbids any Action effect).",
+        "introduced_in": "1.3"
+      },
+      {
+        "name": "finality_basis",
+        "file": "finality_basis.json",
+        "field": "Event Object finality_basis (Tier-3 conditional)",
+        "description": "NEW v1.5 — Controlled vocabulary for the mechanism by which a Finality=0 event will eventually settle. Required when Finality=0 (FB-001). Seven entries: optimistic_window, probabilistic, legal_appeal, custodial_clawback, staking_lock, vesting_schedule, protocol_pending.",
+        "introduced_in": "1.5"
+      },
+      {
+        "name": "leg_supra_jurisdictions",
+        "file": "leg_supra_jurisdictions.json",
+        "field": "Event Object leg_jurisdiction.supra",
+        "description": "NEW v1.5, promoted live in v1.5.1 — Controlled vocabulary of active supranational bodies valid for LEG-origin events. Referenced by LEG-010.",
+        "introduced_in": "1.5.1"
+      },
+      {
+        "name": "bridge_registry",
+        "file": "bridge_registry.json",
+        "field": "Event Object bridge_id",
+        "description": "NEW v1.4 — Per-bridge trust registry with bridge_trust_flag, bridge status, classification profile, economic consistency profile, and BRG-005 restoration metadata.",
+        "introduced_in": "1.4"
+      },
+      {
+        "name": "sources",
+        "file": "sources.json",
+        "field": "Source registration source_type",
+        "description": "NEW v1.3 — Observation source types for the Multi-Source Observation Layer. Default confidence weights configurable per deployment.",
+        "introduced_in": "1.3"
+      },
+      {
+        "name": "reason_codes",
+        "file": "reason_codes.json",
+        "field": "reason_code (Event Object)",
+        "description": "Normalized event explanations. v1.3 adds codes for divergence, observation state transitions, registry versioning, chain trust revocation, and legal-protocol composition. v1.3.1 adds compliance codes. v1.4 adds classification, economic consistency, bridge trust, and bridge restoration codes."
+      },
+      {
+        "name": "object_types",
+        "file": "object_types.json",
+        "field": "object_type (Event Object)",
+        "description": "Types of things events act upon. v1.3 adds chain_observation_state. v1.3.1 adds compliance_attestation and legal_instrument_record."
+      },
+      {
+        "name": "subject_types",
+        "file": "subject_types.json",
+        "field": "subject_type (Event Object)",
+        "description": "Types of actors events apply to — wallets, persons, entities, contracts, vaults."
+      },
+      {
+        "name": "proof_types",
+        "file": "proof_types.json",
+        "field": "proof_type (Event Object)",
+        "description": "Evidence types supporting event assertions — chain proofs, attestations, oracle feeds, signatures."
+      },
+      {
+        "name": "compliance_extensions",
+        "file": "compliance_extensions.json",
+        "field": "extensions.travel_rule, extensions.sanctions_aml, extensions.legal_instrument",
+        "description": "NEW v1.3.1 — Controlled vocabularies for all Compliance Module extension sub-blocks. Covers Travel Rule transmission protocols and statuses, sanctions screening results and list identifiers, AML risk levels, and legal instrument types.",
+        "introduced_in": "1.3.1"
+      },
+      {
+        "name": "channel_bindings",
+        "file": "channel_bindings.json",
+        "field": "Transport Envelope channel_binding",
+        "description": "NEW v1.3.2 — Transport channel binding registry. HTTP REST hardening v0.2 registers http-rest-local for localhost development and https-rest for TLS-terminated deployments. Referenced by TPT-004.",
+        "introduced_in": "1.3.2"
+      },
+      {
+        "name": "reserved_tokens",
+        "file": "reserved_tokens.json",
+        "field": "N/A — cross-cutting registry, not a canonical message-string field",
+        "description": "NEW v1.6 — Machine-readable reservation of rule-family prefixes and cross-repo tokens outside the six-field namespaces (Class:Origin:State:Action:Finality:Confidence). Enforced by the NAM-002 lint in tools/validate-registries.js.",
+        "introduced_in": "1.6"
+      }
+    ]
+  }
+}

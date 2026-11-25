@@ -1,0 +1,32 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "ETH",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "mainnet",
+    "network_name": "mainnet",
+    "chain_family": "evm",
+    "chain_id_observed": "1",
+    "tx_ref": {
+      "type": "evm_tx_hash",
+      "value": "0x505bb0130e46b17e1adec44b288b7fc544fb31776f0f902d46bc475f14e77175"
+    },
+    "finality_model": "probabilistic",
+    "finality_basis": null,
+    "arrow_code": "1:ETH:FN:PR:1:A",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model",
+      "protocol_required.finality_basis_default",
+      "protocol_required.reorg_safety_confirmations"
+    ],
+    "value": "1"
+  },
+  "observation": {
+    "observed_at": "2026-06-15T05:10:45.187108+00:00",
+    "observer_head": 25320721,
+    "confirmations_at_observation": 12
+  },
+  "extraction_artifact_hash": "sha256:ba36852ae91e758b70f916c6f7c190d14fcab27d62a3242cc36d37db497929cd"
+}

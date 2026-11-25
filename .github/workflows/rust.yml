@@ -1,0 +1,150 @@
+name: Rust
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Job A — deterministic, no network, no secrets.
+  # Must stay green offline; never blocked by faucet flakiness.
+  workspace:
+    name: Workspace checks (Job A)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+          components: clippy, rustfmt
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Test workspace
+        run: cargo test --workspace --all-features
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: Validate registries, rule surface, and normative manifest
+        run: node tools/validate-registries.js
+
+  feature-matrix:
+    name: Feature matrix (Job A)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        command:
+          - cargo check -p arrow-node --no-default-features
+          - cargo test -p arrow-transport --features replay-sqlite replay::tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+      - run: ${{ matrix.command }}
+
+  supply-chain:
+    name: Supply-chain checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+      - uses: taiki-e/install-action@cargo-audit
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny@0.19.8
+      - name: RustSec audit
+        run: cargo audit
+      - name: Dependency policy
+        run: cargo deny check advisories bans sources
+
+  coverage:
+    name: Coverage report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Run tests with coverage
+        run: cargo llvm-cov --no-report --workspace --all-features
+      - name: Export lcov artifact
+        run: cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(^|/)main\.rs$'
+      - name: Enforce coverage floor (logic; binary mains excluded)
+        # ~84% logic coverage with main.rs entrypoints excluded (~80% with them
+        # included). Floor sits just under the logic baseline; ratchet +2pts as
+        # the adapter observer/emit paths gain tests. Kept as its own step so the
+        # gate is unambiguous and cannot silently no-op behind a report export.
+        run: cargo llvm-cov report --fail-under-lines 80 --ignore-filename-regex '(^|/)main\.rs$'
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov
+          path: lcov.info
+
+  # Job B — local devnet tests (Foundry/Anvil + Bitcoin regtest + Solana validator).
+  # Runs on workflow_dispatch or when the 'run-local-devnet' label is present.
+  # Never blocks PRs on devnet availability.
+  local-devnet:
+    name: Local devnet tests (Job B)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-local-devnet')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+      - name: Install Foundry (Anvil)
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Run Anvil lifecycle tests
+        run: |
+          cargo test -p arrow-origin-eth --test live_anvil -- --ignored
+          cargo test -p arrow-consume-eth --test a_to_b -- --ignored
+
+  # Job C — public testnet smoke tests.
+  # Gated on repo secrets; never blocks PRs; explicitly auditable.
+  # Triggered manually (workflow_dispatch) only.
+  #
+  # Each test uses require_env() and returns cleanly (PASS) when its required
+  # env vars are absent — so missing secrets produce skips, not failures.
+  # A failure means the secret WAS present and the test actually failed.
+  # || true is intentionally absent; failures must be visible.
+  public-testnet:
+    name: Public testnet smoke (Job C)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    env:
+      # RPC endpoints (optional overrides; tests fall back to public defaults).
+      ARROW_SEPOLIA_RPC: ${{ secrets.ARROW_SEPOLIA_RPC }}
+      ARROW_BASE_SEPOLIA_RPC: ${{ secrets.ARROW_BASE_SEPOLIA_RPC }}
+      ARROW_ARB_SEPOLIA_RPC: ${{ secrets.ARROW_ARB_SEPOLIA_RPC }}
+      ARROW_SOL_DEVNET_RPC: ${{ secrets.ARROW_SOL_DEVNET_RPC }}
+      # Known-final tx hashes (required for EVM/SOL lifecycle tests).
+      ARROW_ETH_SEPOLIA_TX_FINAL: ${{ secrets.ARROW_ETH_SEPOLIA_TX_FINAL }}
+      ARROW_BASE_SEPOLIA_TX_PENDING: ${{ secrets.ARROW_BASE_SEPOLIA_TX_PENDING }}
+      ARROW_ARB_SEPOLIA_TX_PENDING: ${{ secrets.ARROW_ARB_SEPOLIA_TX_PENDING }}
+      ARROW_SOL_DEVNET_TX_FINAL: ${{ secrets.ARROW_SOL_DEVNET_TX_FINAL }}
+      # BTC Signet RPC (self-hosted node credentials).
+      ARROW_BTC_SIGNET_TXID: ${{ secrets.ARROW_BTC_SIGNET_TXID }}
+      ARROW_BTC_SIGNET_VOUT: ${{ secrets.ARROW_BTC_SIGNET_VOUT }}
+      ARROW_BTC_SIGNET_RPC: ${{ secrets.ARROW_BTC_SIGNET_RPC }}
+      ARROW_BTC_SIGNET_RPC_USER: ${{ secrets.ARROW_BTC_SIGNET_RPC_USER }}
+      ARROW_BTC_SIGNET_RPC_PASS: ${{ secrets.ARROW_BTC_SIGNET_RPC_PASS }}
+      # Settlement signing key and addresses (never committed; CI secret only).
+      ARROW_TESTNET_FROM: ${{ secrets.ARROW_TESTNET_FROM }}
+      ARROW_TESTNET_KEY: ${{ secrets.ARROW_TESTNET_KEY }}
+      ARROW_TESTNET_RECIPIENT: ${{ secrets.ARROW_TESTNET_RECIPIENT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+      - name: Run public testnet lifecycle smoke tests
+        # Tests skip cleanly when their required env vars are absent.
+        # Failures are not suppressed — a set secret that causes a test failure
+        # surfaces as a job failure.
+        run: cargo test -p arrow-registry-test --test public_testnet -- --ignored

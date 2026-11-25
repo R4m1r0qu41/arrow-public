@@ -1,0 +1,37 @@
+[package]
+name = "arrow-origin-leg"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Legal-attestation Origin Adapter for the Arrow Protocol — maps a structured legal attestation into a protocol-valid, signed LEG-origin Arrow event."
+
+license.workspace = true
+[[bin]]
+name = "arrow-origin-leg"
+path = "src/main.rs"
+
+[lib]
+name = "arrow_origin_leg"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-adapter   = { path = "../arrow-adapter" }
+arrow-core      = { path = "../arrow-core" }
+arrow-transport = { path = "../arrow-transport" }
+arrow-identity  = { path = "../arrow-identity" }
+serde           = { version = "1", features = ["derive"] }
+serde_json      = "1"
+chrono          = "0.4"
+uuid            = { version = "=1.4.1", features = ["v4"] }
+hex             = "0.4"
+base64          = "0.22"
+anyhow          = "1"
+clap            = { version = "=4.4.18", features = ["derive"] }
+tokio           = { version = "=1.44.2", features = ["full"] }
+bytes           = "1"
+http-body-util  = "0.1"
+hyper           = { version = "=1.10.1", features = ["http1", "client"] }
+hyper-util      = { version = "0.1", features = ["client-legacy", "http1", "tokio"] }
+
+[dev-dependencies]
+arrow-core = { path = "../arrow-core" }

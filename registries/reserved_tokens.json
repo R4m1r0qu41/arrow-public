@@ -1,0 +1,43 @@
+{
+  "registry": "reserved_tokens",
+  "registry_version": "1.6.0",
+  "description": "NAM-002 (RFC-010 Part 3): machine-readable reservation of every token used outside the six canonical field namespaces — rule-ID family prefixes, cross-repo ID prefixes, and six-field codes explicitly barred from reuse as prefixes. Extends NAM-001: NAM-001 makes collisions inside the six-field namespaces impossible; NAM-002 closes the cross-artifact loop (the State-HL/Action-HL and POL collision class, generalized). Retired tokens stay reserved forever, mirroring rule-ID permanence.",
+  "governance": "Editor-controlled for v1.x. A new rule family or cross-repo prefix MUST be added here before first use; the validator rejects unregistered rule-ID prefixes.",
+  "kinds": {
+    "rule_family": "Prefix of validation/governance rule IDs (SEM-015, TRG-001, ...).",
+    "id_prefix": "Prefix of non-rule identifiers owned by a repo or suite (MC-006, W3, SBL-9).",
+    "six_field_alias": "Declared relation to a six-field code (TRG is the rule family FOR Action TR). The relation is registered, not accidental.",
+    "prohibited_prefix": "A six-field code permanently barred from reuse as any prefix or artifact token."
+  },
+  "entries": [
+    { "token": "MSG", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "ORG", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "ACT", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "SEM", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "LEG", "kind": "rule_family", "owner": "Arrow", "status": "active", "note": "Also Origin LEG — declared alias: the LEG rule family governs LEG-origin events." },
+    { "token": "BRG", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "FB", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "CHN", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "LFC", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "TRG", "kind": "rule_family", "owner": "Arrow", "status": "active", "note": "six_field_alias relation: rule family FOR Action TR (registered, not accidental)." },
+    { "token": "NAM", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "DIV", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "REG", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "PRV", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "BASE", "kind": "rule_family", "owner": "Arrow", "status": "active", "note": "Governance record family (BASE-001). Distinct from Origin BSE by spelling — kept reserved so no future origin adopts BASE." },
+    { "token": "DOCVER", "kind": "rule_family", "owner": "Arrow", "status": "active" },
+    { "token": "IFP", "kind": "rule_family", "owner": "Tarquin ADR-0003 (stack-level)", "status": "active" },
+    { "token": "CTL", "kind": "rule_family", "owner": "Arrow", "status": "retired", "note": "Renamed in v1.6.0; permanently reserved (rule-ID permanence)." },
+    { "token": "POL", "kind": "id_prefix", "owner": "Arrow", "status": "retired", "note": "Former Polygon origin code, renamed v1.5.2; permanently reserved." },
+    { "token": "LC", "kind": "rule_family", "owner": "Tarquin (consumer-side scope rules LC-002, LC-013..016)", "status": "active" },
+    { "token": "ENG", "kind": "rule_family", "owner": "Tarquin (tarquin-engine rule IDs)", "status": "active" },
+    { "token": "MC", "kind": "id_prefix", "owner": "Orlog (Machine Contract commissions)", "status": "active", "note": "Chosen over CL precisely for the collision this registry now enforces." },
+    { "token": "W", "kind": "id_prefix", "owner": "CipherLayer DW suite (W1-W7)", "status": "active" },
+    { "token": "SBL", "kind": "id_prefix", "owner": "Tarquin (SBL-9)", "status": "active" },
+    { "token": "ADR", "kind": "id_prefix", "owner": "all repos (architecture decision records)", "status": "active" },
+    { "token": "RFC", "kind": "id_prefix", "owner": "Arrow (protocol RFCs)", "status": "active" },
+    { "token": "CL", "kind": "prohibited_prefix", "owner": "Arrow Action CL (Closed)", "status": "active", "note": "The recurring offender: permanently barred as a prefix or artifact token in every repo. Orlog uses MC; the DW suite uses W#." },
+    { "token": "TR", "kind": "prohibited_prefix", "owner": "Arrow Action TR (Trigger)", "status": "active", "note": "Barred as a prefix; its rule family is TRG (registered alias)." },
+    { "token": "PCY", "kind": "prohibited_prefix", "owner": "Arrow Origin PCY (Policy)", "status": "active", "note": "The only place 'policy' remains a source-domain concept; barred from prefix reuse." }
+  ]
+}

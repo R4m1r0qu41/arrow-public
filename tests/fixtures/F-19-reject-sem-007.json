@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-f-19-2026-07-06",
+  "arrow_code": "5:ETH:FN:BL:1:A",
+  "lifecycle_id": "lfc-fixture-f-19",
+  "object_id": "obj-fixture-f-19",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-06T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000019",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-19 — SEM-007: Class 5 TRANSFER carrying Action BL — a transfer that blocks is not a transfer; only TR or PR are permitted. Expected: reject."
+  }
+}

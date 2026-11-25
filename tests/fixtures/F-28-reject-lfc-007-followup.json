@@ -1,0 +1,17 @@
+{
+  "event_id": "arrow-pilot-f28-2026-07-07",
+  "arrow_code": "1:ETH:FN:PR:1:A",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "closure_eta": 0,
+  "closure_eta_type": "block_count",
+  "related_events": ["ctx-closure-2026-07-07"],
+  "subject_id": "0xabc0000000000000000000000000000000000028",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-28 — ordinary event appended after closure: neither reversal nor supersession, so lifecycle terminality would be silently broken. Expected: reject with LFC-007 (reason POST_CLOSURE_VIOLATION)."
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "event_id": "arrow-pilot-f08-2026-05-31",
+  "arrow_code": "2:LEG:FN:HL:1:C",
+  "lifecycle_id": "lfc-fixture-f08",
+  "object_id": "obj-fixture-f08",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "LEG_TEXT",
+  "reason_code": "LR",
+  "leg_jurisdiction": {
+    "country": "MX"
+  },
+  "timestamp": "2026-05-31T00:00:00Z",
+  "subject_id": "ley-fintech-2026",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "jurisdiction": "MX",
+    "description": "F-08 — LEG-008 legislative-text / precedent warning. leg_subtype=LEG_TEXT with Finality=1 is unusual (a final legislative norm likely represents a superseding enactment). Expected: LEG-008 warning fires (SHOULD reference a superseded norm in related_events) but, being a warning, does not reject — the event still passes. Action HL is within the LEG_TEXT permitted range {HL, RW}."
+  }
+}

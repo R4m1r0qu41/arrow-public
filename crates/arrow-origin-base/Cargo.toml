@@ -1,0 +1,18 @@
+[package]
+name = "arrow-origin-base"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Base Origin Adapter for the Arrow Protocol — thin EVM-family wrapper for the Base L2 (BSE)."
+
+license.workspace = true
+[lib]
+name = "arrow_origin_base"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-origin-evm = { path = "../arrow-origin-evm" }
+arrow-core       = { path = "../arrow-core" }
+
+[dev-dependencies]
+arrow-core = { path = "../arrow-core" }

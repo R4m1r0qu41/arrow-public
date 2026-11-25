@@ -1,0 +1,20 @@
+{
+  "registry": "authorities",
+  "version": "1.6.0",
+  "description": "Registry of recognized authorities that may declare exceptional policy via extensions.declared_policy. Authority instances are identified by authority_ref in declared_policy blocks and resolved here.",
+  "entries": [
+    {
+      "authority_id": "arbitrum-security-council",
+      "name": "Arbitrum Security Council",
+      "origin": "EMG",
+      "origin_type": "emergency_authority",
+      "verification_regime": "institutional_attestation",
+      "controller": "arbitrum-security-council",
+      "description": "Arbitrum Security Council — authorized emergency-action body empowered to declare exceptional policy under the Arbitrum DAO Constitution.",
+      "source_ref": "https://docs.arbitrum.foundation/dao-constitution",
+      "effective_from": "2023-09-01",
+      "revoked_at": null,
+      "added_version": "1.6.0"
+    }
+  ]
+}

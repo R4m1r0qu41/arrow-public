@@ -1,0 +1,46 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# macOS artifacts
+.DS_Store
+__MACOSX/
+._*
+
+# Editor and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node runtime files
+node.example.toml.local
+*.db
+*.db-shm
+*.db-wal
+
+.tmp.driveupload/
+
+# Temporary import drops. Keep only the staging README tracked.
+/staging/incoming/*
+!/staging/incoming/README.md
+.tmp.driveupload/
+.DS_Store
+
+# macOS directory metadata
+docs/implementation/**/.DS_Store
+
+lcov.info
+
+# Local agent/session internals (worktrees, settings) — not tracked
+/.claude/
+
+# AI session prompts and planning docs — local only
+docs/ai/prompts/
+
+# OpenTimestamps upgrade backups (transient; created by `ots upgrade`)
+*.ots.bak
+
+# Operator-specific lifecycle test scripts (real addresses; reference copies live in tools/lifecycle-harness/)
+tools/lifecycle-tests/

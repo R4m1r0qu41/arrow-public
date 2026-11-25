@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-e03-2026-06-16",
+  "arrow_code": "3:ARB:FN:BL:1:B",
+  "lifecycle_id": "lfc-fixture-e03",
+  "object_id": "obj-fixture-e03",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000003",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "E3 — Arbitrum Class 3 condition, non-executing BL. ARB origin, optimistic_settled regime (post-settlement ceiling A). Class 3 + BL passes corrected SEM-006; Confidence B <= A ceiling (SEM-015)."
+  }
+}

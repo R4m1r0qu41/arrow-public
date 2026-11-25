@@ -1,0 +1,47 @@
+[package]
+name = "arrow-node"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+
+license.workspace = true
+[features]
+default = ["replay-sqlite"]
+replay-sqlite = ["arrow-transport/replay-sqlite"]
+
+[[bin]]
+name = "arrow-node"
+path = "src/main.rs"
+
+[lib]
+name = "arrow_node"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-core       = { path = "../arrow-core" }
+arrow-transport  = { path = "../arrow-transport" }
+axum             = { version = "=0.8.9", features = ["json"] }
+tokio            = { version = "=1.44.2", features = ["full"] }
+serde            = { version = "1", features = ["derive"] }
+serde_json       = "1"
+toml             = "=0.8.8"
+clap             = { version = "=4.4.18", features = ["derive"] }
+tracing          = "0.1"
+tracing-subscriber = { version = "=0.3.20", features = ["env-filter"] }
+chrono           = "0.4"
+uuid             = { version = "=1.4.1", features = ["v4"] }
+thiserror        = "2"
+iso8601-duration = "0.2"
+indexmap         = { workspace = true }
+hashbrown        = { workspace = true }
+hex              = "0.4"
+
+[dev-dependencies]
+bytes   = "1"
+http-body-util = "0.1"
+hyper   = { version = "=1.10.1", features = ["http1", "client"] }
+hyper-util = { version = "0.1", features = ["client-legacy", "http1", "tokio"] }
+tokio   = { version = "=1.44.2", features = ["full"] }
+arrow-identity = { path = "../arrow-identity" }
+bs58 = "0.5"
+base64 = "0.22"

@@ -1,0 +1,40 @@
+[workspace]
+members = [
+    "crates/arrow-core",
+    "crates/arrow-identity",
+    "crates/arrow-transport",
+    "crates/arrow-node",
+    "crates/arrow-cli",
+    "crates/arrow-origin-evm",
+    "crates/arrow-origin-eth",
+    "crates/arrow-reduce",
+    "crates/arrow-adapter",
+    "crates/arrow-consume-evm",
+    "crates/arrow-consume-eth",
+    "crates/arrow-origin-leg",
+    "crates/arrow-consume-leg",
+    "crates/arrow-origin-base",
+    "crates/arrow-consume-base",
+    "crates/arrow-origin-arb",
+    "crates/arrow-consume-arb",
+    "crates/arrow-origin-btc",
+    "crates/arrow-consume-btc",
+    "crates/arrow-origin-sol",
+    "crates/arrow-consume-sol",
+    "crates/arrow-conformance",
+    "crates/arrow-registry-test",
+]
+resolver = "2"
+
+
+[workspace.package]
+rust-version = "1.95"
+
+
+license = "Apache-2.0"
+[workspace.dependencies]
+# Exact pins keep protocol-critical deterministic map behavior stable across
+# local and CI builds. Revisit these pins promptly if RustSec reports an
+# advisory or if canonical ordering tests cover a safe patch-level upgrade.
+indexmap = "=2.2.6"
+hashbrown = "=0.14.5"

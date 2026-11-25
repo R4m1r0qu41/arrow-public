@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f30-2026-07-07",
+  "arrow_code": "1:ETH:RV:HL:1:A",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": [],
+  "subject_id": "0xabc0000000000000000000000000000000000030",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-30 — reversal shape that does NOT cite the closure event in related_events: the reopening must name exactly what it reopens (architect ruling 2026-07-07). Expected: reject with LFC-007."
+  }
+}

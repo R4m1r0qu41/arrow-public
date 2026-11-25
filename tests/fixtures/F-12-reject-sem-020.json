@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-f12-2026-06-10",
+  "arrow_code": "1:ETH:FN:CL:1:A",
+  "lifecycle_id": "lfc-fixture-f12",
+  "object_id": "obj-fixture-f12",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-06-10T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000012",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-12 — SEM-020 closure class binding (v1.6). Class 1 OBSERVE event carrying Action CL: an observation wearing a terminal Action. Expected: SEM-020 rejects (Action CL requires Class 6). Guards consumers that key lifecycle-terminal semantics off the Action field alone; the converse direction (Class 6 without CL) is guarded by SEM-005."
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "version": "1.1",
+  "protocol_version": "1.6.0",
+  "generated": "2026-06-10",
+  "fixtures": [
+    {
+      "id": "F-01",
+      "file": "F-01-pass-native-canonical.json",
+      "description": "Arbitrum finalized transfer, ARB origin, optimistic_settled regime (ceiling A), Confidence A, no bridge",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-02",
+      "file": "F-02-pass-bonded-quorum.json",
+      "description": "THR origin, bonded_quorum regime, active bridge TEST-BRIDGE-001 (trust_flag=1), Confidence C, proof_semantics with context_inference",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-03",
+      "file": "F-03-pass-legal-authority.json",
+      "description": "LEG origin, legal_attestation regime, Confidence C, leg_subtype=JUD, leg_jurisdiction.country=MX, finality_basis=legal_appeal",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-04",
+      "file": "F-04-pass-notarized-consensus.json",
+      "description": "Ethereum finalized event, ETH origin, native_canonical regime (ceiling A), Confidence A, no bridge",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-05",
+      "file": "F-05-reject-brg-001.json",
+      "description": "THR origin, bridge VRSC-ETH-001 (trust_flag=0), Action PR; BRG-001 forces Action BL",
+      "expected_result": "reject",
+      "expected_violations": ["BRG-001"],
+      "expected_reason_code": "BRIDGE_TRUST_REVOKED"
+    },
+    {
+      "id": "F-06",
+      "file": "F-06-reject-sem-017.json",
+      "description": "ETH origin, bridge TEST-BRIDGE-001 (bonded_quorum, trust_flag=1), classification_verified=false in proof_semantics, Confidence A overclaims C cap",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-017"],
+      "expected_reason_code": "PROOF_TYPE_UNBOUND"
+    },
+    {
+      "id": "F-07",
+      "file": "F-07-reject-leg-007.json",
+      "description": "LEG origin, leg_subtype=SUPRA, reason_code=SA, Finality=1, Action PR; LEG-007 forces Action BL (supranational sanctions force-block)",
+      "expected_result": "reject",
+      "expected_violations": ["LEG-007"],
+      "expected_reason_code": "LEG_SUPRA_SANCTIONS_FORCE"
+    },
+    {
+      "id": "F-08",
+      "file": "F-08-pass-leg-008.json",
+      "description": "LEG origin, leg_subtype=LEG_TEXT, Finality=1; LEG-008 emits a warning (unusual final legislative norm) but does not reject",
+      "expected_result": "pass",
+      "expected_violations": ["LEG-008"]
+    },
+    {
+      "id": "F-09",
+      "file": "F-09-reject-leg-009.json",
+      "description": "LEG origin event missing leg_jurisdiction; LEG-009 requires leg_jurisdiction with country or supra",
+      "expected_result": "reject",
+      "expected_violations": ["LEG-009"]
+    },
+    {
+      "id": "F-10",
+      "file": "F-10-reject-leg-010.json",
+      "description": "LEG origin, leg_subtype=SUPRA, leg_jurisdiction.supra=ATLANTIS; LEG-010 rejects unregistered supra jurisdiction",
+      "expected_result": "reject",
+      "expected_violations": ["LEG-010"]
+    },
+    {
+      "id": "F-11",
+      "file": "F-11-pass-leg-010-registered-supra.json",
+      "description": "LEG origin, leg_subtype=SUPRA, leg_jurisdiction.supra=UNSC; LEG-010 accepts registered active supra jurisdiction",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-12",
+      "file": "F-12-reject-sem-020.json",
+      "description": "ETH origin, Class 1 OBSERVE with Action CL; SEM-020 (v1.6) rejects CL outside Class 6 — closure class binding, converse of SEM-005",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-020"]
+    },
+    {
+      "id": "E-02",
+      "file": "E-02-pass-emg-class3-hold.json",
+      "description": "E2 — EMG origin, Class 3 CONDITION + non-executing HL, institutional_attestation regime (ceiling C), Confidence C. Passes corrected action-only SEM-006.",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "E-03",
+      "file": "E-03-pass-arb-class3-block.json",
+      "description": "E3 — ARB origin, Class 3 CONDITION + non-executing BL, optimistic_settled regime, Confidence B <= A ceiling. Mirrors the locked sem006_accepts case.",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-13",
+      "file": "F-13-pass-optimistic-postwindow-a.json",
+      "description": "F13 — ARB optimistic_settled, Finality=1 with window close (finality_eta) predating event timestamp; full post-settlement ceiling A applies (SEM-015 conditional ceiling, settled side)",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-14",
+      "file": "F-14-reject-optimistic-prewindow-a.json",
+      "description": "F14 — ARB optimistic_settled, Finality=0 (pre-window, optimistic_window basis) claiming Confidence A; pre-settlement ceiling is B (SEM-015 conditional ceiling, pending side)",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-015"]
+    },
+    {
+      "id": "F-15",
+      "file": "F-15-pass-optimistic-prewindow-b.json",
+      "description": "F15 — compliant twin of F-14: same pending ARB shape at Confidence B, exactly at the pre-settlement ceiling; canonical L2 pending emission",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-16",
+      "file": "F-16-reject-optimistic-undated-window-b.json",
+      "description": "F16 — unproven window: optimistic_window basis without finality_eta at compliant Confidence B; FB-001 requires_finality_eta enforcement fires alone (message-level SEM-015 would mask it at Confidence A)",
+      "expected_result": "reject",
+      "expected_violations": ["FB-001"]
+    },
+    {
+      "id": "F-17",
+      "file": "F-17-reject-optimistic-eta-contradiction.json",
+      "description": "F17 — settled-claim contradiction: Finality=1 Confidence A while event-carried finality_eta postdates the event's own timestamp (SEM-015 event extension)",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-015"]
+    },
+    {
+      "id": "F-18",
+      "file": "F-18-reject-sem-001-002.json",
+      "description": "F18 — Pending state claiming Finality=1: SEM-001 (Finality 1 requires FN/RV) and SEM-002 (PD requires Finality 0) both fire",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-001", "SEM-002"]
+    },
+    {
+      "id": "F-19",
+      "file": "F-19-reject-sem-007.json",
+      "description": "F19 — Class 5 TRANSFER with Action BL: SEM-007 permits only TR or PR on transfers",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-007"]
+    },
+    {
+      "id": "F-20",
+      "file": "F-20-reject-sem-001-003.json",
+      "description": "F20 — Timelocked state claiming Finality=1: SEM-001 and SEM-003 both fire",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-001", "SEM-003"]
+    },
+    {
+      "id": "F-21",
+      "file": "F-21-reject-sem-001-004.json",
+      "description": "F21 — Conditional state claiming Finality=1: SEM-001 and SEM-004 both fire",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-001", "SEM-004"]
+    },
+    {
+      "id": "F-22",
+      "file": "F-22-pass-trg-001-envelope.json",
+      "description": "F22 — TRG-001 compliant trigger: Class 2 INSTRUCT + TR with complete action_target (target_ref, object_ref, authorizing_events ⊆ related_events)",
+      "expected_result": "pass",
+      "expected_violations": []
+    },
+    {
+      "id": "F-23",
+      "file": "F-23-reject-trg-001-missing-envelope.json",
+      "description": "F23 — TR without action_target envelope: trigger names no target/object/authority (TRG-001 clause 1)",
+      "expected_result": "reject",
+      "expected_violations": ["TRG-001"]
+    },
+    {
+      "id": "F-24",
+      "file": "F-24-reject-trg-001-class.json",
+      "description": "F24 — TR on Class 1 OBSERVE: TR permitted only in Classes 2 and 5 (TRG-001 class clause, six-field enumerable)",
+      "expected_result": "reject",
+      "expected_violations": ["TRG-001"]
+    },
+    {
+      "id": "F-25",
+      "file": "F-25-reject-trg-001-authorizing.json",
+      "description": "F25 — action_target.authorizing_events cites an event absent from related_events (TRG-001 clause 3)",
+      "expected_result": "reject",
+      "expected_violations": ["TRG-001"]
+    },
+    {
+      "id": "F-26",
+      "file": "F-26-pass-lfc-007-reversal.json",
+      "description": "F26 — post-closure reversal: Class 1 State RV citing the closure event specifically (LFC-007 reopening shape 1)",
+      "expected_result": "pass",
+      "expected_violations": [],
+      "context_files": ["CTX-closed-lifecycle.json"]
+    },
+    {
+      "id": "F-27",
+      "file": "F-27-pass-lfc-007-supersession.json",
+      "description": "F27 — post-closure supersession: Class 4 CONTROL citing the closure event specifically (LFC-007 reopening shape 2)",
+      "expected_result": "pass",
+      "expected_violations": [],
+      "context_files": ["CTX-closed-lifecycle.json"]
+    },
+    {
+      "id": "F-28",
+      "file": "F-28-reject-lfc-007-followup.json",
+      "description": "F28 — ordinary event appended to a closed lifecycle (LFC-007, reason POST_CLOSURE_VIOLATION)",
+      "expected_result": "reject",
+      "expected_violations": ["LFC-007"],
+      "expected_reason_code": "POST_CLOSURE_VIOLATION",
+      "context_files": ["CTX-closed-lifecycle.json"]
+    },
+    {
+      "id": "F-29",
+      "file": "F-29-reject-lfc-007-second-closure.json",
+      "description": "F29 — second closure for an already-closed lifecycle (LFC-007)",
+      "expected_result": "reject",
+      "expected_violations": ["LFC-007"],
+      "context_files": ["CTX-closed-lifecycle.json"]
+    },
+    {
+      "id": "F-30",
+      "file": "F-30-reject-lfc-007-uncited.json",
+      "description": "F30 — reversal shape not citing the closure event in related_events (LFC-007: reopening must name what it reopens)",
+      "expected_result": "reject",
+      "expected_violations": ["LFC-007"],
+      "context_files": ["CTX-closed-lifecycle.json"]
+    },
+    {
+      "id": "F-31",
+      "file": "F-31-reject-lfc-008-undeclared-closure.json",
+      "description": "F31 — settled Class 1 under bounded closure discipline without closure_eta declaration (LFC-008, Universal Eventual Closure)",
+      "expected_result": "reject",
+      "expected_violations": ["LFC-008"]
+    },
+    {
+      "id": "F-32",
+      "file": "F-32-reject-sem-015-bad-timestamp.json",
+      "description": "F32 — settled Confidence-A claim with dated window but malformed timestamp: SEM-015 eta-consistency rejects on unparseable input instead of skipping (fail-closed)",
+      "expected_result": "reject",
+      "expected_violations": ["SEM-015"]
+    },
+    {
+      "id": "F-33",
+      "file": "F-33-reject-lfc-007-cross-origin.json",
+      "description": "F33 — cross-origin reversal citing another origin's closure: interim LFC-007 origin constraint rejects (only PCY supersessions may cross origins)",
+      "expected_result": "reject",
+      "expected_violations": ["LFC-007"],
+      "context_files": ["CTX-closed-lifecycle.json"]
+    }
+  ]
+}

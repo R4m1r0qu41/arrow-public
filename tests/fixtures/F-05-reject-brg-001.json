@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f05-2026-05-24",
+  "arrow_code": "5:THR:FN:PR:1:B",
+  "lifecycle_id": "lfc-fixture-f05",
+  "object_id": "obj-fixture-f05",
+  "verification_regime": "bonded_quorum",
+  "bridge_id": "VRSC-ETH-001",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000005",
+  "subject_type": "wallet_address",
+  "object_type": "cross_chain_transfer",
+  "metadata": {
+    "description": "F-05 — BRG-001 demo. THR origin, bonded_quorum regime (ceiling B), Confidence B. VRSC-ETH-001 has bridge_trust_flag=0. Action PR submitted. Expected: BRG-001 violation, forced Action BL, reason code BRIDGE_TRUST_REVOKED."
+  }
+}

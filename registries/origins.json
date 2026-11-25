@@ -1,0 +1,18 @@
+{
+  "registry": "origins",
+  "version": "1.6.0",
+  "entries": [
+    { "code": "BTC", "name": "Bitcoin", "description": "Bitcoin mainnet", "verification_regime": "native_canonical", "origin_type": "chain" },
+    { "code": "ETH", "name": "Ethereum", "description": "Ethereum mainnet", "verification_regime": "native_canonical", "origin_type": "chain" },
+    { "code": "SOL", "name": "Solana", "description": "Solana mainnet", "verification_regime": "native_canonical", "origin_type": "chain" },
+    { "code": "CST", "name": "Custodian", "description": "Institutional custodian", "verification_regime": "institutional_attestation", "origin_type": "institutional" },
+    { "code": "LEG", "name": "Legal", "description": "Legal system / court", "verification_regime": "legal_attestation", "origin_type": "legal" },
+    { "code": "PCY", "name": "Policy", "description": "Policy or governance body", "verification_regime": "bonded_quorum", "origin_type": "governance" },
+    { "code": "ARB", "name": "Arbitrum", "description": "Arbitrum One", "verification_regime": "optimistic_settled", "origin_type": "chain" },
+    { "code": "BSE", "name": "Base", "description": "Base (Coinbase L2 on Ethereum)", "verification_regime": "optimistic_settled", "origin_type": "chain" },
+    { "code": "THR", "name": "Threshold", "description": "Multi-party threshold system", "verification_regime": "bonded_quorum", "origin_type": "composite" },
+    { "code": "EMG", "name": "Emergency Authority", "description": "Generic emergency-action authority empowered to declare exceptional policy under a pre-existing emergency mandate. The specific authority instance and action are identified in extensions.declared_policy.", "verification_regime": "institutional_attestation", "origin_type": "emergency_authority" },
+    { "code": "CHA", "name": "Chain Authority", "description": "Actor with direct technical authority to implement protocol-level changes outside the standard governance vote path (e.g., core developer team, protocol foundation). Distinct from EMG (emergency mandate holder) and PCY (governance quorum). The specific authority instance is identified in extensions.declared_policy.authority_identity.", "verification_regime": "institutional_attestation", "origin_type": "chain_authority", "added_version": "1.6.0" },
+    { "code": "ORC", "name": "Oracle", "description": "Oracle network or attestation service that observes external state and signs structured claims. Default trust basis is an M-of-N bonded attestor set (bonded_quorum, ceiling B); a native-notarized oracle variant is documented under native_notarized_consensus.", "verification_regime": "bonded_quorum", "origin_type": "oracle" }
+  ]
+}

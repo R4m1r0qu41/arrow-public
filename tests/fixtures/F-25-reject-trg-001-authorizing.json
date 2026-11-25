@@ -1,0 +1,20 @@
+{
+  "event_id": "arrow-pilot-f25-2026-07-07",
+  "arrow_code": "2:CST:FN:TR:1:C",
+  "lifecycle_id": "lfc-fixture-f25",
+  "object_id": "obj-fixture-f25",
+  "verification_regime": "institutional_attestation",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": ["arrow-authorizing-order-001"],
+  "action_target": {
+    "target_ref": "workflow:custodial-release-7",
+    "object_ref": "asset:obj-fixture-f25",
+    "authorizing_events": ["arrow-some-other-order-999"]
+  },
+  "subject_id": "0xabc0000000000000000000000000000000000025",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-25 — action_target.authorizing_events cites an event not listed in related_events: the claimed authority is not part of the event's own record. Expected: reject with TRG-001."
+  }
+}

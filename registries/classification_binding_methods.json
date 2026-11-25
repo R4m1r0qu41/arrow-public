@@ -1,0 +1,145 @@
+{
+  "registry": "classification_binding_methods",
+  "version": "1.6.0",
+  "description": "Arrow Protocol Classification Binding Methods Registry. Controlled vocabulary for proof_semantics.classification_binding_method. Defines the mechanism by which source-domain output type classification is proven, attested, audited, or inferred. Referenced by SEM-017 and MSG-005.",
+  "governance": "Editor-controlled for v1.x.",
+  "target_version": "v1.5-draft",
+  "validation_rules": ["SEM-017", "MSG-005"],
+  "schema_notes": {
+    "method_id": "Unique identifier. Referenced verbatim in proof_semantics.classification_binding_method.",
+    "max_confidence_ceiling": "Maximum Confidence claimable by events using this classification binding method, absent stronger verification. Implementations MUST NOT allow events to claim Confidence above this ceiling when this method is declared.",
+    "requires_audit_ref": "If true, events using this method at Confidence above C MUST provide classification_audit_ref in the Bridge Registry entry or event metadata."
+  },
+  "entries": [
+    {
+      "method_id": "native_protocol_type_system",
+      "name": "Native Protocol Type System",
+      "description": "Classification is enforced by the source chain's own type system, consensus rules, or state machine. The protocol itself guarantees the type of every output. No external verifier is required — the type is inherent to canonical state.",
+      "max_confidence_ceiling": "A",
+      "requires_audit_ref": false,
+      "classification_strength": "highest",
+      "applicable_regimes": ["native_canonical", "optimistic_settled"],
+      "examples": [
+        "Bitcoin transaction output type enforced by Script rules",
+        "Ethereum ERC-20 transfer enforced by token contract ABI",
+        "Verus PBaaS export type enforced by PBaaS consensus — source side only"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "This is the only method that can support Confidence A. If this method is declared, the source chain's own type system must be the authoritative classifier — not an external observer."
+    },
+    {
+      "method_id": "contract_verified",
+      "name": "Contract Verified",
+      "description": "The bridge or verification contract at the destination explicitly enforces that the proven object matches the claimed destination type. The contract's logic is the classification check — acceptance of the proof implies type validation by the contract code.",
+      "max_confidence_ceiling": "B",
+      "requires_audit_ref": true,
+      "classification_strength": "high",
+      "applicable_regimes": ["bonded_quorum", "native_notarized_consensus"],
+      "examples": [
+        "Destination bridge contract validates that proven Merkle leaf is a transfer-type output",
+        "Smart contract enforces structural type constraints on accepted proofs"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Requires classification_audit_ref pointing to contract code, formal verification report, or independent audit. The Verus-Ethereum Bridge exploit is the canonical failure of this method being absent — the contract accepted the proof without validating its type."
+    },
+    {
+      "method_id": "canonical_verifier",
+      "name": "Canonical Verifier",
+      "description": "An officially designated verifier — recognized by the source chain's governance or protocol specification — explicitly attests to the classification of the proven object. The verifier is part of the source chain's canonical infrastructure.",
+      "max_confidence_ceiling": "B",
+      "requires_audit_ref": true,
+      "classification_strength": "high",
+      "applicable_regimes": ["bonded_quorum", "native_notarized_consensus", "institutional_attestation"],
+      "examples": [
+        "Designated notarization nodes attesting to Verus PBaaS export type",
+        "Protocol-designated oracle attesting to output classification"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Canonical verifier status must be documented in the Bridge Registry entry. Requires classification_audit_ref to the governance record or protocol specification that designates the verifier."
+    },
+    {
+      "method_id": "formal_verification",
+      "name": "Formal Verification",
+      "description": "The classification claim is backed by a machine-checked formal proof — e.g. a proof assistant (Coq, Lean, Isabelle) or formal methods verification — demonstrating that the bridge contract or verification circuit correctly classifies all inputs of the claimed type.",
+      "max_confidence_ceiling": "A",
+      "requires_audit_ref": true,
+      "classification_strength": "highest",
+      "applicable_regimes": ["bonded_quorum", "native_notarized_consensus", "native_canonical"],
+      "examples": [
+        "Formally verified ZK circuit that proves output type membership",
+        "Coq proof that the bridge contract correctly enforces type constraints"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "The only non-native method that can support Confidence A. Requires classification_audit_ref to the publicly accessible formal verification artifact. Machine-checked means human-audited is insufficient for this method — the proof must be mechanically verifiable."
+    },
+    {
+      "method_id": "independent_audit",
+      "name": "Independent Audit",
+      "description": "A qualified independent security auditor or audit firm has reviewed and confirmed the classification binding mechanism. The audit report is publicly accessible. This is a one-time or periodic human review, not a continuous enforcement mechanism.",
+      "max_confidence_ceiling": "B",
+      "requires_audit_ref": true,
+      "classification_strength": "high",
+      "applicable_regimes": ["bonded_quorum", "institutional_attestation", "native_notarized_consensus"],
+      "examples": [
+        "Halborn, Trail of Bits, or equivalent firm audit confirming type enforcement logic",
+        "Third-party security review confirming that bridge contract validates output type"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Audit results decay over time as code changes. A Bridge Registry entry relying on independent_audit must document the audit date and scope. Post-upgrade re-audit is required before confidence ceiling applies to the updated version."
+    },
+    {
+      "method_id": "governance_approved",
+      "name": "Governance Approved",
+      "description": "The classification binding mechanism has been reviewed and approved through a documented on-chain or off-chain governance process. The approval record is publicly accessible and links to a specific implementation version.",
+      "max_confidence_ceiling": "B",
+      "requires_audit_ref": true,
+      "classification_strength": "high",
+      "applicable_regimes": ["bonded_quorum", "institutional_attestation"],
+      "examples": [
+        "DAO governance vote approving specific bridge contract version with type enforcement",
+        "Protocol foundation committee approval with public record"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Governance approval is a process check, not a technical proof. It establishes accountability and reviewability but does not substitute for technical enforcement. Combined with contract_verified or independent_audit, it can support the full Confidence B ceiling."
+    },
+    {
+      "method_id": "context_inference",
+      "name": "Context Inference",
+      "description": "Classification is inferred from surrounding context — e.g. transaction structure, protocol convention, or observed behavioral patterns — rather than explicitly proven, attested, or enforced by a verifier or contract. This is the weakest binding method and the reference failure case.",
+      "max_confidence_ceiling": "C",
+      "requires_audit_ref": false,
+      "classification_strength": "low",
+      "applicable_regimes": ["bonded_quorum", "institutional_attestation", "legal_attestation", "native_notarized_consensus"],
+      "examples": [
+        "Destination contract assumes output type from transaction position without explicit type proof",
+        "Bridge infers export type from calldata structure without enforcing it cryptographically",
+        "Verus-Ethereum Bridge at time of exploit — type inferred, not proven"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "This is the reference case. Context inference was the implicit method used by the Verus-Ethereum Bridge: the destination contract accepted a proof of data existence and inferred its classification from context. Events using context_inference MUST NOT claim Confidence A or B per SEM-017. SEM-017 caps context_inference events at Confidence C."
+    },
+    {
+      "method_id": "none",
+      "name": "None",
+      "description": "No classification binding mechanism is declared or available. The event does not attempt to prove, attest, or infer the source-domain classification of the proven object. Classification is absent. Use only when the event explicitly acknowledges this limitation in its proof_semantics block.",
+      "max_confidence_ceiling": "D",
+      "requires_audit_ref": false,
+      "classification_strength": "absent",
+      "applicable_regimes": ["institutional_attestation", "legal_attestation"],
+      "examples": [
+        "Custodian attestation of a balance without cross-chain type claims",
+        "Legal instrument referencing an on-chain event by hash without classifying its output type"
+      ],
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Events declaring method_id=none are capped at Confidence D. They are suitable for awareness, monitoring, or provisional state tracking. Not suitable for value-releasing or settlement-triggering actions."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-f31-2026-07-07",
+  "arrow_code": "1:ETH:FN:PR:1:A",
+  "lifecycle_id": "lfc-fixture-f31",
+  "object_id": "obj-fixture-f31",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000031",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-31 — settled Class 1 observation under bounded closure discipline (native_canonical → depth_exhaustion) with no closure_eta declaration: the lifecycle owes the ledger a dated closure expectation (Universal Eventual Closure; an event that fails to close on schedule is possibly under attack). Expected: reject with LFC-008."
+  }
+}

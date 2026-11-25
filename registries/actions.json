@@ -1,0 +1,24 @@
+{
+  "registry": "actions",
+  "registry_version": "1.6.0",
+  "naming_history": "Canonical field 4 is Action from v1.6.0. The codes and downstream semantics are unchanged. The field-4 name is frozen under NAM-001 and the rule-ID permanence policy.",
+  "entries": [
+    { "code": "PR", "name": "Proceed", "description": "Proceed with the action" },
+    {
+      "code": "HL",
+      "name": "Hold",
+      "description": "Hold pending review",
+      "registry_note": "HL was also used as a State code in v1.3.1. The State HL entry was a namespace collision and was removed from states.json in v1.5. Action HL remains canonical."
+    },
+    { "code": "BL", "name": "Block", "description": "Block the action" },
+    { "code": "TR", "name": "Trigger", "description": "Trigger a downstream conditional action. TR triggers a specified downstream workflow with an explicit action_target envelope, object, and authorizing event (TRG-001, draft); TR is never a generic Proceed and never itself proof of transfer." },
+    { "code": "CL", "name": "Closed", "description": "Lifecycle closed; no further actions permitted. v1.6: Action CL and Class 6 (CLOSE) are bidirectionally bound — Class 6 requires CL (SEM-005) and CL requires Class 6 (SEM-020); mismatches are rejected." },
+    {
+      "code": "RW",
+      "name": "Review Warranted",
+      "description": "Event requires manual or enhanced review before downstream action proceeds. Mandatory output for LEG-origin events at Confidence E (LEG-004). Permitted for all Classes.",
+      "permitted_classes": [1, 2, 3, 4, 5, 6],
+      "added_version": "1.5"
+    }
+  ]
+}

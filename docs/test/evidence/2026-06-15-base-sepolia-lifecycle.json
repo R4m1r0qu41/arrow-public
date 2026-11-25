@@ -1,0 +1,37 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "BASE",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "testnet",
+    "network_name": "base-sepolia",
+    "chain_family": "evm",
+    "chain_id_observed": "84532",
+    "tx_ref": {
+      "type": "evm_tx_hash",
+      "value": "0x1d0a412248ceed527f5373d09faedbfbd6fe58448b3d667cc5bfd98b14fdaef4"
+    },
+    "finality_model": "optimistic_rollup",
+    "finality_basis": "optimistic_window",
+    "arrow_code": "1:BSE:PD:HL:0:B",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model",
+      "protocol_required.finality_basis_default",
+      "protocol_required.challenge_window_seconds"
+    ],
+    "value": "1",
+    "settlement_chain": "ETH"
+  },
+  "observation": {
+    "observed_at": "2026-06-15T03:26:19.403518+00:00",
+    "observer_head": 42862845,
+    "confirmations_at_observation": 66,
+    "finality_timing": {
+      "type": "unix_ts",
+      "value": 1782098648
+    }
+  },
+  "extraction_artifact_hash": "sha256:64a03d1a2509583ae8e309a4daeba42f33a67210107679fd2bae4dd8fd6aabdf"
+}

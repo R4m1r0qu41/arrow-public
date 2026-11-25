@@ -1,0 +1,35 @@
+[package]
+name = "arrow-consume-leg"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Fail-closed, human-in-the-loop LEG Consumption Adapter for the Arrow Protocol — verifies a signed legal-attestation envelope, reduces it, and routes it to a human review queue. Never auto-acts on a legal assertion."
+
+license.workspace = true
+[[bin]]
+name = "arrow-consume-leg"
+path = "src/main.rs"
+
+[lib]
+name = "arrow_consume_leg"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-adapter   = { path = "../arrow-adapter" }
+arrow-core      = { path = "../arrow-core" }
+arrow-reduce    = { path = "../arrow-reduce" }
+arrow-identity  = { path = "../arrow-identity" }
+arrow-transport = { path = "../arrow-transport", features = ["replay-sqlite"] }
+serde           = { version = "1", features = ["derive"] }
+serde_json      = "1"
+chrono          = { version = "0.4", features = ["serde"] }
+sha2            = "0.10"
+hex             = "0.4"
+thiserror       = "2"
+anyhow          = "1"
+clap            = { version = "=4.4.18", features = ["derive"] }
+
+[dev-dependencies]
+arrow-core       = { path = "../arrow-core" }
+arrow-origin-leg = { path = "../arrow-origin-leg" }
+base64           = "0.22"

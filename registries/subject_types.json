@@ -1,0 +1,9 @@
+{
+  "registry": "subject_types",
+  "version": "1.6.0",
+  "entries": [
+    { "code": "vasp", "name": "VASP", "description": "Virtual Asset Service Provider" },
+    { "code": "individual", "name": "Individual", "description": "Individual person" },
+    { "code": "entity", "name": "Entity", "description": "Legal entity" }
+  ]
+}

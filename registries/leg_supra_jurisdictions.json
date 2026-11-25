@@ -1,0 +1,93 @@
+{
+  "registry_metadata": {
+    "registry_name": "leg_supra_jurisdictions",
+    "schema_version": "1.0",
+    "status": "active",
+    "introduced_in": "1.5",
+    "description": "Controlled vocabulary of supranational bodies with enforcement or binding executive authority, registered as valid values for leg_jurisdiction.supra in LEG-origin events. Admission criterion: direct enforcement authority or binding decision-making power over regulated entities or member states."
+  },
+  "entries": [
+    {
+      "code": "EU",
+      "name": "European Union",
+      "enforcement_basis": "TFEU — ECJ enforcement, infringement proceedings, direct effect, treaty supremacy",
+      "enforcement_type": "treaty_enforcement",
+      "geographic_scope": "eu_member_states",
+      "status": "active",
+      "added_version": "0.1"
+    },
+    {
+      "code": "EBA",
+      "name": "European Banking Authority",
+      "enforcement_basis": "EU Regulation 1093/2010 — binding technical standards, breach-of-Union-law investigations",
+      "enforcement_type": "regulatory_standard_binding",
+      "geographic_scope": "eu_member_states",
+      "domain": "banking",
+      "status": "active",
+      "added_version": "0.1"
+    },
+    {
+      "code": "ESMA",
+      "name": "European Securities and Markets Authority",
+      "enforcement_basis": "EU Regulation 1095/2010 — direct supervisory authority over CRAs, trade repositories, CCPs",
+      "enforcement_type": "direct_supervisory",
+      "geographic_scope": "eu_member_states",
+      "domain": "capital_markets",
+      "status": "active",
+      "added_version": "0.1"
+    },
+    {
+      "code": "ECB",
+      "name": "European Central Bank",
+      "enforcement_basis": "TEU/TFEU, SSM Regulation (EU 1024/2013) — monetary policy, direct banking supervision",
+      "enforcement_type": "direct_supervisory",
+      "geographic_scope": "eurozone_ssm",
+      "domain": "banking_monetary",
+      "status": "active",
+      "added_version": "0.1"
+    },
+    {
+      "code": "UNSC",
+      "name": "United Nations Security Council",
+      "enforcement_basis": "UN Charter Chapter VII — mandatory measures, override of domestic law, enforcement authorization",
+      "enforcement_type": "mandatory_global",
+      "geographic_scope": "global_un_members",
+      "status": "active",
+      "added_version": "0.1",
+      "notes": "Chapter VII resolutions are binding on all 193 UN member states and override domestic law. Primary use case: UNSC sanctions (reason_code=SA triggers LEG-007 BL force in v1.5.1; was LEG-008 in v1.5)."
+    },
+    {
+      "code": "FATF",
+      "name": "Financial Action Task Force",
+      "enforcement_basis": "FATF Mandate — High-Risk Jurisdictions (blacklist) and Increased Monitoring (greylist) listings create systemic market exclusion",
+      "enforcement_type": "systemic_exclusion",
+      "geographic_scope": "global",
+      "domain": "aml_cft",
+      "status": "active",
+      "added_version": "0.1",
+      "notes": "Not a treaty body. Enforcement through systemic exclusion. Blacklist: BL force (reason_code=SA + LEG-007 in v1.5.1; was LEG-008 in v1.5). Greylist: HL only."
+    },
+    {
+      "code": "ICC",
+      "name": "International Criminal Court",
+      "enforcement_basis": "Rome Statute (1998) — binding arrest warrants, surrender obligations on State Parties",
+      "enforcement_type": "criminal_jurisdiction",
+      "geographic_scope": "rome_statute_states",
+      "domain": "criminal",
+      "status": "active",
+      "added_version": "0.1",
+      "notes": "Jurisdiction over individuals, not entities. Relevant to asset freezing in ICC proceedings. A final ICC warrant supports leg_subtype=JUD."
+    },
+    {
+      "code": "ICSID",
+      "name": "International Centre for Settlement of Investment Disputes",
+      "enforcement_basis": "ICSID Convention Art. 54 — final awards binding and enforceable as final domestic court judgments in all contracting states",
+      "enforcement_type": "arbitral_award_binding",
+      "geographic_scope": "icsid_contracting_states",
+      "domain": "investment_arbitration",
+      "status": "active",
+      "added_version": "0.1",
+      "notes": "Most enforceable form of international investment arbitration. A final ICSID award is treated as JUD-equivalent for control derivation purposes."
+    }
+  ]
+}

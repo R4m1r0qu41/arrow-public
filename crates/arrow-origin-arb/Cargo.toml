@@ -1,0 +1,18 @@
+[package]
+name = "arrow-origin-arb"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arbitrum Origin Adapter for the Arrow Protocol — thin EVM-family wrapper for Arbitrum One (ARB)."
+
+license.workspace = true
+[lib]
+name = "arrow_origin_arb"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-origin-evm = { path = "../arrow-origin-evm" }
+arrow-core       = { path = "../arrow-core" }
+
+[dev-dependencies]
+arrow-core = { path = "../arrow-core" }

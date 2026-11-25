@@ -1,0 +1,427 @@
+{
+  "registry": "compliance_extensions",
+  "version": "1.6.0",
+  "introduced_in": "1.3.1",
+  "description": "Controlled vocabularies for all Arrow extensions.* compliance sub-blocks: extensions.travel_rule, extensions.sanctions_aml, and extensions.legal_instrument. This registry is the source of truth for all field values within the Compliance Module (Arrow Protocol v1.3.1, Part 12). Validation rules referencing this registry: TRV-001 through TRV-008, SAN-001 through SAN-003, LEG-002 through LEG-003, CMX-001 through CMX-002.",
+  "governance": "Editor-controlled for v1.x. Extension of this registry follows the same process as all Arrow registries.",
+
+  "travel_rule": {
+
+    "account_type": {
+      "description": "Classification of the account or wallet type held by originator or beneficiary. Determines applicability of self-hosted wallet exemptions under FATF R16.",
+      "values": [
+        {
+          "code": "custodian_account",
+          "name": "Custodian Account",
+          "description": "Account held at a regulated custodian or VASP. Full Travel Rule obligations apply.",
+          "fatf_category": "VASP-held",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "self_hosted_wallet",
+          "name": "Self-Hosted Wallet",
+          "description": "Non-custodial wallet controlled directly by the user. Jurisdictional exemptions may apply. Originating VASP MUST perform enhanced due diligence.",
+          "fatf_category": "unhosted",
+          "notes": "FATF June 2021 guidance requires VASPs to apply risk-based measures for transfers to/from unhosted wallets. CNBV (MX) and FinCEN (US) have specific requirements.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "exchange_account",
+          "name": "Exchange Account",
+          "description": "Account held at a centralized exchange operating as a VASP.",
+          "fatf_category": "VASP-held",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "institutional_account",
+          "name": "Institutional Account",
+          "description": "Account held by a regulated financial institution, fund, or institutional entity. May qualify for reduced due diligence in some jurisdictions.",
+          "fatf_category": "VASP-held",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    },
+
+    "transmission_protocol": {
+      "description": "The VASP-to-VASP Travel Rule messaging protocol used to transmit originator/beneficiary data.",
+      "values": [
+        {
+          "code": "TRISA",
+          "name": "Travel Rule Information Sharing Architecture",
+          "description": "Open-source peer-to-peer protocol for Travel Rule compliance. Uses gRPC over mTLS with PKI-based VASP identity.",
+          "url": "https://trisa.io",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "OpenVASP",
+          "name": "OpenVASP",
+          "description": "Ethereum-based VASP identity and messaging protocol using VASP Index on-chain.",
+          "url": "https://openvasp.org",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "Sygna",
+          "name": "Sygna Bridge",
+          "description": "Centralized Travel Rule compliance hub operated by CoolBitX.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "Notabene",
+          "name": "Notabene",
+          "description": "Travel Rule compliance network providing VASP directory and data transmission.",
+          "url": "https://notabene.id",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "manual",
+          "name": "Manual Transmission",
+          "description": "Originator/beneficiary data transmitted via manual, non-protocol means (secure email, API, etc.). Acceptable for counterparties without protocol support; should be migrated to a standard protocol.",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    },
+
+    "transmission_status": {
+      "description": "Lifecycle status of the VASP-to-VASP Travel Rule data transmission.",
+      "values": [
+        {
+          "code": "pending",
+          "name": "Pending",
+          "description": "Transmission has not yet been initiated or is awaiting counterparty response.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "sent",
+          "name": "Sent",
+          "description": "Transmission has been sent to the receiving VASP; acknowledgment not yet received.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "acknowledged",
+          "name": "Acknowledged",
+          "description": "Receiving VASP has acknowledged receipt of the Travel Rule data. Compliance obligation met for the sending VASP.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "rejected",
+          "name": "Rejected",
+          "description": "Receiving VASP has rejected the Travel Rule data. Lifecycle MUST be held or blocked. reason_code SHOULD be set to TRAVEL_RULE_REJECTED.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "failed",
+          "name": "Failed",
+          "description": "Transmission failed due to a technical error. Retransmission required. Distinct from rejected — this is a delivery failure, not a compliance rejection.",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    },
+
+    "regulatory_basis": {
+      "description": "The specific regulatory instrument under which the Travel Rule obligation arises. Determines threshold, required data fields, and counterparty obligations.",
+      "values": [
+        {
+          "code": "FATF-R16",
+          "name": "FATF Recommendation 16",
+          "description": "FATF Recommendation 16 (Wire Transfer Rule). International standard. Threshold USD/EUR 1,000 for wire transfers; lower threshold recommendations apply to VASPs in some jurisdictions.",
+          "threshold_usd": 1000,
+          "issuing_body": "Financial Action Task Force",
+          "url": "https://www.fatf-gafi.org/recommendations.html",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "FINCEN-31CFR103",
+          "name": "FinCEN Travel Rule — 31 CFR 103",
+          "description": "US Financial Crimes Enforcement Network Travel Rule under Bank Secrecy Act. Threshold USD 3,000.",
+          "threshold_usd": 3000,
+          "jurisdiction": "US",
+          "issuing_body": "FinCEN",
+          "url": "https://www.fincen.gov",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "CNBV-CUB-ART112",
+          "name": "CNBV CUB Article 112 — Mexico Travel Rule",
+          "description": "Mexican Travel Rule obligation under Circular Única de Bancos (CUB), Article 112, as applied to ITFs under Ley Fintech 2018. Threshold MXN 600 UDIs (~USD 200 equivalent).",
+          "threshold_usd": 200,
+          "jurisdiction": "MX",
+          "issuing_body": "Comisión Nacional Bancaria y de Valores (CNBV)",
+          "notes": "Applies to Instituciones de Tecnología Financiera (ITFs) and virtual asset operations under CNBV supervision. Lower threshold than FATF baseline.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "EU-TFR-2023",
+          "name": "EU Transfer of Funds Regulation 2023",
+          "description": "European Union Transfer of Funds Regulation (TFR), Regulation (EU) 2023/1113, effective December 2024. Extends Travel Rule to crypto-asset transfers with no minimum threshold for CASPs.",
+          "threshold_usd": 0,
+          "jurisdiction": "EU",
+          "issuing_body": "European Union",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1113",
+          "notes": "No minimum threshold for transfers between CASPs. Self-hosted wallet rules apply from 1,000 EUR.",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    }
+  },
+
+  "sanctions_aml": {
+
+    "result": {
+      "description": "The outcome of a sanctions screening assessment.",
+      "values": [
+        {
+          "code": "clear",
+          "name": "Clear",
+          "description": "No matches found on any checked list. Action Engine may proceed. Arrow Action: PR permitted.",
+          "arrow_action_constraint": "PR permitted",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "hit",
+          "name": "Hit",
+          "description": "One or more positive matches found on a checked sanctions list. SAN-001 fatal rule applies: arrow_code Action MUST be BL or HL. hit_details SHOULD be populated.",
+          "arrow_action_constraint": "BL or HL only — SAN-001 fatal",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "pending",
+          "name": "Pending",
+          "description": "Screening has been initiated but results are not yet available. Action Engine SHOULD hold (HL) until result resolves.",
+          "arrow_action_constraint": "HL recommended",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "inconclusive",
+          "name": "Inconclusive",
+          "description": "Screening returned ambiguous results requiring manual review. Action Engine SHOULD apply RW.",
+          "arrow_action_constraint": "RW recommended",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    },
+
+    "lists_checked": {
+      "description": "Sanctions and watchlist identifiers checked during screening. Non-exhaustive — registry is extensible.",
+      "values": [
+        {
+          "code": "OFAC-SDN",
+          "name": "OFAC Specially Designated Nationals",
+          "description": "US Treasury Office of Foreign Assets Control — Specially Designated Nationals and Blocked Persons List.",
+          "jurisdiction": "US",
+          "issuing_body": "US Treasury / OFAC",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "OFAC-CAPTA",
+          "name": "OFAC CAPTA List",
+          "description": "OFAC Correspondent Account or Payable-Through Account List.",
+          "jurisdiction": "US",
+          "issuing_body": "US Treasury / OFAC",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "EU-CONSOLIDATED",
+          "name": "EU Consolidated Sanctions List",
+          "description": "European Union consolidated list of persons, groups, and entities subject to EU financial sanctions.",
+          "jurisdiction": "EU",
+          "issuing_body": "European Commission",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "UN-SC",
+          "name": "UN Security Council Sanctions",
+          "description": "United Nations Security Council consolidated sanctions list.",
+          "jurisdiction": "GLOBAL",
+          "issuing_body": "UN Security Council",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "HMT-UK",
+          "name": "HM Treasury UK Financial Sanctions",
+          "description": "United Kingdom Office of Financial Sanctions Implementation (OFSI) consolidated list.",
+          "jurisdiction": "GB",
+          "issuing_body": "HM Treasury / OFSI",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "CNBV-MX",
+          "name": "CNBV Mexico Sanctions / AML List",
+          "description": "Comisión Nacional Bancaria y de Valores list of blocked entities and high-risk indicators under Mexican AML framework.",
+          "jurisdiction": "MX",
+          "issuing_body": "CNBV",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    }
+  },
+
+  "legal_instrument": {
+
+    "instrument_type": {
+      "description": "Classification of the legal instrument referenced in extensions.legal_instrument. Determines governing law applicability and enforceability model.",
+      "values": [
+        {
+          "code": "pagare",
+          "name": "Pagaré",
+          "description": "Mexican promissory note governed by Ley General de Títulos y Operaciones de Crédito (LGTOC). Self-executing credit instrument with title characteristics. Executable without separate lawsuit under Mexican law.",
+          "governing_law_example": "MX-LGTOC",
+          "jurisdiction_typical": ["MX"],
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "trust_deed",
+          "name": "Trust Deed",
+          "description": "Fideicomiso or common law trust deed establishing a fiduciary relationship over assets.",
+          "jurisdiction_typical": ["MX", "US", "GB"],
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "smart_contract_agreement",
+          "name": "Smart Contract Agreement",
+          "description": "Legal wrapper governing the operation and interpretation of a smart contract deployment. Bridges on-chain execution with off-chain legal enforceability.",
+          "notes": "legal_opinion_ref SHOULD reference a formal legal opinion on the contract's enforceability in the specified jurisdiction.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "loan_agreement",
+          "name": "Loan Agreement",
+          "description": "Bilateral or syndicated loan contract. May be tokenized as an RWA.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "rwa_prospectus",
+          "name": "Real World Asset Prospectus",
+          "description": "Offering document or prospectus for a tokenized real-world asset. Establishes investor rights, redemption mechanics, and governing law.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "isda_confirmation",
+          "name": "ISDA Confirmation",
+          "description": "International Swaps and Derivatives Association trade confirmation under an ISDA Master Agreement.",
+          "governing_law_example": "ISDA-2002",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "rental_agreement",
+          "name": "Rental Agreement",
+          "description": "Property rental or lease agreement. May be tokenized for deposit escrow or payment automation.",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "escrow_instruction",
+          "name": "Escrow Instruction",
+          "description": "Conditional release instruction governing escrow funds. Enforceability depends on the governing jurisdiction's escrow law.",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    },
+
+    "local_forum": {
+      "description": "Subnational forum code identifying the state, province, court district, or regulatory district from which a specific LEG-origin order originates. Format: [A-Z]{2,4}. Validated structurally by Arrow Core; semantic validation against the LexCodex subnational registry is deployment-configurable (LEG-013-EXT). Replaces leg_jurisdiction.local (v1.5: local moved to extensions). When present, leg_jurisdiction.country MUST also be present (LEG-012-EXT).",
+      "format": "[A-Z]{2,4}",
+      "validation_rule": "LEG-012-EXT",
+      "examples": [
+        {
+          "code": "NY",
+          "context": "New York State — US federal district or state courts"
+        },
+        {
+          "code": "CA",
+          "context": "California — CDCA or California state courts"
+        },
+        {
+          "code": "CDMX",
+          "context": "Ciudad de Mexico — Mexican federal capital courts"
+        },
+        {
+          "code": "HES",
+          "context": "Hesse — German state, Hessian banking supervisor (BaFin/SSM)"
+        }
+      ],
+      "added_version": "1.5",
+      "status": "active"
+    },
+
+    "enforceability_status": {
+      "description": "Legal enforceability status of the referenced instrument at the time of the Arrow event. LEG-003: void or disputed status prevents Action PR or TR.",
+      "values": [
+        {
+          "code": "enforceable",
+          "name": "Enforceable",
+          "description": "Instrument is valid, executed, and enforceable under its governing law. Arrow Action PR and TR permitted.",
+          "arrow_action_constraint": "PR and TR permitted",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "conditional",
+          "name": "Conditional",
+          "description": "Instrument is valid but enforceability is contingent on a condition not yet satisfied (condition precedent, regulatory approval, etc.).",
+          "arrow_action_constraint": "PR permitted with conditions; TR not recommended",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "disputed",
+          "name": "Disputed",
+          "description": "Enforceability is being challenged. LEG-003: Action MUST NOT be PR or TR until dispute is resolved.",
+          "arrow_action_constraint": "HL or BL only — LEG-003",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "void",
+          "name": "Void",
+          "description": "Instrument has been voided, rescinded, or declared unenforceable. LEG-003: Action MUST be BL. reason_code SHOULD be LEGAL_INSTRUMENT_VOID.",
+          "arrow_action_constraint": "BL only — LEG-003 fatal",
+          "status": "active",
+          "added_version": "1.0"
+        },
+        {
+          "code": "pending_review",
+          "name": "Pending Review",
+          "description": "Enforceability has not yet been assessed or is under legal review. Action Engine SHOULD apply HL pending resolution.",
+          "arrow_action_constraint": "HL recommended",
+          "status": "active",
+          "added_version": "1.0"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+[package]
+name = "arrow-cli"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+
+license.workspace = true
+[[bin]]
+name = "arrow"
+path = "src/main.rs"
+
+[dependencies]
+arrow-core      = { path = "../arrow-core" }
+arrow-transport = { path = "../arrow-transport" }
+arrow-identity  = { path = "../arrow-identity" }
+clap            = { version = "=4.4.18", features = ["derive"] }
+serde_json      = "1"
+anyhow          = "1"
+chrono          = "0.4"
+uuid            = { version = "=1.4.1", features = ["v4"] }
+hex             = "0.4"
+bs58            = "0.5"
+base64          = "0.22"
+indexmap        = { workspace = true }
+hashbrown       = { workspace = true }
+bytes           = "1"
+http-body-util  = "0.1"
+hyper           = { version = "=1.10.1", features = ["http1", "client"] }
+hyper-util      = { version = "0.1", features = ["client-legacy", "http1", "tokio"] }
+tokio           = { version = "=1.44.2", features = ["full"] }
+
+[dev-dependencies]
+axum       = { version = "=0.8.9", features = ["json"] }
+arrow-node = { path = "../arrow-node" }
+
+[lib]
+name = "arrow_cli"
+path = "src/lib.rs"

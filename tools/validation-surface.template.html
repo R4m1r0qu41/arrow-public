@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrow Validation Surface</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --ink: #1a2129;
+    --ink-2: #4b5865;
+    --ink-3: #7a8794;
+    --line: #d7dde3;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --good: #1a7f37;      --good-bg: #dcefe2;
+    --bad: #c0392b;       --bad-bg: #f7e1de;
+    --warn: #8a6d00;      --warn-bg: #f5ecc9;
+    --hold: #8250df;      --hold-bg: #ece4f8;
+    --pend: #57606a;      --pend-bg: #e8ebee;
+    --gate: #57606a;      --gate-bg: #e8ebee;
+    --accent: #0a5cad;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2129;
+      --ink: #d5dde5;
+      --ink-2: #9aa7b4;
+      --ink-3: #6e7b87;
+      --line: #2d333b;
+      --good: #3fb950;    --good-bg: #12261a;
+      --bad: #f47067;     --bad-bg: #2d1a18;
+      --warn: #d4a72c;    --warn-bg: #2a2412;
+      --hold: #b197f5;    --hold-bg: #221a33;
+      --pend: #8b98a5;    --pend-bg: #1d232a;
+      --gate: #8b98a5;    --gate-bg: #1d232a;
+      --accent: #539bf5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  }
+  a { color: var(--accent); }
+  main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header.page h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: .2px; }
+  header.page .sub { color: var(--ink-2); font-size: 14px; }
+  header.page .meta {
+    margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 18px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  }
+
+  /* stat tiles */
+  .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 8px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 18px; min-width: 128px;
+  }
+  .tile .n { font-size: 26px; font-weight: 650; letter-spacing: .3px; }
+  .tile .l { font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .6px; }
+  .tile.pass .n { color: var(--good); }
+  .tile.fail .n { color: var(--bad); }
+
+  /* filter row */
+  .filters { display: flex; gap: 8px; margin: 18px 0 10px; flex-wrap: wrap; }
+  .filters button {
+    font: inherit; font-size: 13px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+    cursor: pointer;
+  }
+  .filters button[aria-pressed="true"] {
+    background: var(--ink); color: var(--bg); border-color: var(--ink);
+  }
+
+  /* feed table */
+  .feed { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .feed-head, .feed-row {
+    display: grid;
+    grid-template-columns: 92px 200px 96px 1fr;
+    gap: 0 14px; align-items: baseline; padding: 9px 14px;
+  }
+  .feed-head {
+    background: var(--surface-2); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .7px; color: var(--ink-3); border-bottom: 1px solid var(--line);
+  }
+  .feed-row { border-bottom: 1px solid var(--line); cursor: pointer; }
+  .feed-row:last-child { border-bottom: none; }
+  .feed-row:hover { background: var(--surface-2); }
+  .feed-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .code { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  .rule { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .reason { color: var(--ink-2); font-size: 13.5px; }
+  .srcline { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 650; letter-spacing: .4px;
+    padding: 2px 10px; border-radius: 12px; white-space: nowrap;
+  }
+  .chip.PASS { color: var(--good); background: var(--good-bg); }
+  .chip.FAIL { color: var(--bad); background: var(--bad-bg); }
+  .chip.warn { color: var(--warn); background: var(--warn-bg); }
+  .chip.live, .chip.verified, .chip.enforced { color: var(--good); background: var(--good-bg); }
+  .chip.hold { color: var(--hold); background: var(--hold-bg); }
+  .chip.pending { color: var(--pend); background: var(--pend-bg); }
+  .chip.gated { color: var(--gate); background: var(--gate-bg); border: 1px dashed var(--line); }
+
+  /* drill-down */
+  .drill { grid-column: 1 / -1; padding: 8px 2px 14px; display: none; cursor: default; }
+  .feed-row.open .drill { display: block; }
+  .drill h4 { margin: 12px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .7px; color: var(--ink-3); }
+  .sixfields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .sf {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .sf .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--ink-3); }
+  .sf .v { font-family: var(--mono); font-size: 15px; margin: 1px 0; }
+  .sf .g { font-size: 12px; color: var(--ink-2); }
+  .viol { border-left: 3px solid var(--bad); background: var(--bad-bg); border-radius: 0 8px 8px 0; padding: 8px 12px; margin: 6px 0; }
+  .viol.warnv { border-left-color: var(--warn); background: var(--warn-bg); }
+  .viol .vr { font-family: var(--mono); font-size: 13px; font-weight: 650; }
+  .viol .vm { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
+  .viol .vn { font-size: 13px; margin-top: 3px; }
+  details.raw { margin-top: 10px; }
+  details.raw summary { cursor: pointer; font-size: 12.5px; color: var(--ink-3); }
+  details.raw pre {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; font-size: 12px; overflow-x: auto; max-height: 340px;
+  }
+  .dispo { margin-top: 8px; font-size: 13.5px; }
+  .dispo b { font-weight: 650; }
+
+  /* pipeline */
+  section h2 { font-size: 17px; margin: 40px 0 4px; }
+  section .lead { color: var(--ink-2); font-size: 14px; margin: 0 0 14px; }
+  .pipe { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 900px) {
+    .pipe { grid-template-columns: 1fr 26px 1.35fr 26px 1.35fr; align-items: stretch; }
+    .pipe .arrow-col { display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 20px; }
+  }
+  .pipe .arrow-col { display: none; }
+  @media (min-width: 900px) { .pipe .arrow-col { display: flex; } }
+  .stage {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stage h3 { margin: 0; font-size: 15px; }
+  .stage .role { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
+  .stage .item { padding: 8px 0; border-top: 1px solid var(--line); }
+  .stage .item:first-of-type { border-top: none; }
+  .stage .item .il { font-size: 13.5px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .stage .item .idet { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; display: none; }
+  .stage .item.open .idet { display: block; }
+  .stage .item .il { cursor: pointer; }
+
+  footer {
+    margin-top: 46px; border-top: 1px solid var(--line); padding-top: 14px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  footer .mono { font-family: var(--mono); }
+</style>
+</head>
+<body>
+<script>
+/*DATA:BEGIN*/
+const DATA = null; /* replaced by tools/generate-validation-surface.js */
+/*DATA:END*/
+</script>
+<main>
+  <header class="page">
+    <h1>Arrow Validation Surface</h1>
+    <div class="sub">What passes, what doesn't, and why — every verdict below is the real
+      <span class="code">arrow-core</span> validator's output, captured at generation time.</div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="filters" id="filters" role="group" aria-label="Filter verdicts"></div>
+
+  <div class="feed" id="feed" role="table" aria-label="Validation verdicts"></div>
+
+  <section>
+    <h2>Supply chain — Orlog → Tarquin → Arrow</h2>
+    <p class="lead">The late-payment pilot's path from sealed contract artifact to held legal event.
+      Statuses are read from the pinned artifacts and passing tests that actually exist —
+      <em>pending</em> and <em>gated</em> mean exactly that, not "coming soon".</p>
+    <div class="pipe" id="pipe"></div>
+  </section>
+
+  <footer id="foot"></footer>
+</main>
+<script>
+(function () {
+  "use strict";
+  if (!DATA) { document.getElementById("meta").textContent = "No data — run tools/generate-validation-surface.js"; return; }
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const $ = (id) => document.getElementById(id);
+
+  const ICONS = {
+    PASS: "✓", FAIL: "✕", live: "●", verified: "✓", enforced: "✓",
+    hold: "⏸", pending: "◌", gated: "⊘", warn: "△",
+  };
+  const chip = (status, label) =>
+    `<span class="chip ${esc(status)}"><span aria-hidden="true">${ICONS[status] || ""}</span>${esc(label || status)}</span>`;
+
+  // header meta
+  $("meta").innerHTML = [
+    `baseline ${esc(DATA.baseline)}`,
+    `generated ${esc(DATA.generated_at)}`,
+    `Arrow @ ${esc(DATA.arrow_commit)}`,
+    `Tarquin @ ${esc(DATA.tarquin_commit)}`,
+  ].map((s) => `<span>${s}</span>`).join("");
+
+  // tiles
+  const pass = DATA.rows.filter((r) => r.verdict === "PASS").length;
+  const fail = DATA.rows.length - pass;
+  const withExp = DATA.rows.filter((r) => r.expected);
+  const agree = withExp.filter((r) => r.expected.agreement).length;
+  $("tiles").innerHTML = `
+    <div class="tile pass"><div class="n">${pass}</div><div class="l">pass</div></div>
+    <div class="tile fail"><div class="n">${fail}</div><div class="l">fail</div></div>
+    <div class="tile"><div class="n">${agree}/${withExp.length}</div><div class="l">match expectations</div></div>
+    <div class="tile"><div class="n">${DATA.rows.filter((r) => r.source === "Tarquin pilot").length}</div><div class="l">pilot events</div></div>`;
+
+  // filters
+  const FILTERS = [
+    ["all", "All"], ["PASS", "Pass"], ["FAIL", "Fail"], ["pilot", "Pilot only"],
+  ];
+  let active = "all";
+  function renderFilters() {
+    $("filters").innerHTML = FILTERS.map(
+      ([k, l]) => `<button aria-pressed="${k === active}" data-f="${k}">${l}</button>`
+    ).join("");
+  }
+  $("filters").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]");
+    if (!b) return;
+    active = b.dataset.f;
+    renderFilters(); renderFeed();
+  });
+
+  function visible(r) {
+    if (active === "all") return true;
+    if (active === "pilot") return r.source === "Tarquin pilot";
+    return r.verdict === active;
+  }
+
+  const FIELD_ORDER = [
+    ["class", "Class"], ["origin", "Origin"], ["state", "State"],
+    ["action", "Action"], ["finality", "Finality"], ["confidence", "Confidence"],
+  ];
+
+  function drill(r) {
+    let h = "";
+    if (r.description) h += `<div class="srcline" style="font-size:12.5px">${esc(r.description)}</div>`;
+    if (r.fields) {
+      h += `<h4>Six-field breakdown</h4><div class="sixfields">` +
+        FIELD_ORDER.map(([k, label]) => {
+          const f = r.fields[k];
+          let gloss = f.name;
+          if (k === "origin" && f.regime_name) gloss += ` · ${f.regime_name}`;
+          return `<div class="sf"><div class="k">${label}</div><div class="v">${esc(f.code)}</div><div class="g">${esc(gloss)}</div></div>`;
+        }).join("") + `</div>`;
+    }
+    if (r.violations.length) {
+      h += `<h4>Findings (${r.violations.length})</h4>` + r.violations.map((v) => `
+        <div class="viol ${v.severity === "Error" ? "" : "warnv"}">
+          <div class="vr">${esc(v.rule_id)}${v.field ? ` · field: ${esc(v.field)}` : ""}${v.severity !== "Error" ? " · warning" : ""}</div>
+          <div class="vn">${esc(v.narrative)}</div>
+          <div class="vm">${esc(v.message)}</div>
+        </div>`).join("");
+    }
+    if (r.forced_action) h += `<div class="dispo"><b>Forced action:</b> ${esc(r.forced_action)} (non-overridable)</div>`;
+    if (r.consumer_disposition) h += `<div class="dispo"><b>Consumer disposition:</b> ${esc(r.consumer_disposition)}</div>`;
+    if (r.expected) {
+      const ok = r.expected.agreement;
+      h += `<div class="dispo"><b>Fixture expectation:</b> ${esc(r.expected.result)}` +
+        (r.expected.violations.length ? ` with ${r.expected.violations.map(esc).join(", ")}` : "") +
+        ` — ${ok ? chip("PASS", "validator agrees") : chip("FAIL", "DISAGREEMENT")}</div>`;
+    }
+    h += `<details class="raw"><summary>Raw event JSON</summary><pre>${esc(JSON.stringify(r.event, null, 2))}</pre></details>`;
+    return `<div class="drill">${h}</div>`;
+  }
+
+  function renderFeed() {
+    const rows = DATA.rows.filter(visible);
+    const head = `<div class="feed-head" role="row"><span>Verdict</span><span>Event</span><span>Rule</span><span>Why</span></div>`;
+    $("feed").innerHTML = head + rows.map((r, i) => `
+      <div class="feed-row" role="row" tabindex="0" data-i="${i}">
+        <span>${chip(r.verdict)}${r.warnings_count ? " " + chip("warn", r.warnings_count + "⚠") : ""}</span>
+        <span><span class="code">${esc(r.arrow_code)}</span><div class="srcline">${esc(r.id)} · ${esc(r.source)}</div></span>
+        <span class="rule">${esc(r.deciding_rule || "—")}</span>
+        <span class="reason">${esc(r.reason)}</span>
+        ${drill(r)}
+      </div>`).join("");
+    const shown = rows;
+    $("feed").querySelectorAll(".feed-row").forEach((el) => {
+      const toggle = (e) => {
+        if (e.target.closest("details,pre,a")) return;
+        el.classList.toggle("open");
+      };
+      el.addEventListener("click", toggle);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); el.classList.toggle("open"); }
+      });
+    });
+  }
+
+  // pipeline
+  function renderPipe() {
+    const cols = [];
+    DATA.pipeline.forEach((st, i) => {
+      if (i) cols.push(`<div class="arrow-col" aria-hidden="true">→</div>`);
+      cols.push(`
+        <div class="stage">
+          <h3>${esc(st.stage)}</h3>
+          <div class="role">${esc(st.role)}</div>
+          ${st.items.map((it) => `
+            <div class="item">
+              <div class="il"><span>${esc(it.label)}</span>${chip(it.status)}</div>
+              <div class="idet">${esc(it.detail)}</div>
+            </div>`).join("")}
+        </div>`);
+    });
+    $("pipe").innerHTML = cols.join("");
+    $("pipe").querySelectorAll(".item .il").forEach((el) => {
+      el.addEventListener("click", () => el.parentElement.classList.toggle("open"));
+    });
+  }
+
+  // footer
+  $("foot").innerHTML = `
+    <div>Provenance — Orlog SLC pin: <span class="mono">${esc(DATA.orlog_pin.source_commit)}</span>
+      (${esc(DATA.orlog_pin.hash)}, pinned ${esc(DATA.orlog_pin.pinned_at)}) ·
+      Arrow rule-surface pin: <span class="mono">${esc(DATA.arrow_pin.source_commit)}</span>
+      (${esc(DATA.arrow_pin.hash)}, pinned ${esc(DATA.arrow_pin.pinned_at)}).</div>
+    <div style="margin-top:6px">Generated by <span class="mono">tools/generate-validation-surface.js</span> —
+      verdicts are live validator output over <span class="mono">tests/fixtures/</span> and the Tarquin
+      late-payment pilot; nothing on this page is simulated. Statuses reflect repository state at
+      generation time. This page is generated — do not hand-edit.</div>`;
+
+  renderFilters();
+  renderFeed();
+  renderPipe();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "registry": "classes",
+  "version": "1.6.0",
+  "v1_6_changes": [
+    "Class 4 is CONTROL: the control-plane event class for protocol-, chain-, registry-, and infrastructure-level events. It is anchored to the control_subtypes.json vocabulary (draft). The canonical field 4 is named Action (actions.json) and is a distinct namespace from Class 4 CONTROL."
+  ],
+  "entries": [
+    { "code": 1, "name": "OBSERVE", "description": "Observation event" },
+    { "code": 2, "name": "INSTRUCT", "description": "Instruction event" },
+    { "code": 3, "name": "CONDITION", "description": "Condition event" },
+    {
+      "code": 4,
+      "name": "CONTROL",
+      "description": "Control-plane event. Protocol-, chain-, registry-, or infrastructure-level state change: registry updates, chain/bridge trust-status transitions (DIV-003), protocol or consensus upgrades, validator/node topology changes (e.g. DVN/OVN set changes), parameter changes, emergency declarations (EMG), and supersession of prior final events (SEM-014). Class 4 events SHOULD carry a control_subtype registered in control_subtypes.json (draft anchor vocabulary; promotion to MUST is reserved as SEM-021). Class 4 is not the Action field (actions.json) and not Origin PCY.",
+      "renamed_version": "1.6"
+    },
+    { "code": 5, "name": "TRANSFER", "description": "Transfer event" },
+    { "code": 6, "name": "CLOSE", "description": "Close/settle event. v1.6: bidirectionally bound to Action CL — Class 6 requires CL (SEM-005), CL requires Class 6 (SEM-020), and Class 6 requires State FN (SEM-012) and Finality 1 (SEM-013). The only valid Class 6 shape is 6:*:FN:CL:1:*." }
+  ]
+}

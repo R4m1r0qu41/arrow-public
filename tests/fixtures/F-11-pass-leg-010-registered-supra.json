@@ -1,0 +1,21 @@
+{
+  "event_id": "arrow-pilot-f11-2026-06-01",
+  "arrow_code": "2:LEG:FN:HL:1:C",
+  "lifecycle_id": "lfc-fixture-f11",
+  "object_id": "obj-fixture-f11",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "SUPRA",
+  "reason_code": "CO",
+  "jurisdiction": "UNSC",
+  "leg_jurisdiction": {
+    "supra": "UNSC"
+  },
+  "timestamp": "2026-06-01T00:00:00Z",
+  "subject_id": "unscr-registered-2026-1",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "jurisdiction": "UNSC",
+    "description": "F-11 — LEG-010 registered supra pass. leg_jurisdiction.supra=UNSC is active in registries/leg_supra_jurisdictions.json and Action HL is allowed for SUPRA Finality=1."
+  }
+}

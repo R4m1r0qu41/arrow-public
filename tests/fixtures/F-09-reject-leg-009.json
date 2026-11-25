@@ -1,0 +1,16 @@
+{
+  "event_id": "arrow-pilot-f09-2026-06-01",
+  "arrow_code": "2:LEG:FN:PR:1:C",
+  "lifecycle_id": "lfc-fixture-f09",
+  "object_id": "obj-fixture-f09",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "JUD",
+  "reason_code": "CO",
+  "timestamp": "2026-06-01T00:00:00Z",
+  "subject_id": "case-2026-missing-jurisdiction",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "description": "F-09 — LEG-009 jurisdiction presence. LEG origin event omits leg_jurisdiction. Expected: LEG-009 rejects because country or supra must be present."
+  }
+}

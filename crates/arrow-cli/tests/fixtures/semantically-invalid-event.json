@@ -1,0 +1,11 @@
+{
+  "arrow_code": "6:SOL:FN:PR:0:A",
+  "event_id": "ARR-20260521-TEST-002",
+  "lifecycle_id": "LFC-TEST-002",
+  "timestamp": "2026-05-21T12:00:00Z",
+  "object_type": "settlement",
+  "object_id": "E2E-TEST-002",
+  "verification_regime": "optimistic_settled",
+  "reason_code": "",
+  "related_events": []
+}

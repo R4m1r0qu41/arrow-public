@@ -1,0 +1,30 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "BTC",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "mainnet",
+    "network_name": "mainnet",
+    "chain_family": "utxo",
+    "chain_id_observed": "main",
+    "tx_ref": {
+      "type": "btc_outpoint",
+      "value": "6c484f6a4ff467a72158f86cb29b08c9cf30d5e4f9f39ced55d940fa9aa72870:0"
+    },
+    "finality_model": "probabilistic",
+    "finality_basis": null,
+    "arrow_code": "1:BTC:FN:PR:1:A",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model",
+      "protocol_required.reorg_safety_confirmations"
+    ],
+    "value": "4348"
+  },
+  "observation": {
+    "observed_at": "2026-06-16T04:10:00.195756+00:00",
+    "confirmations_at_observation": 58
+  },
+  "extraction_artifact_hash": "sha256:5e4e506ffca506b44ddf342c883d10ef845b89f61e41bd184e02048acef28b4e"
+}

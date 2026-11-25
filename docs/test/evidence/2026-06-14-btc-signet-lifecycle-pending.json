@@ -1,0 +1,30 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "BTC",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "testnet",
+    "network_name": "signet",
+    "chain_family": "utxo",
+    "chain_id_observed": "signet",
+    "tx_ref": {
+      "type": "btc_outpoint",
+      "value": "3b373919b9654e0a24f5a14c2eb7daf1cf795889371e0fe6ba95c61c758a3c10:1"
+    },
+    "finality_model": "probabilistic",
+    "finality_basis": "probabilistic",
+    "arrow_code": "1:BTC:PD:HL:0:B",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model",
+      "protocol_required.reorg_safety_confirmations"
+    ],
+    "value": "1000"
+  },
+  "observation": {
+    "observed_at": "2026-06-14T12:07:08.038256+00:00",
+    "confirmations_at_observation": 1
+  },
+  "extraction_artifact_hash": "sha256:e6ada40e39cec55af743a7c070de03915e1f712a541d565e31c0441bb6d7b82f"
+}

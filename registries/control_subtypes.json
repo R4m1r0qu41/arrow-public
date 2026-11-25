@@ -1,0 +1,57 @@
+{
+  "registry": "control_subtypes",
+  "registry_version": "1.6.0",
+  "status": "draft",
+  "description": "Anchor vocabulary for Class 4 (CONTROL) events. A CONTROL event is a control-plane state change; the control_subtype declares which control surface the event changes, and the anchor_requirements declare what the event MUST reference for the change to be auditable. Status draft: per the gated-registry rule, draft vocabularies impose no live validation obligation. Promotion path: SEM-021 (reserved) will make control_subtype mandatory for Class 4 events when this registry graduates to active.",
+  "anchor_principle": "Every CONTROL event must point at the thing it changes. A control-plane event with no referent is unauditable and is the class-4 analogue of an unscoped executing Action.",
+  "entries": [
+    {
+      "code": "REGISTRY_UPDATE",
+      "name": "Registry Update",
+      "description": "A change to an Arrow controlled vocabulary or registry entry (origins, actions, classes, regimes, chain/bridge registries).",
+      "anchor_requirements": ["registry name", "entry code(s) affected", "registry version before and after"]
+    },
+    {
+      "code": "CHAIN_STATUS",
+      "name": "Chain Status Transition",
+      "description": "A chain observation/trust state transition (e.g. ACTIVE → CONDITIONAL per DIV-003, chain_trust_flag changes per SEM-016/CHN-003).",
+      "anchor_requirements": ["chain_id", "prior status", "new status", "triggering event in related_events (e.g. divergence event)"]
+    },
+    {
+      "code": "BRIDGE_STATUS",
+      "name": "Bridge Status Transition",
+      "description": "A bridge trust transition: disable (BRG-001/002) or restoration (BRG-005).",
+      "anchor_requirements": ["bridge_id", "prior status", "new status", "bridge registry version"]
+    },
+    {
+      "code": "PROTOCOL_UPGRADE",
+      "name": "Protocol Upgrade",
+      "description": "A protocol- or chain-level upgrade declaration: consensus mechanism change, version upgrade, fork scheduling. Mid-to-major technical changes that re-baseline what downstream consumers may assume about an Origin (cf. CHN-004 registry-version triggers).",
+      "anchor_requirements": ["chain_id or protocol identifier", "upgrade identifier/version", "effective height or time", "chain registry version triggered"]
+    },
+    {
+      "code": "NODE_TOPOLOGY",
+      "name": "Node / Validator Topology Change",
+      "description": "A change to the verifier/validator/node set that an Origin's verification regime depends on: validator-set rotation, DVN/OVN membership or threshold changes, quorum reconfiguration for bonded_quorum regimes.",
+      "anchor_requirements": ["affected origin or chain_id", "set or threshold before and after", "effective time"]
+    },
+    {
+      "code": "PARAMETER_CHANGE",
+      "name": "Parameter Change",
+      "description": "A bounded numeric or configuration parameter change at protocol or deployment-policy level (e.g. challenge-window duration, confidence thresholds, restoration ceiling periods).",
+      "anchor_requirements": ["parameter identifier", "value before and after", "governing rule or registry reference"]
+    },
+    {
+      "code": "EMERGENCY_DECLARATION",
+      "name": "Emergency Declaration",
+      "description": "An exceptional declared-policy action by a pre-mandated emergency authority (Origin EMG). The declaration itself is the control-plane event; any asset effect is a separate, normally-validated event.",
+      "anchor_requirements": ["extensions.declared_policy", "mandate reference", "scope and duration"]
+    },
+    {
+      "code": "SUPERSESSION",
+      "name": "Supersession",
+      "description": "Explicit supersession of a prior final event per SEM-014. The Class 4 supersession path is one of exactly two ways a Finality=1 event may be contradicted (the other is Class 1 State RV reversal).",
+      "anchor_requirements": ["superseded event_id in related_events", "lifecycle_id continuity"]
+    }
+  ]
+}

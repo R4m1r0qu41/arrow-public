@@ -1,0 +1,25 @@
+[package]
+name = "arrow-transport"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+
+license.workspace = true
+[features]
+default = []
+replay-sqlite = ["dep:rusqlite"]
+
+[dependencies]
+arrow-core = { path = "../arrow-core" }
+arrow-identity = { path = "../arrow-identity" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_jcs = "0.1"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+uuid = { version = "=1.4.1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+iso8601-duration = "0.2"
+thiserror = "2"
+rusqlite = { version = "=0.31.0", features = ["bundled"], optional = true }

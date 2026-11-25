@@ -1,0 +1,21 @@
+{
+  "event_id": "arrow-pilot-leg010-2026-05-31",
+  "arrow_code": "2:LEG:FN:HL:1:C",
+  "lifecycle_id": "lfc-fixture-leg010",
+  "object_id": "obj-fixture-leg010",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "SUPRA",
+  "reason_code": "CO",
+  "leg_jurisdiction": {
+    "supra": "ATLANTIS"
+  },
+  "jurisdiction": "ATLANTIS",
+  "timestamp": "2026-05-31T00:00:00Z",
+  "subject_id": "atlantis-directive-2026-1",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "jurisdiction": "ATLANTIS",
+    "description": "F-10 — LEG-010 supra registry membership. leg_jurisdiction.supra=ATLANTIS is not a registered entry in registries/leg_supra_jurisdictions.json. Expected: LEG-010 rejects."
+  }
+}

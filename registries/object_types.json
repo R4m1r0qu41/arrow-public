@@ -1,0 +1,10 @@
+{
+  "registry": "object_types",
+  "version": "1.6.0",
+  "entries": [
+    { "code": "payment_instruction", "name": "Payment Instruction", "description": "A payment instruction" },
+    { "code": "chain_observation_state", "name": "Chain Observation State", "description": "Chain observation state object" },
+    { "code": "transfer", "name": "Transfer", "description": "An asset transfer" },
+    { "code": "settlement", "name": "Settlement", "description": "A settlement event" }
+  ]
+}

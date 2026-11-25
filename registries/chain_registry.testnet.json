@@ -1,0 +1,301 @@
+{
+  "registry": "chain_registry.testnet",
+  "registry_version": "2.0",
+  "schema_version": "2.0",
+  "network": "testnet",
+  "description": "Arrow Protocol Testnet Chain Registry Overlay. Contains testnet entries used for lifecycle testing. Entries here are structurally analogous to mainnet but MUST NOT be used for mainnet protocol_required derivation.",
+  "derivation_policy": "Entries in this file carry derivation_eligible:false. A testnet lifecycle test (network:testnet) validates the observation pipeline and artifact mechanics — it does NOT corroborate any mainnet protocol_required value. The mainnet chain_registry.json loader MUST refuse to load entries from this file for Origin-Adapter derivation.",
+  "entries": [
+    {
+      "code": "ETH",
+      "name": "Ethereum Sepolia Testnet",
+      "network_name": "sepolia",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "derivation_eligible": false,
+      "protocol_required": {
+        "finality_model": "probabilistic",
+        "finality_basis_default": "probabilistic",
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": 12,
+        "chain_trust_flag": 0,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Ethereum Sepolia testnet. Used for lifecycle testing of the probabilistic finality model. Parameters match mainnet structurally but testnet reorg behavior is weaker.",
+        "consensus": "proof_of_stake_casper_ffg",
+        "native_asset": "ETH",
+        "evm_compatible": true,
+        "eip155_chain_id": 11155111
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://sepolia.dev",
+        "source_version": "as of 2026-06-05",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-06-05T00:00:00Z",
+        "review_cadence": "30d",
+        "next_review_due": "2026-07-05",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Testnet entry. derivation_eligible:false — must not imply mainnet truth."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0xce219718431bb06fe14776b28d7a29ad68d75aacf5cc55be65af2c8fea709243"
+        },
+        "observed_at": "2026-06-14T11:51:58.298589+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.reorg_safety_confirmations"
+        ],
+        "extraction_artifact_hash": "sha256:ab100442c1cc440436ec80994f2c91b56adb0d7b6eb100ff046ec7c11831a896",
+        "next_state_test_due": "2026-07-14"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:3db6a4e175cb0a7268c1dd1f1d60366a71eacd1e46a37c813821b7f4e5bb767a",
+        "registry_version_hash": "sha256:759138ddb2522d9cb20d598c6f39c30c550bab52996a5865dd13ca9afa2f287f",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "BASE",
+      "name": "Base Sepolia Testnet",
+      "network_name": "base-sepolia",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "derivation_eligible": false,
+      "protocol_required": {
+        "finality_model": "optimistic_rollup",
+        "finality_basis_default": "optimistic_window",
+        "challenge_window_seconds": 604800,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 0,
+        "layer": 2,
+        "settlement_chain": "ETH"
+      },
+      "advisory": {
+        "description": "Base Sepolia testnet (OP Stack). Used for lifecycle testing of the optimistic_rollup finality model. The challenge_window_seconds value mirrors mainnet structurally but the actual testnet window is near-zero and must not be cited as proof of the mainnet 7-day window.",
+        "consensus": "optimistic_rollup_op_stack",
+        "native_asset": "ETH",
+        "evm_compatible": true,
+        "eip155_chain_id": 84532
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.base.org/docs/network-information",
+        "source_version": "as of 2026-06-05",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-06-05T00:00:00Z",
+        "review_cadence": "30d",
+        "next_review_due": "2026-07-05",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Testnet entry. derivation_eligible:false. Testnet challenge_window is near-zero; do not cite as mainnet evidence."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0x1d0a412248ceed527f5373d09faedbfbd6fe58448b3d667cc5bfd98b14fdaef4"
+        },
+        "observed_at": "2026-06-15T03:26:19.403518+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.challenge_window_seconds"
+        ],
+        "extraction_artifact_hash": "sha256:64a03d1a2509583ae8e309a4daeba42f33a67210107679fd2bae4dd8fd6aabdf",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:b52a3cee1143cf43c394caaab2ba3568fd6139e9f14af5003397f9188bb5226a",
+        "registry_version_hash": "sha256:759138ddb2522d9cb20d598c6f39c30c550bab52996a5865dd13ca9afa2f287f",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "ARB",
+      "name": "Arbitrum Sepolia Testnet",
+      "network_name": "arb-sepolia",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "derivation_eligible": false,
+      "protocol_required": {
+        "finality_model": "optimistic_rollup",
+        "finality_basis_default": "optimistic_window",
+        "challenge_window_seconds": 604800,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 0,
+        "layer": 2,
+        "settlement_chain": "ETH"
+      },
+      "advisory": {
+        "description": "Arbitrum Sepolia testnet. Used for lifecycle testing of the optimistic_rollup (BoLD) finality model.",
+        "consensus": "optimistic_rollup_bold",
+        "native_asset": "ETH",
+        "evm_compatible": true,
+        "eip155_chain_id": 421614
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.arbitrum.io/for-devs/useful-addresses",
+        "source_version": "as of 2026-06-05",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-06-05T00:00:00Z",
+        "review_cadence": "30d",
+        "next_review_due": "2026-07-05",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Testnet entry. derivation_eligible:false."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0x1f901e3e51364f68f10c31a697987f8e27719a02239ec2c374c43f96337ab57d"
+        },
+        "observed_at": "2026-06-15T03:26:19.264702+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.challenge_window_seconds"
+        ],
+        "extraction_artifact_hash": "sha256:37438a6f027e693a1df2f2d5682a284d4c7aa2a91855ea2b19c44fec0c3de324",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:c601542af596f35b30ebef6d1afadd13d85a9aeb6ae52375352f15bf610a79b2",
+        "registry_version_hash": "sha256:759138ddb2522d9cb20d598c6f39c30c550bab52996a5865dd13ca9afa2f287f",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "SOL",
+      "name": "Solana Devnet",
+      "network_name": "devnet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "derivation_eligible": false,
+      "protocol_required": {
+        "finality_model": "bft_consensus",
+        "finality_basis_default": null,
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 0,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Solana devnet cluster. Used for lifecycle testing of the bft_consensus finality model.",
+        "consensus": "tower_bft",
+        "native_asset": "SOL",
+        "evm_compatible": false,
+        "genesis_hash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.solana.com/clusters",
+        "source_version": "as of 2026-06-05",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-06-05T00:00:00Z",
+        "review_cadence": "30d",
+        "next_review_due": "2026-07-05",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Testnet entry. derivation_eligible:false."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "sol_signature",
+          "value": "u4vKrDnkhjqTbAWJJ5pFKkjsPJZ8YLYVxDhrC3piSCKui71Tnr6vcT3LstFGy1huFD5fJFQUqgqF3xb4JLkx99v"
+        },
+        "observed_at": "2026-06-14T20:41:57.982501+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model"
+        ],
+        "extraction_artifact_hash": "sha256:1285a69ba88562200e14341b6341ccf351340c09686333735759744e70e8de15",
+        "next_state_test_due": "2026-07-14"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:c73c9d8cc177259f087631dc99092a0e6f65fc2d2174fe6f86a7b99d320618f7",
+        "registry_version_hash": "sha256:759138ddb2522d9cb20d598c6f39c30c550bab52996a5865dd13ca9afa2f287f",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "BTC",
+      "name": "Bitcoin Signet",
+      "network_name": "signet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "derivation_eligible": false,
+      "protocol_required": {
+        "finality_model": "probabilistic",
+        "finality_basis_default": "probabilistic",
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": 6,
+        "chain_trust_flag": 0,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Bitcoin signet. Used for lifecycle testing of the probabilistic UTXO finality model. Network identity: getblockchaininfo.chain == 'signet'.",
+        "consensus": "proof_of_work_nakamoto",
+        "native_asset": "BTC",
+        "evm_compatible": false
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://en.bitcoin.it/wiki/Signet",
+        "source_version": "as of 2026-06-05",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-06-05T00:00:00Z",
+        "review_cadence": "30d",
+        "next_review_due": "2026-07-05",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Testnet entry. derivation_eligible:false."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "btc_outpoint",
+          "value": "3b373919b9654e0a24f5a14c2eb7daf1cf795889371e0fe6ba95c61c758a3c10:1"
+        },
+        "observed_at": "2026-06-14T19:41:03.988469+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.reorg_safety_confirmations"
+        ],
+        "extraction_artifact_hash": "sha256:bd8212af659d0140ce207a76ca441c9b120357ceafccf1b57b5dcc9fd078ac32",
+        "next_state_test_due": "2026-07-14"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:a6095c99eec4cbe444a9235ae3b121f3d11fc24c53c9516b642a7581211e0f41",
+        "registry_version_hash": "sha256:759138ddb2522d9cb20d598c6f39c30c550bab52996a5865dd13ca9afa2f287f",
+        "onchain_anchor": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "registry": "finality_basis",
+  "registry_version": "1.6.0",
+  "description": "Controlled vocabulary for the finality_basis Tier-3 conditional field. Required when event.finality == 0 (rule FB-001). Declares the mechanism by which a pending-finality event will eventually reach settlement.",
+  "introduced_in": "1.5",
+  "entries": [
+    {
+      "code": "optimistic_window",
+      "name": "Optimistic Window",
+      "description": "Settlement is pending the expiry of a fraud-proof challenge window. Typical for optimistic rollups (e.g. Optimism, Arbitrum, BASE). finality_eta SHOULD be provided as the Unix timestamp at which the challenge window closes.",
+      "requires_finality_eta": true,
+      "typical_origins": ["BASE", "ARB", "OPT"]
+    },
+    {
+      "code": "probabilistic",
+      "name": "Probabilistic Finality",
+      "description": "Settlement is probabilistically final pending additional block confirmations. Risk of reversal decreases monotonically with confirmation depth. Typical for proof-of-work chains (BTC, ETH pre-merge legacy paths). finality_eta MAY be provided as estimated confirmation count or block height.",
+      "requires_finality_eta": false,
+      "typical_origins": ["BTC", "ETH"]
+    },
+    {
+      "code": "legal_appeal",
+      "name": "Legal Appeal Window",
+      "description": "Settlement is pending expiry of a statutory appeal period or the exhaustion of available legal remedies. Applies to court orders, arbitral awards, and administrative acts that are subject to appeal. finality_eta SHOULD be provided as the ISO 8601 date of the earliest appeal deadline.",
+      "requires_finality_eta": false,
+      "typical_origins": ["LEG", "ARB"]
+    },
+    {
+      "code": "custodial_clawback",
+      "name": "Custodial Clawback Window",
+      "description": "Settlement is subject to a custodian's contractual or regulatory right of reversal or clawback within a defined period. finality_eta SHOULD be provided as the Unix timestamp at which the clawback window closes.",
+      "requires_finality_eta": false,
+      "typical_origins": ["CST"]
+    },
+    {
+      "code": "staking_lock",
+      "name": "Staking or Yield-Bearing Lock",
+      "description": "Movement or settlement is constrained by an active staking, delegation, restaking, liquidity, or yield-bearing lock. Use when an asset is attempting to move while locked, or will become locked once moved. finality_eta SHOULD be provided as the unlock timestamp, epoch, or block height where deterministic.",
+      "requires_finality_eta": false,
+      "typical_origins": ["ETH", "SOL", "CST"]
+    },
+    {
+      "code": "vesting_schedule",
+      "name": "Vesting Schedule",
+      "description": "Movement or settlement is constrained by a token, token-fraction, equity, or real-world asset vesting/release schedule. finality_eta SHOULD be provided as the next release timestamp, schedule milestone, or block height where deterministic.",
+      "requires_finality_eta": false,
+      "typical_origins": ["CST", "LEG", "ORC"]
+    },
+    {
+      "code": "protocol_pending",
+      "name": "Protocol Pending",
+      "description": "Settlement is pending a protocol-defined condition that is not otherwise captured by another finality_basis value. Use when no more specific basis applies. SHOULD be accompanied by a human-readable explanation in event metadata.",
+      "requires_finality_eta": false,
+      "typical_origins": []
+    }
+  ]
+}

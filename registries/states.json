@@ -1,0 +1,42 @@
+{
+  "registry": "states",
+  "registry_version": "1.6.0",
+  "v1_5_changes": [
+    "Added TL (Timelocked) — finality_permitted: [0] only. Corrected PD/CD finality_permitted to [0] per SEM-002/SEM-004.",
+    "Removed HL (Hold) — namespace collision with Action HL. Removed per §F-2.",
+    "Removed ER (Error) — validation outcome, not a persisted event state. Removed per §F-2."
+  ],
+  "entries": [
+    {
+      "code": "PD",
+      "name": "Pending",
+      "description": "Event is pending final resolution",
+      "finality_permitted": [0]
+    },
+    {
+      "code": "FN",
+      "name": "Final",
+      "description": "Event is final. FN+1 means settled and finality-locked; FN+0 means settled but subject to a protocol-level challenge or reversal window.",
+      "finality_permitted": [0, 1]
+    },
+    {
+      "code": "CD",
+      "name": "Conditional",
+      "description": "Event is conditional on an external trigger or subsequent event",
+      "finality_permitted": [0]
+    },
+    {
+      "code": "RV",
+      "name": "Reversed",
+      "description": "Event has been reversed by a subsequent authority action",
+      "finality_permitted": [0, 1]
+    },
+    {
+      "code": "TL",
+      "name": "Timelocked",
+      "description": "Event is time-locked pending expiry of a time-bound constraint (e.g., optimistic rollup challenge window, HTLC timeout). Finality MUST be 0 while the time lock is active.",
+      "finality_permitted": [0],
+      "added_version": "1.5"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+[package]
+name = "arrow-consume-eth"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arrow Protocol Consumption Adapter for EVM chains — reduces a validated event log and settles on a destination chain when the disposition permits."
+
+license.workspace = true
+[[bin]]
+name = "arrow-consume-eth"
+path = "src/main.rs"
+
+[lib]
+name = "arrow_consume_eth"
+path = "src/lib.rs"
+
+[dependencies]
+# Ethereum settlement is a thin chain-config shell over the shared EVM-family lib.
+arrow-consume-evm = { path = "../arrow-consume-evm" }
+arrow-adapter     = { path = "../arrow-adapter" }
+arrow-core        = { path = "../arrow-core" }
+arrow-identity    = { path = "../arrow-identity" }
+arrow-transport   = { path = "../arrow-transport", features = ["replay-sqlite"] }
+serde_json        = "1"
+anyhow            = "1"
+base64            = "0.22"
+clap              = { version = "=4.4.18", features = ["derive"] }
+
+[dev-dependencies]
+arrow-core       = { path = "../arrow-core" }
+arrow-origin-eth = { path = "../arrow-origin-eth" }

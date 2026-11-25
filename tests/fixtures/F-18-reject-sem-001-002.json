@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-f-18-2026-07-06",
+  "arrow_code": "1:ETH:PD:HL:1:A",
+  "lifecycle_id": "lfc-fixture-f-18",
+  "object_id": "obj-fixture-f-18",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-06T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000018",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-18 — SEM-001 + SEM-002: a Pending state claiming settled Finality=1 is incoherent twice over — Finality 1 requires FN or RV, and PD requires Finality 0. Expected: reject."
+  }
+}

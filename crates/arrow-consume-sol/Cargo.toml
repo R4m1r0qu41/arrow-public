@@ -1,0 +1,24 @@
+[package]
+name = "arrow-consume-sol"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arrow Protocol Consumption Adapter for Solana — RecordOnly in v0.1; no live instruction building, signing, or send."
+
+license.workspace = true
+[lib]
+name = "arrow_consume_sol"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-adapter   = { path = "../arrow-adapter" }
+arrow-core      = { path = "../arrow-core" }
+arrow-identity  = { path = "../arrow-identity" }
+arrow-transport = { path = "../arrow-transport", features = ["replay-sqlite"] }
+arrow-reduce    = { path = "../arrow-reduce" }
+anyhow          = "1"
+base64          = "0.22"
+
+[dev-dependencies]
+arrow-core       = { path = "../arrow-core" }
+arrow-origin-sol = { path = "../arrow-origin-sol" }

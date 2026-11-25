@@ -1,0 +1,79 @@
+{
+  "schema_version": "0.1",
+  "artifact": "arrow-rule-surface",
+  "owner": "Arrow",
+  "status": "live",
+  "version": "1.6.0",
+  "baseline": "arrow-v1.6.0",
+  "description": "Arrow-owned rule and registry surface for downstream consumers. Consumers pin this artifact by content hash so Arrow rule IDs, reason codes, and canonical namespace entries cannot drift silently across repositories.",
+  "hash_sidecar": "exports/rule-surface.v1.6.0.sha256",
+  "source_documents": [
+    "docs/protocol/arrow-protocol.md",
+    "docs/protocol/validation-rules.md",
+    "registries/index.json",
+    "registries/actions.json",
+    "registries/classes.json",
+    "registries/reason_codes.json"
+  ],
+  "registries": {
+    "actions": {
+      "path": "registries/actions.json",
+      "version": "1.6.0",
+      "entries": [
+        { "code": "PR", "semantic_slug": "proceed" },
+        { "code": "BL", "semantic_slug": "block" },
+        { "code": "HL", "semantic_slug": "hold" },
+        { "code": "RW", "semantic_slug": "review_warranted" },
+        { "code": "TR", "semantic_slug": "trigger" },
+        { "code": "CL", "semantic_slug": "closed" }
+      ]
+    },
+    "classes": {
+      "path": "registries/classes.json",
+      "version": "1.6.0",
+      "entries": [
+        { "code": 1, "semantic_slug": "observe" },
+        { "code": 2, "semantic_slug": "instruct" },
+        { "code": 3, "semantic_slug": "condition" },
+        { "code": 4, "semantic_slug": "control" },
+        { "code": 5, "semantic_slug": "transfer" },
+        { "code": 6, "semantic_slug": "close" }
+      ]
+    },
+    "reason_codes": {
+      "path": "registries/reason_codes.json",
+      "version": "1.6.0",
+      "entries": [
+        { "code": "LEG_ACTION_RANGE_VIOLATION", "semantic_slug": "leg_action_range_violation" },
+        { "code": "LEG_SUPRA_SANCTIONS_FORCE", "semantic_slug": "leg_supra_sanctions_force_bl" },
+        { "code": "LEG_SUBTYPE_ABSENT", "semantic_slug": "leg_subtype_absent" }
+      ]
+    }
+  },
+  "rule_pins": [
+    { "rule_id": "ACT-001", "semantic_slug": "action_registry_membership", "status": "live" },
+    { "rule_id": "ACT-002", "semantic_slug": "unknown_action_reject", "status": "live" },
+    { "rule_id": "SEM-005", "semantic_slug": "class6_requires_cl", "status": "live" },
+    { "rule_id": "SEM-013", "semantic_slug": "fn0_executing_action_ceiling", "status": "live" },
+    { "rule_id": "SEM-015", "semantic_slug": "regime_confidence_ceiling", "status": "live" },
+    { "rule_id": "FB-001", "semantic_slug": "finality_basis_required", "status": "live" },
+    { "rule_id": "SEM-020", "semantic_slug": "cl_requires_class6", "status": "live" },
+    { "rule_id": "LEG-004", "semantic_slug": "confidence_e_forces_rw", "status": "live" },
+    { "rule_id": "LEG-005", "semantic_slug": "confidence_d_subtype_gate", "status": "live" },
+    { "rule_id": "LEG-006", "semantic_slug": "action_derivation_gate", "status": "live" },
+    { "rule_id": "LEG-007", "semantic_slug": "supra_sanctions_force_bl", "status": "live" },
+    { "rule_id": "LEG-008", "semantic_slug": "leg_text_prec_finality1_warning", "status": "live" },
+    { "rule_id": "LEG-009", "semantic_slug": "leg_jurisdiction_required", "status": "live" },
+    { "rule_id": "LEG-010", "semantic_slug": "supra_registry_membership", "status": "live" },
+    { "rule_id": "MSG-006", "semantic_slug": "leg_subtype_registry_membership", "status": "live" },
+    { "rule_id": "SEM-021", "semantic_slug": "control_subtype_anchor_gate", "status": "reserved" },
+    { "rule_id": "LFC-007", "semantic_slug": "post_closure_lifecycle_discipline", "status": "live" },
+    { "rule_id": "LFC-008", "semantic_slug": "closure_expectation_declaration", "status": "live" },
+    { "rule_id": "TRG-001", "semantic_slug": "tr_action_target_required", "status": "live" }
+  ],
+  "consumer_contract": {
+    "pin_required": true,
+    "pin_fields": ["artifact", "version", "baseline", "source_commit", "hash"],
+    "expected_consumers": ["Tarquin"]
+  }
+}

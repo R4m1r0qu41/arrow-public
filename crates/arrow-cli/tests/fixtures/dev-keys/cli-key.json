@@ -1,0 +1,8 @@
+{
+  "did": "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+  "key_ref": "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S#z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+  "algorithm": "Ed25519",
+  "private_key_b64": "ERERERERERERERERERERERERERERERERERERERERERE",
+  "public_key_b64": "0EqyMnQrtKs6E2i9RhXk5tAiSrcaAWuvhSCjMsl3hzc",
+  "warning": "DEV/TEST ONLY - deterministic fixture key, do not use in production"
+}

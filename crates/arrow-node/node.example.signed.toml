@@ -1,0 +1,27 @@
+listen     = "127.0.0.1:8080"
+node_id    = "did:arrow:pilot:node-a"
+registries = "embedded"
+
+[channel]
+binding = "http-rest-local"
+public_base_url = "http://127.0.0.1:8080"
+
+[tls]
+mode = "local-disabled"
+require_forwarded_proto_https = false
+
+# known_senders: only the DIDs listed here may send envelopes. These are the
+# deterministic dev/test did:key identities in crates/arrow-cli/tests/fixtures/dev-keys/.
+[known_senders]
+allow = [
+  "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+  "did:key:z6MkqGC3nWZhYieEVTVDKW5v588CiGfsDSmRVG9ZwwWTvLSK",
+  "did:key:z6Mkg49NtQR2LyYRDCQFK4w1VVHqhypZSSRo7HsyuN7SV7v5",
+]
+
+# Require Ed25519 signatures from did:key DIDs.
+# Envelopes without a `signing` block are rejected (TPT-SIGNATURE-MISSING).
+[identity]
+require_signature   = true
+allowed_did_methods = ["did:key"]
+allowed_algorithms  = ["Ed25519"]

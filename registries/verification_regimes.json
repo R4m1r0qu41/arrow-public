@@ -1,0 +1,150 @@
+{
+  "registry": "verification_regimes",
+  "registry_version": "1.6.0",
+  "description": "Arrow Protocol Verification Regimes Registry. Defines the verification infrastructure that produces the proof underlying each Origin's Confidence claim. v1.4 adds classification_bound field to each entry (for SEM-017) and adds native_notarized_consensus as a sixth regime. v1.5 renames chain_native to native_canonical (spec-canonical name); chain_native retained as alias for backward compatibility. v1.5.2 supersedes the draft legal_oracle_structured regime with structured_legal_attestation and multiple_legal_attestation, and separates legal_authority_panel as LEG/finality metadata rather than a confidence subprofile.",
+  "governance": "Editor-controlled for v1.x.",
+  "v1_4_changes": "Added classification_bound boolean field to all entries. This field declares whether the regime, by default, verifies source-domain output type classification as part of its proof. Where classification_bound is false, bridge events under this regime are capped at Confidence C under SEM-017 unless the Bridge Registry entry documents a classification-binding mechanism with classification_audit_ref. Added native_notarized_consensus as a sixth regime to handle source-chain-native notarization patterns that do not fit bonded_quorum (no external committee) or chain_native (destination enforcement is still external).",
+  "schema_notes": {
+    "classification_bound": "Boolean. Default value for whether this regime verifies source-domain output type classification as part of its proof. A Bridge Registry entry may override this default to true if the specific bridge documents a classification-binding mechanism and provides classification_audit_ref. Self-certification alone is insufficient per BRG-003.",
+    "max_confidence": "Maximum Confidence a single event under this regime may claim, absent additional multi-source corroboration or subprofile escalation."
+  },
+  "entries": [
+    {
+      "code": "native_canonical",
+      "aliases": ["chain_native"],
+      "name": "Native Canonical",
+      "description": "The origin's own canonical state is the proof. Verification requires only the chain itself — full node, light client, or ZK proof against canonical state. No external verifier is required. Classification of output types is enforced by the chain's own state machine. Renamed from chain_native in v1.5; alias retained for backward compatibility.",
+      "max_confidence": "A",
+      "closure_discipline": "depth_exhaustion",
+      "classification_bound": true,
+      "classification_bound_notes": "Full-node or light-client verification enforces source protocol rules including type. Classification is part of canonical state. No override needed.",
+      "typical_proof_artifacts": ["transaction hash", "block inclusion proof", "Merkle proof", "ZK state proof"],
+      "typical_origins": ["BTC", "ETH", "SOL", "AVX", "ZKS"],
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "optimistic_settled",
+      "name": "Optimistic Settled",
+      "description": "L2 rollup that inherits L1 security after a fraud-proof challenge window elapses. Post-settlement confidence is equivalent to L1 canonical. Pre-settlement events are capped at B. Classification is part of L1 state root after settlement.",
+      "max_confidence": "A",
+      "closure_discipline": "window_exhaustion",
+      "pre_settlement_max_confidence": "B",
+      "classification_bound": true,
+      "classification_bound_notes": "L1 settlement includes state root. Type classification is part of canonical state after challenge window. Pre-settlement events should use Confidence B until settlement is confirmed.",
+      "typical_proof_artifacts": ["L1 settlement transaction hash", "state root inclusion proof", "challenge window timestamp"],
+      "typical_origins": ["ETH L2 rollups posting to ETH"],
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "bonded_quorum",
+      "name": "Bonded Quorum",
+      "description": "M-of-N bonded committee attests to the event. Economic stake provides Sybil resistance. Quorum signers attest to content — source-chain output type classification is not typically part of the attested claim unless explicitly documented in the Bridge Registry entry.",
+      "max_confidence": "B",
+      "closure_discipline": "attestation_bound",
+      "classification_bound": false,
+      "classification_bound_notes": "Quorum attests to content. Output type classification is not typically part of the attested claim. Deployments implementing explicit type attestation may override this default to true in the Bridge Registry entry — must be documented with classification_binding_method and classification_audit_ref per BRG-003.",
+      "typical_proof_artifacts": ["M-of-N multisig", "quorum attestation", "bonded validator signatures"],
+      "typical_origins": ["CST", "ORC", "bridge relay networks"],
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "institutional_attestation",
+      "name": "Institutional Attestation",
+      "description": "Single regulated entity, licensed custodian, or VASP signs the attestation. The institution is identifiable and accountable under applicable law or contractual framework. Output type on a foreign chain is not part of the standard attestation scope.",
+      "max_confidence": "C",
+      "closure_discipline": "attestation_bound",
+      "classification_bound": false,
+      "classification_bound_notes": "Custodian attests to facts it observes. Output type on a foreign chain is not part of the standard attestation scope and therefore classification_bound defaults to false. A specific deployment may narrow the scope and override if the custodian explicitly attests to type.",
+      "typical_proof_artifacts": ["institutional signature", "custodian attestation letter", "ISO 20022 message with SplmtryData anchor"],
+      "typical_origins": ["CST", "LEG (institutional variant)"],
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "legal_attestation",
+      "name": "Legal Attestation",
+      "description": "Court order, arbitration ruling, notarial act, regulatory administrative act, or equivalent legal authority. Single manual or institutionally reviewed legal attestation reaches C. Legal authority panels affect the LEG authority/finality axis; they do not by themselves elevate confidence. Legal authorities attest to legal content — on-chain classification of output types is not part of the standard attestation scope.",
+      "max_confidence": "C",
+      "closure_discipline": "legal_exhaustion",
+      "classification_bound": false,
+      "classification_bound_notes": "Court orders and legal instruments reference legal content, not on-chain output type classification. classification_bound defaults to false. Confidence elevation requires a structured or multiple legal attestation proof path, not merely a multi-member legal authority.",
+      "typical_proof_artifacts": ["court order hash", "arbitration ruling reference", "notarial certificate", "regulatory act reference"],
+      "typical_origins": ["LEG"],
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "structured_legal_attestation",
+      "name": "Structured Legal Attestation",
+      "description": "Machine-readable legal proof record produced by a single accountable legal oracle, Sibyl-style operator, LBRY-style legal record, or equivalent structured attestation pipeline. The structure, signature, source-document hash, and anchoring artifacts make the legal assertion independently auditable. B is the ceiling, not the default; events must still satisfy LEG floors, subtype control constraints, artifact requirements, and deployment policy.",
+      "max_confidence": "B",
+      "closure_discipline": "legal_exhaustion",
+      "classification_bound": false,
+      "classification_bound_notes": "Structured legal attestations bind legal content and evidence artifacts. They do not normally attest to on-chain output type classification.",
+      "typical_proof_artifacts": [
+        "structured legal attestation record",
+        "Sibyl or legal-oracle signature",
+        "source legal document hash",
+        "case or instrument identifier",
+        "jurisdiction metadata",
+        "timestamp or anchoring transaction"
+      ],
+      "typical_origins": ["LEG"],
+      "added_version": "1.5.2",
+      "status": "draft"
+    },
+    {
+      "code": "multiple_legal_attestation",
+      "name": "Multiple Legal Attestation",
+      "description": "Independent corroboration of the same legal fact by multiple accountable legal oracles, Sibyl-style operators, or equivalent structured attestation sources. Independence must be documented; repeated signatures from one operator, common control, or one reused source document alone are insufficient. B is the current ceiling; graduation to A requires a future protocol decision and live evidence that the multi-Sibyl system provides stronger guarantees.",
+      "max_confidence": "B",
+      "closure_discipline": "legal_exhaustion",
+      "classification_bound": false,
+      "classification_bound_notes": "Multiple legal attestations corroborate legal content. They do not normally attest to on-chain output type classification.",
+      "typical_proof_artifacts": [
+        "multiple structured legal attestation records",
+        "independent Sibyl or legal-oracle signatures",
+        "source legal document hashes",
+        "independence metadata",
+        "timestamp or anchoring transactions"
+      ],
+      "typical_origins": ["LEG"],
+      "added_version": "1.5.2",
+      "status": "draft"
+    },
+    {
+      "code": "legal_native_attestation",
+      "name": "Legal Native Attestation",
+      "description": "Hypothetical or experimental regime for a legal system that emits protocol-verifiable legal acts directly into a Sibyl or equivalent cryptographic attestation layer. No current LEG origin relies on this regime. It is reserved for future specification work and must not be treated as a live production confidence path until a future specification defines the legal-system binding, finality model, and proof artifacts.",
+      "max_confidence": "A",
+      "closure_discipline": "legal_exhaustion",
+      "classification_bound": false,
+      "classification_bound_notes": "Reserved experimental legal-system binding. No current production path establishes source-domain output type classification.",
+      "typical_proof_artifacts": [
+        "native legal-system signature",
+        "verifiable legal act record",
+        "legal-system finality proof",
+        "Sibyl or equivalent protocol binding"
+      ],
+      "typical_origins": ["LEG"],
+      "added_version": "1.5.2",
+      "status": "draft"
+    },
+    {
+      "code": "native_notarized_consensus",
+      "name": "Native Notarized Consensus",
+      "description": "Source chain's own native notarization mechanism, where notarization is built into the source chain's consensus protocol. Distinct from bonded_quorum because the trust basis is the source chain's own consensus rather than an external bonded committee. Distinct from chain_native because destination-side enforcement still depends on an external bridge contract outside the source chain's consensus boundary. Introduced to address Verus PBaaS-style cross-chain proofs.",
+      "max_confidence": "B",
+      "closure_discipline": "attestation_bound",
+      "classification_bound": false,
+      "classification_bound_notes": "Even with native notarization, destination-side type enforcement depends on the destination bridge contract, which is outside the source chain's consensus boundary. Classification binding defaults to false. A deployment where the destination-side contract is formally verified to enforce source-chain type rules may override to true in the Bridge Registry entry — must be documented with classification_audit_ref.",
+      "typical_proof_artifacts": ["native notarization proof", "PBaaS export proof", "source-chain consensus commitment"],
+      "typical_origins": ["BRG", "ORC (native notarized variant)"],
+      "added_version": "1.4.0",
+      "status": "active"
+    }
+  ]
+}

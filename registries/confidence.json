@@ -1,0 +1,61 @@
+{
+  "registry": "confidence",
+  "version": "1.6.0",
+  "description": "Arrow Protocol Confidence Registry. Defines the five Confidence levels used in the canonical six-field Arrow message string. v1.4 updates Confidence C, D, and E definitions to reflect the Cross-Domain Semantic Consistency Invariant. Confidence A and B are unchanged. The canonical six-field message string is unchanged.",
+  "governance": "Editor-controlled for v1.x.",
+  "v1_4_changes": "Confidence C, D, and E definitions updated to reflect the Cross-Domain Semantic Consistency Invariant. The update clarifies that Confidence is determined by verification structure, not by actor category or topic. A bridge message, oracle report, court order, API feed, or legal instrument may fall into C, D, or E depending on whether the claim is structured, accountable, reproducible, registry-bound, cryptographically or procedurally authenticated, and challengeable.",
+  "entries": [
+    {
+      "code": "A",
+      "name": "Highest",
+      "description": "Native or canonical verification. The claim is verified directly by the authoritative source system, canonical state, or equivalent native verifier. No external trust assumption is required beyond the source system itself.",
+      "allows_action": true,
+      "verification_structure": "Direct canonical source verification. Proof exists in the origin's own canonical state.",
+      "sem_009_note": "Confidence A is unrestricted by SEM-009. Compatible with all Actions.",
+      "added_version": "1.0.0",
+      "status": "active"
+    },
+    {
+      "code": "B",
+      "name": "High",
+      "description": "Strong indirect verification. The claim is verified by robust settlement, bonded quorum, cryptographic proof, multi-source corroboration, or multi-attested structured verification with clear accountability and reproducibility.",
+      "allows_action": true,
+      "verification_structure": "Strong non-native verification. Structured, auditable, and independently reviewable. Includes optimistic rollup pre-settlement, bonded quorum bridges, legal attestation panels, and equivalent multi-actor structured verification.",
+      "sem_009_note": "Confidence B is unrestricted by SEM-009. Compatible with all Actions.",
+      "added_version": "1.0.0",
+      "status": "active"
+    },
+    {
+      "code": "C",
+      "name": "Medium",
+      "description": "Structured accountable attestation. The claim is verified by an identifiable third party, institution, oracle, bridge operator, legal authority, custodian, notary, registry-bound source, or equivalent accountable actor using structured data, documented methodology, and a challenge, audit, or review path. Confidence C is determined by verification structure, not actor category — a bridge, API, court order, or custodian attestation may each reach C if the claim is structured, accountable, reproducible, and challengeable.",
+      "allows_action": true,
+      "verification_structure": "Structured trust. The verifier and claim format are identifiable, accountable, and reviewable. Includes institutional custodians, single legal authorities, audited oracle feeds, and classification-verified bridge events under SEM-017.",
+      "sem_009_note": "Confidence C is unrestricted by SEM-009. Compatible with all Actions.",
+      "sem_017_note": "SEM-017: if classification_verified == false on a bridge event, Confidence MUST NOT exceed C.",
+      "added_version": "1.0.0",
+      "status": "active"
+    },
+    {
+      "code": "D",
+      "name": "Low",
+      "description": "Unstructured or weak external observation. The claim is externally observable or document-supported, but lacks sufficient structure, accountability, reproducibility, registry binding, cryptographic authentication, procedural normalization, or challenge path. Suitable for awareness, monitoring, or provisional state — not for high-consequence execution without additional verification.",
+      "allows_action": true,
+      "verification_structure": "Unstructured observation. The claim source is identifiable or observable but not structured, accountable, or reproducible in a way that supports high-consequence execution. Includes raw API feeds, unaudited oracles, unstructured legal references, and unprofiled bridge events per BRG-006.",
+      "sem_009_note": "Confidence D is unrestricted by SEM-009. Action is unrestricted, but SEM-011 strongly recommends implementations define minimum acceptable thresholds above D for consequential actions.",
+      "brg_006_note": "BRG-006: bridge events without a declared confidence subprofile are capped at D.",
+      "added_version": "1.0.0",
+      "status": "active"
+    },
+    {
+      "code": "E",
+      "name": "Floor",
+      "description": "Unverified, self-asserted, contradictory, stale, broken, unresolved, or otherwise unreliable. The protocol floor. Events at Confidence E cannot authorize any action under SEM-009. Confidence E with Action PR or TR is a hard validation failure.",
+      "allows_action": false,
+      "verification_structure": "No adequate verification structure. The claim has no credible attestation basis, or the attestation has been explicitly invalidated, contradicted, or is unresolvable.",
+      "sem_009_note": "SEM-009: Confidence E MUST NOT pair with Action PR or TR. Confidence E with BL or HL is permitted.",
+      "added_version": "1.0.0",
+      "status": "active"
+    }
+  ]
+}

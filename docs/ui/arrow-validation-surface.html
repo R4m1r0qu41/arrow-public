@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrow Validation Surface</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --ink: #1a2129;
+    --ink-2: #4b5865;
+    --ink-3: #7a8794;
+    --line: #d7dde3;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --good: #1a7f37;      --good-bg: #dcefe2;
+    --bad: #c0392b;       --bad-bg: #f7e1de;
+    --warn: #8a6d00;      --warn-bg: #f5ecc9;
+    --hold: #8250df;      --hold-bg: #ece4f8;
+    --pend: #57606a;      --pend-bg: #e8ebee;
+    --gate: #57606a;      --gate-bg: #e8ebee;
+    --accent: #0a5cad;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2129;
+      --ink: #d5dde5;
+      --ink-2: #9aa7b4;
+      --ink-3: #6e7b87;
+      --line: #2d333b;
+      --good: #3fb950;    --good-bg: #12261a;
+      --bad: #f47067;     --bad-bg: #2d1a18;
+      --warn: #d4a72c;    --warn-bg: #2a2412;
+      --hold: #b197f5;    --hold-bg: #221a33;
+      --pend: #8b98a5;    --pend-bg: #1d232a;
+      --gate: #8b98a5;    --gate-bg: #1d232a;
+      --accent: #539bf5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  }
+  a { color: var(--accent); }
+  main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header.page h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: .2px; }
+  header.page .sub { color: var(--ink-2); font-size: 14px; }
+  header.page .meta {
+    margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 18px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  }
+
+  /* stat tiles */
+  .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 8px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 18px; min-width: 128px;
+  }
+  .tile .n { font-size: 26px; font-weight: 650; letter-spacing: .3px; }
+  .tile .l { font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .6px; }
+  .tile.pass .n { color: var(--good); }
+  .tile.fail .n { color: var(--bad); }
+
+  /* filter row */
+  .filters { display: flex; gap: 8px; margin: 18px 0 10px; flex-wrap: wrap; }
+  .filters button {
+    font: inherit; font-size: 13px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+    cursor: pointer;
+  }
+  .filters button[aria-pressed="true"] {
+    background: var(--ink); color: var(--bg); border-color: var(--ink);
+  }
+
+  /* feed table */
+  .feed { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .feed-head, .feed-row {
+    display: grid;
+    grid-template-columns: 92px 200px 96px 1fr;
+    gap: 0 14px; align-items: baseline; padding: 9px 14px;
+  }
+  .feed-head {
+    background: var(--surface-2); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .7px; color: var(--ink-3); border-bottom: 1px solid var(--line);
+  }
+  .feed-row { border-bottom: 1px solid var(--line); cursor: pointer; }
+  .feed-row:last-child { border-bottom: none; }
+  .feed-row:hover { background: var(--surface-2); }
+  .feed-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .code { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  .rule { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .reason { color: var(--ink-2); font-size: 13.5px; }
+  .srcline { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 650; letter-spacing: .4px;
+    padding: 2px 10px; border-radius: 12px; white-space: nowrap;
+  }
+  .chip.PASS { color: var(--good); background: var(--good-bg); }
+  .chip.FAIL { color: var(--bad); background: var(--bad-bg); }
+  .chip.warn { color: var(--warn); background: var(--warn-bg); }
+  .chip.live, .chip.verified, .chip.enforced { color: var(--good); background: var(--good-bg); }
+  .chip.hold { color: var(--hold); background: var(--hold-bg); }
+  .chip.pending { color: var(--pend); background: var(--pend-bg); }
+  .chip.gated { color: var(--gate); background: var(--gate-bg); border: 1px dashed var(--line); }
+
+  /* drill-down */
+  .drill { grid-column: 1 / -1; padding: 8px 2px 14px; display: none; cursor: default; }
+  .feed-row.open .drill { display: block; }
+  .drill h4 { margin: 12px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .7px; color: var(--ink-3); }
+  .sixfields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .sf {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .sf .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--ink-3); }
+  .sf .v { font-family: var(--mono); font-size: 15px; margin: 1px 0; }
+  .sf .g { font-size: 12px; color: var(--ink-2); }
+  .viol { border-left: 3px solid var(--bad); background: var(--bad-bg); border-radius: 0 8px 8px 0; padding: 8px 12px; margin: 6px 0; }
+  .viol.warnv { border-left-color: var(--warn); background: var(--warn-bg); }
+  .viol .vr { font-family: var(--mono); font-size: 13px; font-weight: 650; }
+  .viol .vm { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
+  .viol .vn { font-size: 13px; margin-top: 3px; }
+  details.raw { margin-top: 10px; }
+  details.raw summary { cursor: pointer; font-size: 12.5px; color: var(--ink-3); }
+  details.raw pre {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; font-size: 12px; overflow-x: auto; max-height: 340px;
+  }
+  .dispo { margin-top: 8px; font-size: 13.5px; }
+  .dispo b { font-weight: 650; }
+
+  /* pipeline */
+  section h2 { font-size: 17px; margin: 40px 0 4px; }
+  section .lead { color: var(--ink-2); font-size: 14px; margin: 0 0 14px; }
+  .pipe { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 900px) {
+    .pipe { grid-template-columns: 1fr 26px 1.35fr 26px 1.35fr; align-items: stretch; }
+    .pipe .arrow-col { display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 20px; }
+  }
+  .pipe .arrow-col { display: none; }
+  @media (min-width: 900px) { .pipe .arrow-col { display: flex; } }
+  .stage {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stage h3 { margin: 0; font-size: 15px; }
+  .stage .role { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
+  .stage .item { padding: 8px 0; border-top: 1px solid var(--line); }
+  .stage .item:first-of-type { border-top: none; }
+  .stage .item .il { font-size: 13.5px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .stage .item .idet { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; display: none; }
+  .stage .item.open .idet { display: block; }
+  .stage .item .il { cursor: pointer; }
+
+  footer {
+    margin-top: 46px; border-top: 1px solid var(--line); padding-top: 14px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  footer .mono { font-family: var(--mono); }
+</style>
+</head>
+<body>
+<script>
+/*DATA:BEGIN*/
+const DATA = {
+ "generated_at": "2026-07-07T23:03:38.820Z",
+ "baseline": "arrow-v1.6.0",
+ "arrow_commit": "382a98b",
+ "tarquin_commit": "1f7dc38",
+ "arrow_pin": {
+  "source_commit": "967a13a",
+  "hash": "sha256:347299b13271b84…",
+  "pinned_at": "2026-07-07"
+ },
+ "orlog_pin": {
+  "source_commit": "2826aea",
+  "hash": "sha256:c0ac8c5ead20d8f…",
+  "pinned_at": "2026-06-11"
+ },
+ "rows": [
+  {
+   "id": "F-01",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:FN:PR:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "Arbitrum finalized transfer, ARB origin, optimistic_settled regime (ceiling A), Confidence A, no bridge",
+   "event": {
+    "event_id": "arrow-pilot-f01-2026-05-24",
+    "arrow_code": "1:ARB:FN:PR:1:A",
+    "lifecycle_id": "lfc-fixture-f01",
+    "object_id": "obj-fixture-f01",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "closure_eta": 0,
+    "closure_eta_type": "block_count",
+    "subject_id": "0xabc0000000000000000000000000000000000001",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-01 — Arbitrum finalized transfer. ARB origin, optimistic_settled regime (registry ceiling A). Confidence A. No bridge. SEM-015 pass: A <= A ceiling."
+    }
+   }
+  },
+  {
+   "id": "F-02",
+   "source": "Arrow fixture",
+   "arrow_code": "1:THR:PD:HL:0:C",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "THR",
+     "name": "Threshold",
+     "regime": "bonded_quorum",
+     "regime_name": "Bonded Quorum"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "THR origin, bonded_quorum regime, active bridge TEST-BRIDGE-001 (trust_flag=1), Confidence C, proof_semantics with context_inference",
+   "event": {
+    "event_id": "arrow-pilot-f02-2026-05-24",
+    "arrow_code": "1:THR:PD:HL:0:C",
+    "lifecycle_id": "lfc-fixture-f02",
+    "object_id": "obj-fixture-f02",
+    "verification_regime": "bonded_quorum",
+    "bridge_id": "TEST-BRIDGE-001",
+    "finality_basis": "protocol_pending",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000002",
+    "subject_type": "wallet_address",
+    "object_type": "cross_chain_observation",
+    "proof_semantics": {
+     "proven_content": "0xabc0000000000000000000000000000000000002",
+     "source_claim_type": "cross_chain_observation",
+     "destination_claim_type": "cross_chain_observation",
+     "classification_binding_method": "context_inference",
+     "classification_verified": false
+    },
+    "metadata": {
+     "description": "F-02 — THR origin, bonded_quorum regime (ceiling B), active bridge (TEST-BRIDGE-001 trust_flag=1), Confidence C. BRG-001 not triggered. SEM-017 satisfied: proof_semantics present, classification_verified=false, Confidence C (not > C cap). FB-001 satisfied: finality_basis=protocol_pending. SEM-015 pass: C <= B ceiling."
+    }
+   }
+  },
+  {
+   "id": "F-03",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:PD:HL:0:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "LEG origin, legal_attestation regime, Confidence C, leg_subtype=JUD, leg_jurisdiction.country=MX, finality_basis=legal_appeal",
+   "event": {
+    "event_id": "arrow-pilot-f03-2026-05-24",
+    "arrow_code": "2:LEG:PD:HL:0:C",
+    "lifecycle_id": "lfc-fixture-f03",
+    "object_id": "obj-fixture-f03",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "JUD",
+    "jurisdiction": "MX",
+    "leg_jurisdiction": {
+     "country": "MX"
+    },
+    "finality_basis": "legal_appeal",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "subject_id": "case-ref-2026-001",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "jurisdiction": "PROTOCOL",
+     "description": "F-03 — Legal domain assertion. LEG origin, legal_attestation regime (ceiling C). Confidence C. LEG-006 satisfied: leg_subtype=JUD. FB-001 satisfied: finality_basis=legal_appeal. SEM-015 pass: C <= C ceiling."
+    }
+   }
+  },
+  {
+   "id": "F-04",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:FN:PR:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "Ethereum finalized event, ETH origin, native_canonical regime (ceiling A), Confidence A, no bridge",
+   "event": {
+    "event_id": "arrow-pilot-f04-2026-05-24",
+    "arrow_code": "1:ETH:FN:PR:1:A",
+    "lifecycle_id": "lfc-fixture-f04",
+    "object_id": "obj-fixture-f04",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "closure_eta": 0,
+    "closure_eta_type": "block_count",
+    "subject_id": "0xabc0000000000000000000000000000000000004",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-04 — Ethereum finalized event. ETH origin, native_canonical regime (registry ceiling A). Confidence A. No bridge. SEM-015 pass: A <= A ceiling. No proof_semantics — SEM-017 not triggered."
+    }
+   }
+  },
+  {
+   "id": "F-05",
+   "source": "Arrow fixture",
+   "arrow_code": "5:THR:FN:PR:1:B",
+   "fields": {
+    "class": {
+     "code": "5",
+     "name": "TRANSFER"
+    },
+    "origin": {
+     "code": "THR",
+     "name": "Threshold",
+     "regime": "bonded_quorum",
+     "regime_name": "Bonded Quorum"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "BRG-001",
+   "reason": "This bridge's trust has been revoked; everything crossing it is blocked, without exception.",
+   "violations": [
+    {
+     "rule_id": "BRG-001",
+     "field": "bridge_id",
+     "severity": "Error",
+     "message": "bridge `VRSC-ETH-001` is disabled (bridge_trust_flag=0, status=`disabled`, reason: Semantic classification exploit — Ethereum bridge contract accepted a proof-backed import without proving source-side classification of the proven object. Approximately USD 11.5M–11.7M drained across ETH, tBTC, and USDC.); all events from this bridge are forced to Action BL — non-overridable (reason code: BRIDGE_TRUST_REVOKED)",
+     "narrative": "This bridge's trust has been revoked; everything crossing it is blocked, without exception."
+    },
+    {
+     "rule_id": "BRG-001",
+     "field": "action",
+     "severity": "Error",
+     "message": "action `PR` rejected; bridge `VRSC-ETH-001` has bridge_trust_flag=0 — only Action BL is permitted",
+     "narrative": "This bridge's trust has been revoked; everything crossing it is blocked, without exception."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": "BL",
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "BRG-001"
+    ],
+    "agreement": true
+   },
+   "description": "THR origin, bridge VRSC-ETH-001 (trust_flag=0), Action PR; BRG-001 forces Action BL",
+   "event": {
+    "event_id": "arrow-pilot-f05-2026-05-24",
+    "arrow_code": "5:THR:FN:PR:1:B",
+    "lifecycle_id": "lfc-fixture-f05",
+    "object_id": "obj-fixture-f05",
+    "verification_regime": "bonded_quorum",
+    "bridge_id": "VRSC-ETH-001",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000005",
+    "subject_type": "wallet_address",
+    "object_type": "cross_chain_transfer",
+    "metadata": {
+     "description": "F-05 — BRG-001 demo. THR origin, bonded_quorum regime (ceiling B), Confidence B. VRSC-ETH-001 has bridge_trust_flag=0. Action PR submitted. Expected: BRG-001 violation, forced Action BL, reason code BRIDGE_TRUST_REVOKED."
+    }
+   }
+  },
+  {
+   "id": "F-06",
+   "source": "Arrow fixture",
+   "arrow_code": "2:ETH:FN:PR:1:A",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-017",
+   "reason": "Proof that data exists is not proof of what it is: bridge events must bind their classification.",
+   "violations": [
+    {
+     "rule_id": "SEM-017",
+     "field": "confidence",
+     "severity": "Error",
+     "message": "classification_verified=false; Confidence MUST NOT exceed C — got `A`; reduce Confidence or establish classification binding (SEM-017 — PROOF_TYPE_UNBOUND)",
+     "narrative": "Proof that data exists is not proof of what it is: bridge events must bind their classification."
+    },
+    {
+     "rule_id": "SEM-017",
+     "field": "confidence",
+     "severity": "Error",
+     "message": "verification regime `bonded_quorum` is not classification-bound by default; Confidence A or B requires explicit classification_verified=true and classification_audit_ref in the Bridge Registry entry (SEM-017 — CLASSIFICATION_REGIME_CEILING)",
+     "narrative": "Proof that data exists is not proof of what it is: bridge events must bind their classification."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-017"
+    ],
+    "agreement": true
+   },
+   "description": "ETH origin, bridge TEST-BRIDGE-001 (bonded_quorum, trust_flag=1), classification_verified=false in proof_semantics, Confidence A overclaims C cap",
+   "event": {
+    "event_id": "arrow-pilot-f06-2026-05-24",
+    "arrow_code": "2:ETH:FN:PR:1:A",
+    "lifecycle_id": "lfc-fixture-f06",
+    "object_id": "obj-fixture-f06",
+    "verification_regime": "bonded_quorum",
+    "bridge_id": "TEST-BRIDGE-001",
+    "timestamp": "2026-05-24T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000006",
+    "subject_type": "wallet_address",
+    "object_type": "cross_chain_transfer",
+    "proof_semantics": {
+     "proven_content": "0xdeadbeef000000000000000000000000000000000000000000000000000000ff",
+     "source_claim_type": "supplemental_export_output",
+     "destination_claim_type": "primary_export_instruction",
+     "classification_binding_method": "context_inference",
+     "classification_verified": false
+    },
+    "metadata": {
+     "description": "F-06 — SEM-017 demo. ETH origin, active bridge TEST-BRIDGE-001 (bonded_quorum regime, trust_flag=1). classification_verified=false in proof_semantics. Confidence A claimed (overclaims C cap). Expected: SEM-017 violation, PROOF_TYPE_UNBOUND."
+    }
+   }
+  },
+  {
+   "id": "F-07",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:FN:PR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LEG-007",
+   "reason": "Final supranational sanctions block, non-negotiably.",
+   "violations": [
+    {
+     "rule_id": "LEG-007",
+     "field": "action",
+     "severity": "Error",
+     "message": "SUPRA + reason_code=SA + Finality=1 forces Action=BL; got `PR` (reason_code LEG_SUPRA_SANCTIONS_FORCE)",
+     "narrative": "Final supranational sanctions block, non-negotiably."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": "BL",
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LEG-007"
+    ],
+    "agreement": true
+   },
+   "description": "LEG origin, leg_subtype=SUPRA, reason_code=SA, Finality=1, Action PR; LEG-007 forces Action BL (supranational sanctions force-block)",
+   "event": {
+    "event_id": "arrow-pilot-f07-2026-05-31",
+    "arrow_code": "2:LEG:FN:PR:1:C",
+    "lifecycle_id": "lfc-fixture-f07",
+    "object_id": "obj-fixture-f07",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "SUPRA",
+    "reason_code": "SA",
+    "leg_jurisdiction": {
+     "supra": "UNSC"
+    },
+    "timestamp": "2026-05-31T00:00:00Z",
+    "subject_id": "unscr-2026-0042",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "jurisdiction": "UNSC",
+     "description": "F-07 — LEG-007 supranational sanctions force-block. SUPRA + reason_code=SA + Finality=1 with a non-BL claimed Action (PR). Expected: LEG-007 fires, Action is forced to BL (non-overridable, same structural position as BRG-001/SAN-001), reason code LEG_SUPRA_SANCTIONS_FORCE. LEG-006 range check is skipped under the force path."
+    }
+   }
+  },
+  {
+   "id": "F-08",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:FN:HL:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [
+    {
+     "rule_id": "LEG-008",
+     "field": "finality",
+     "severity": "Warning",
+     "message": "leg_subtype `LEG_TEXT` with Finality=1 is unusual — SHOULD reference a superseded norm in related_events",
+     "narrative": "A legal text or precedent claiming finality is unusual and is flagged for attention."
+    }
+   ],
+   "warnings_count": 1,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [
+     "LEG-008"
+    ],
+    "agreement": true
+   },
+   "description": "LEG origin, leg_subtype=LEG_TEXT, Finality=1; LEG-008 emits a warning (unusual final legislative norm) but does not reject",
+   "event": {
+    "event_id": "arrow-pilot-f08-2026-05-31",
+    "arrow_code": "2:LEG:FN:HL:1:C",
+    "lifecycle_id": "lfc-fixture-f08",
+    "object_id": "obj-fixture-f08",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "LEG_TEXT",
+    "reason_code": "LR",
+    "leg_jurisdiction": {
+     "country": "MX"
+    },
+    "timestamp": "2026-05-31T00:00:00Z",
+    "subject_id": "ley-fintech-2026",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "jurisdiction": "MX",
+     "description": "F-08 — LEG-008 legislative-text / precedent warning. leg_subtype=LEG_TEXT with Finality=1 is unusual (a final legislative norm likely represents a superseding enactment). Expected: LEG-008 warning fires (SHOULD reference a superseded norm in related_events) but, being a warning, does not reject — the event still passes. Action HL is within the LEG_TEXT permitted range {HL, RW}."
+    }
+   }
+  },
+  {
+   "id": "F-09",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:FN:PR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LEG-009",
+   "reason": "A legal event must say where its law comes from: jurisdiction is required.",
+   "violations": [
+    {
+     "rule_id": "LEG-009",
+     "field": "leg_jurisdiction",
+     "severity": "Error",
+     "message": "leg_jurisdiction is required when origin = LEG and must include country or supra",
+     "narrative": "A legal event must say where its law comes from: jurisdiction is required."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LEG-009"
+    ],
+    "agreement": true
+   },
+   "description": "LEG origin event missing leg_jurisdiction; LEG-009 requires leg_jurisdiction with country or supra",
+   "event": {
+    "event_id": "arrow-pilot-f09-2026-06-01",
+    "arrow_code": "2:LEG:FN:PR:1:C",
+    "lifecycle_id": "lfc-fixture-f09",
+    "object_id": "obj-fixture-f09",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "JUD",
+    "reason_code": "CO",
+    "timestamp": "2026-06-01T00:00:00Z",
+    "subject_id": "case-2026-missing-jurisdiction",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "description": "F-09 — LEG-009 jurisdiction presence. LEG origin event omits leg_jurisdiction. Expected: LEG-009 rejects because country or supra must be present."
+    }
+   }
+  },
+  {
+   "id": "F-10",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:FN:HL:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LEG-010",
+   "reason": "The claimed supranational body is not registered or not active.",
+   "violations": [
+    {
+     "rule_id": "LEG-010",
+     "field": "leg_jurisdiction.supra",
+     "severity": "Error",
+     "message": "leg_jurisdiction.supra `ATLANTIS` is not a registered supra jurisdiction",
+     "narrative": "The claimed supranational body is not registered or not active."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LEG-010"
+    ],
+    "agreement": true
+   },
+   "description": "LEG origin, leg_subtype=SUPRA, leg_jurisdiction.supra=ATLANTIS; LEG-010 rejects unregistered supra jurisdiction",
+   "event": {
+    "event_id": "arrow-pilot-leg010-2026-05-31",
+    "arrow_code": "2:LEG:FN:HL:1:C",
+    "lifecycle_id": "lfc-fixture-leg010",
+    "object_id": "obj-fixture-leg010",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "SUPRA",
+    "reason_code": "CO",
+    "leg_jurisdiction": {
+     "supra": "ATLANTIS"
+    },
+    "jurisdiction": "ATLANTIS",
+    "timestamp": "2026-05-31T00:00:00Z",
+    "subject_id": "atlantis-directive-2026-1",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "jurisdiction": "ATLANTIS",
+     "description": "F-10 — LEG-010 supra registry membership. leg_jurisdiction.supra=ATLANTIS is not a registered entry in registries/leg_supra_jurisdictions.json. Expected: LEG-010 rejects."
+    }
+   }
+  },
+  {
+   "id": "F-11",
+   "source": "Arrow fixture",
+   "arrow_code": "2:LEG:FN:HL:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "LEG origin, leg_subtype=SUPRA, leg_jurisdiction.supra=UNSC; LEG-010 accepts registered active supra jurisdiction",
+   "event": {
+    "event_id": "arrow-pilot-f11-2026-06-01",
+    "arrow_code": "2:LEG:FN:HL:1:C",
+    "lifecycle_id": "lfc-fixture-f11",
+    "object_id": "obj-fixture-f11",
+    "verification_regime": "legal_attestation",
+    "leg_subtype": "SUPRA",
+    "reason_code": "CO",
+    "jurisdiction": "UNSC",
+    "leg_jurisdiction": {
+     "supra": "UNSC"
+    },
+    "timestamp": "2026-06-01T00:00:00Z",
+    "subject_id": "unscr-registered-2026-1",
+    "subject_type": "legal_case_reference",
+    "object_type": "legal_assertion",
+    "metadata": {
+     "jurisdiction": "UNSC",
+     "description": "F-11 — LEG-010 registered supra pass. leg_jurisdiction.supra=UNSC is active in registries/leg_supra_jurisdictions.json and Action HL is allowed for SUPRA Finality=1."
+    }
+   }
+  },
+  {
+   "id": "F-12",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:FN:CL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "CL",
+     "name": "Closed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-020",
+   "reason": "Only a closure may wear the closing Action: CL outside Class 6 is rejected.",
+   "violations": [
+    {
+     "rule_id": "SEM-020",
+     "field": "action",
+     "severity": "Error",
+     "message": "Action CL requires Class 6 (CLOSE); got Class 1",
+     "narrative": "Only a closure may wear the closing Action: CL outside Class 6 is rejected."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-020"
+    ],
+    "agreement": true
+   },
+   "description": "ETH origin, Class 1 OBSERVE with Action CL; SEM-020 (v1.6) rejects CL outside Class 6 — closure class binding, converse of SEM-005",
+   "event": {
+    "event_id": "arrow-pilot-f12-2026-06-10",
+    "arrow_code": "1:ETH:FN:CL:1:A",
+    "lifecycle_id": "lfc-fixture-f12",
+    "object_id": "obj-fixture-f12",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-06-10T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000012",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-12 — SEM-020 closure class binding (v1.6). Class 1 OBSERVE event carrying Action CL: an observation wearing a terminal Action. Expected: SEM-020 rejects (Action CL requires Class 6). Guards consumers that key lifecycle-terminal semantics off the Action field alone; the converse direction (Class 6 without CL) is guarded by SEM-005."
+    }
+   }
+  },
+  {
+   "id": "E-02",
+   "source": "Arrow fixture",
+   "arrow_code": "3:EMG:FN:HL:1:C",
+   "fields": {
+    "class": {
+     "code": "3",
+     "name": "CONDITION"
+    },
+    "origin": {
+     "code": "EMG",
+     "name": "Emergency Authority",
+     "regime": "institutional_attestation",
+     "regime_name": "Institutional Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "E2 — EMG origin, Class 3 CONDITION + non-executing HL, institutional_attestation regime (ceiling C), Confidence C. Passes corrected action-only SEM-006.",
+   "event": {
+    "event_id": "arrow-pilot-e02-2026-06-16",
+    "arrow_code": "3:EMG:FN:HL:1:C",
+    "lifecycle_id": "lfc-fixture-e02",
+    "object_id": "obj-fixture-e02",
+    "verification_regime": "institutional_attestation",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000002",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "E2 — Emergency-authority hold. EMG origin, institutional_attestation regime (ceiling C). Class 3 CONDITION + non-executing HL passes corrected SEM-006 (action-only). Confidence C at ceiling."
+    }
+   }
+  },
+  {
+   "id": "E-03",
+   "source": "Arrow fixture",
+   "arrow_code": "3:ARB:FN:BL:1:B",
+   "fields": {
+    "class": {
+     "code": "3",
+     "name": "CONDITION"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "BL",
+     "name": "Block"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "E3 — ARB origin, Class 3 CONDITION + non-executing BL, optimistic_settled regime, Confidence B <= A ceiling. Mirrors the locked sem006_accepts case.",
+   "event": {
+    "event_id": "arrow-pilot-e03-2026-06-16",
+    "arrow_code": "3:ARB:FN:BL:1:B",
+    "lifecycle_id": "lfc-fixture-e03",
+    "object_id": "obj-fixture-e03",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000003",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "E3 — Arbitrum Class 3 condition, non-executing BL. ARB origin, optimistic_settled regime (post-settlement ceiling A). Class 3 + BL passes corrected SEM-006; Confidence B <= A ceiling (SEM-015)."
+    }
+   }
+  },
+  {
+   "id": "F-13",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:FN:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "F13 — ARB optimistic_settled, Finality=1 with window close (finality_eta) predating event timestamp; full post-settlement ceiling A applies (SEM-015 conditional ceiling, settled side)",
+   "event": {
+    "event_id": "arrow-pilot-f13-2026-07-06",
+    "arrow_code": "1:ARB:FN:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f13",
+    "object_id": "obj-fixture-f13",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-07-01T00:00:00Z",
+    "closure_eta": 1781913600,
+    "closure_eta_type": "unix_ts",
+    "finality_eta": 1781913600,
+    "finality_eta_type": "unix_ts",
+    "subject_id": "0xabc0000000000000000000000000000000000013",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-13 — SEM-015 conditional ceiling, settled side. ARB origin, optimistic_settled regime, Finality=1 with finality_eta (unix_ts 2026-06-20) earlier than the event timestamp (2026-07-01): the challenge window closed before the event was emitted, so the full post-settlement ceiling A applies. Expected: pass."
+    }
+   }
+  },
+  {
+   "id": "F-14",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:PD:HL:0:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-015",
+   "reason": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling.",
+   "violations": [
+    {
+     "rule_id": "SEM-015",
+     "field": "confidence",
+     "severity": "Error",
+     "message": "confidence `A` exceeds regime `optimistic_settled` pre-settlement (Finality=0) ceiling `B`",
+     "narrative": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-015"
+    ],
+    "agreement": true
+   },
+   "description": "F14 — ARB optimistic_settled, Finality=0 (pre-window, optimistic_window basis) claiming Confidence A; pre-settlement ceiling is B (SEM-015 conditional ceiling, pending side)",
+   "event": {
+    "event_id": "arrow-pilot-f14-2026-07-06",
+    "arrow_code": "1:ARB:PD:HL:0:A",
+    "lifecycle_id": "lfc-fixture-f14",
+    "object_id": "obj-fixture-f14",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "finality_basis": "optimistic_window",
+    "finality_eta": 1781913600,
+    "finality_eta_type": "unix_ts",
+    "subject_id": "0xabc0000000000000000000000000000000000014",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-14 — SEM-015 conditional ceiling, pre-window side. ARB origin, optimistic_settled regime, Finality=0 with finality_basis=optimistic_window and a dated window close (2026-06-20): the event is still inside its challenge window, so the pre-settlement ceiling B applies and the Confidence A claim must be rejected. Expected: reject with SEM-015."
+    }
+   }
+  },
+  {
+   "id": "F-15",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:PD:HL:0:B",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "F15 — compliant twin of F-14: same pending ARB shape at Confidence B, exactly at the pre-settlement ceiling; canonical L2 pending emission",
+   "event": {
+    "event_id": "arrow-pilot-f15-2026-07-06",
+    "arrow_code": "1:ARB:PD:HL:0:B",
+    "lifecycle_id": "lfc-fixture-f15",
+    "object_id": "obj-fixture-f15",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "finality_basis": "optimistic_window",
+    "finality_eta": 1781913600,
+    "finality_eta_type": "unix_ts",
+    "subject_id": "0xabc0000000000000000000000000000000000015",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-15 — SEM-015 conditional ceiling, pre-window compliant twin of F-14. Same pending ARB event shape but claiming Confidence B, exactly at the pre-settlement ceiling. Mirrors the canonical L2 lifecycle emission (1:ARB:PD:HL:0:B + optimistic_window + finality_eta). Expected: pass."
+    }
+   }
+  },
+  {
+   "id": "F-16",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:PD:HL:0:B",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "FB-001",
+   "reason": "A pending event must say how — and when — it will become final: a registered finality basis, dated where the basis requires it.",
+   "violations": [
+    {
+     "rule_id": "FB-001",
+     "field": "finality_eta",
+     "severity": "Error",
+     "message": "finality_basis `optimistic_window` requires finality_eta, which is absent",
+     "narrative": "A pending event must say how — and when — it will become final: a registered finality basis, dated where the basis requires it."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "FB-001"
+    ],
+    "agreement": true
+   },
+   "description": "F16 — unproven window: optimistic_window basis without finality_eta at compliant Confidence B; FB-001 requires_finality_eta enforcement fires alone (message-level SEM-015 would mask it at Confidence A)",
+   "event": {
+    "event_id": "arrow-pilot-f16-2026-07-06",
+    "arrow_code": "1:ARB:PD:HL:0:B",
+    "lifecycle_id": "lfc-fixture-f16",
+    "object_id": "obj-fixture-f16",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "finality_basis": "optimistic_window",
+    "subject_id": "0xabc0000000000000000000000000000000000016",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-16 — unproven window: pending ARB event at the compliant pre-settlement Confidence B declares finality_basis=optimistic_window but omits finality_eta, so the window is undated. FB-001: a basis whose registry entry sets requires_finality_eta must carry finality_eta — without it the event holds no reproducible evidence of when settlement is due. Expected: reject with FB-001. (The Confidence-A twin of this shape is already rejected at message level by SEM-015, F-14.)"
+    }
+   }
+  },
+  {
+   "id": "F-17",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:FN:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-015",
+   "reason": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling.",
+   "violations": [
+    {
+     "rule_id": "SEM-015",
+     "field": "confidence",
+     "severity": "Error",
+     "message": "confidence `A` claims settled ceiling but event timestamp `2026-06-16T00:00:00Z` precedes finality_eta window close (1782864000)",
+     "narrative": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling."
+    },
+    {
+     "rule_id": "LFC-008",
+     "field": "closure_eta",
+     "severity": "Error",
+     "message": "closure_eta and closure_eta_type are required for settled Class 1 events under bounded closure discipline `window_exhaustion`",
+     "narrative": "Every lifecycle owes the ledger a dated closure: a settled event must say when its lifecycle is due to close."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-015"
+    ],
+    "agreement": true
+   },
+   "description": "F17 — settled-claim contradiction: Finality=1 Confidence A while event-carried finality_eta postdates the event's own timestamp (SEM-015 event extension)",
+   "event": {
+    "event_id": "arrow-pilot-f17-2026-07-06",
+    "arrow_code": "1:ARB:FN:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f17",
+    "object_id": "obj-fixture-f17",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "finality_eta": 1782864000,
+    "finality_eta_type": "unix_ts",
+    "subject_id": "0xabc0000000000000000000000000000000000017",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-17 — settled-claim contradiction: ARB event asserts Finality=1 with Confidence A (post-settlement ceiling) while its own finality_eta (unix_ts 2026-07-01) postdates its own timestamp (2026-06-16) — the event claims a closed window and simultaneously dates the close in its future. Both operands are event-carried, so the rejection is fully reproducible. Expected: reject with SEM-015."
+    }
+   }
+  },
+  {
+   "id": "F-18",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:PD:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-001",
+   "reason": "Finality requires a settled state: a final event must sit in FN or RV.",
+   "violations": [
+    {
+     "rule_id": "SEM-001",
+     "field": "state",
+     "severity": "Error",
+     "message": "Finality=1 requires State FN or RV; got `PD`",
+     "narrative": "Finality requires a settled state: a final event must sit in FN or RV."
+    },
+    {
+     "rule_id": "SEM-002",
+     "field": "finality",
+     "severity": "Error",
+     "message": "State PD (Pending) requires Finality=0",
+     "narrative": "What is still pending cannot claim to be final."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-001",
+     "SEM-002"
+    ],
+    "agreement": true
+   },
+   "description": "F18 — Pending state claiming Finality=1: SEM-001 (Finality 1 requires FN/RV) and SEM-002 (PD requires Finality 0) both fire",
+   "event": {
+    "event_id": "arrow-pilot-f-18-2026-07-06",
+    "arrow_code": "1:ETH:PD:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f-18",
+    "object_id": "obj-fixture-f-18",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-06T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000018",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-18 — SEM-001 + SEM-002: a Pending state claiming settled Finality=1 is incoherent twice over — Finality 1 requires FN or RV, and PD requires Finality 0. Expected: reject."
+    }
+   }
+  },
+  {
+   "id": "F-19",
+   "source": "Arrow fixture",
+   "arrow_code": "5:ETH:FN:BL:1:A",
+   "fields": {
+    "class": {
+     "code": "5",
+     "name": "TRANSFER"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "BL",
+     "name": "Block"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-007",
+   "reason": "A transfer must transfer: Class 5 events are limited to trigger or proceed.",
+   "violations": [
+    {
+     "rule_id": "SEM-007",
+     "field": "action",
+     "severity": "Error",
+     "message": "Class 5 (TRANSFER) MUST use Action TR or PR; got `BL`",
+     "narrative": "A transfer must transfer: Class 5 events are limited to trigger or proceed."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-007"
+    ],
+    "agreement": true
+   },
+   "description": "F19 — Class 5 TRANSFER with Action BL: SEM-007 permits only TR or PR on transfers",
+   "event": {
+    "event_id": "arrow-pilot-f-19-2026-07-06",
+    "arrow_code": "5:ETH:FN:BL:1:A",
+    "lifecycle_id": "lfc-fixture-f-19",
+    "object_id": "obj-fixture-f-19",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-06T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000019",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-19 — SEM-007: Class 5 TRANSFER carrying Action BL — a transfer that blocks is not a transfer; only TR or PR are permitted. Expected: reject."
+    }
+   }
+  },
+  {
+   "id": "F-20",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:TL:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "TL",
+     "name": "Timelocked"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-001",
+   "reason": "Finality requires a settled state: a final event must sit in FN or RV.",
+   "violations": [
+    {
+     "rule_id": "SEM-001",
+     "field": "state",
+     "severity": "Error",
+     "message": "Finality=1 requires State FN or RV; got `TL`",
+     "narrative": "Finality requires a settled state: a final event must sit in FN or RV."
+    },
+    {
+     "rule_id": "SEM-003",
+     "field": "finality",
+     "severity": "Error",
+     "message": "State TL (Timelocked) requires Finality=0",
+     "narrative": "What is still timelocked cannot claim to be final."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-001",
+     "SEM-003"
+    ],
+    "agreement": true
+   },
+   "description": "F20 — Timelocked state claiming Finality=1: SEM-001 and SEM-003 both fire",
+   "event": {
+    "event_id": "arrow-pilot-f-20-2026-07-06",
+    "arrow_code": "1:ETH:TL:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f-20",
+    "object_id": "obj-fixture-f-20",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-06T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000020",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-20 — SEM-001 + SEM-003: a Timelocked state claiming Finality=1 — TL is by definition unsettled and requires Finality 0. Expected: reject."
+    }
+   }
+  },
+  {
+   "id": "F-21",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:CD:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "CD",
+     "name": "Conditional"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-001",
+   "reason": "Finality requires a settled state: a final event must sit in FN or RV.",
+   "violations": [
+    {
+     "rule_id": "SEM-001",
+     "field": "state",
+     "severity": "Error",
+     "message": "Finality=1 requires State FN or RV; got `CD`",
+     "narrative": "Finality requires a settled state: a final event must sit in FN or RV."
+    },
+    {
+     "rule_id": "SEM-004",
+     "field": "finality",
+     "severity": "Error",
+     "message": "State CD (Conditional) requires Finality=0",
+     "narrative": "What is still conditional cannot claim to be final."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-001",
+     "SEM-004"
+    ],
+    "agreement": true
+   },
+   "description": "F21 — Conditional state claiming Finality=1: SEM-001 and SEM-004 both fire",
+   "event": {
+    "event_id": "arrow-pilot-f-21-2026-07-06",
+    "arrow_code": "1:ETH:CD:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f-21",
+    "object_id": "obj-fixture-f-21",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-06T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000021",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-21 — SEM-001 + SEM-004: a Conditional state claiming Finality=1 — CD requires Finality 0. Expected: reject."
+    }
+   }
+  },
+  {
+   "id": "F-22",
+   "source": "Arrow fixture",
+   "arrow_code": "2:CST:FN:TR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "CST",
+     "name": "Custodian",
+     "regime": "institutional_attestation",
+     "regime_name": "Institutional Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "TR",
+     "name": "Trigger"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "F22 — TRG-001 compliant trigger: Class 2 INSTRUCT + TR with complete action_target (target_ref, object_ref, authorizing_events ⊆ related_events)",
+   "event": {
+    "event_id": "arrow-pilot-f22-2026-07-07",
+    "arrow_code": "2:CST:FN:TR:1:C",
+    "lifecycle_id": "lfc-fixture-f22",
+    "object_id": "obj-fixture-f22",
+    "verification_regime": "institutional_attestation",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "arrow-authorizing-order-001"
+    ],
+    "action_target": {
+     "target_ref": "workflow:custodial-release-7",
+     "object_ref": "asset:obj-fixture-f22",
+     "authorizing_events": [
+      "arrow-authorizing-order-001"
+     ]
+    },
+    "subject_id": "0xabc0000000000000000000000000000000000022",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-22 — TRG-001 compliant trigger: Class 2 INSTRUCT, Action TR, complete action_target envelope (target, object, authorizing event listed in related_events). Expected: pass."
+    }
+   }
+  },
+  {
+   "id": "F-23",
+   "source": "Arrow fixture",
+   "arrow_code": "2:CST:FN:TR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "CST",
+     "name": "Custodian",
+     "regime": "institutional_attestation",
+     "regime_name": "Institutional Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "TR",
+     "name": "Trigger"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "TRG-001",
+   "reason": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger.",
+   "violations": [
+    {
+     "rule_id": "TRG-001",
+     "field": "action_target",
+     "severity": "Error",
+     "message": "Action TR requires an action_target envelope (target_ref, object_ref, authorizing_events)",
+     "narrative": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "TRG-001"
+    ],
+    "agreement": true
+   },
+   "description": "F23 — TR without action_target envelope: trigger names no target/object/authority (TRG-001 clause 1)",
+   "event": {
+    "event_id": "arrow-pilot-f23-2026-07-07",
+    "arrow_code": "2:CST:FN:TR:1:C",
+    "lifecycle_id": "lfc-fixture-f23",
+    "object_id": "obj-fixture-f23",
+    "verification_regime": "institutional_attestation",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "arrow-authorizing-order-001"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000023",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-23 — TR without its action_target envelope: a trigger that names no target, object, or authorizing instrument is 'a synonym with vibes' (RFC-008 F5). Expected: reject with TRG-001."
+    }
+   }
+  },
+  {
+   "id": "F-24",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:FN:TR:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "TR",
+     "name": "Trigger"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "TRG-001",
+   "reason": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger.",
+   "violations": [
+    {
+     "rule_id": "TRG-001",
+     "field": "action",
+     "severity": "Error",
+     "message": "Action TR is permitted in Classes 2 (INSTRUCT) and 5 (TRANSFER) only; got Class 1",
+     "narrative": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "TRG-001"
+    ],
+    "agreement": true
+   },
+   "description": "F24 — TR on Class 1 OBSERVE: TR permitted only in Classes 2 and 5 (TRG-001 class clause, six-field enumerable)",
+   "event": {
+    "event_id": "arrow-pilot-f24-2026-07-07",
+    "arrow_code": "1:ETH:FN:TR:1:A",
+    "lifecycle_id": "lfc-fixture-f24",
+    "object_id": "obj-fixture-f24",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "closure_eta": 0,
+    "closure_eta_type": "block_count",
+    "subject_id": "0xabc0000000000000000000000000000000000024",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-24 — TR on Class 1 OBSERVE: an observation cannot trigger. TRG-001 permits TR in Classes 2 (INSTRUCT) and 5 (TRANSFER) only. Expected: reject with TRG-001 (message-level class clause)."
+    }
+   }
+  },
+  {
+   "id": "F-25",
+   "source": "Arrow fixture",
+   "arrow_code": "2:CST:FN:TR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "CST",
+     "name": "Custodian",
+     "regime": "institutional_attestation",
+     "regime_name": "Institutional Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "TR",
+     "name": "Trigger"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "TRG-001",
+   "reason": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger.",
+   "violations": [
+    {
+     "rule_id": "TRG-001",
+     "field": "action_target",
+     "severity": "Error",
+     "message": "authorizing event `arrow-some-other-order-999` is not listed in related_events",
+     "narrative": "A trigger must name what it triggers, on what, and on whose authority — or it is not a trigger."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "TRG-001"
+    ],
+    "agreement": true
+   },
+   "description": "F25 — action_target.authorizing_events cites an event absent from related_events (TRG-001 clause 3)",
+   "event": {
+    "event_id": "arrow-pilot-f25-2026-07-07",
+    "arrow_code": "2:CST:FN:TR:1:C",
+    "lifecycle_id": "lfc-fixture-f25",
+    "object_id": "obj-fixture-f25",
+    "verification_regime": "institutional_attestation",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "arrow-authorizing-order-001"
+    ],
+    "action_target": {
+     "target_ref": "workflow:custodial-release-7",
+     "object_ref": "asset:obj-fixture-f25",
+     "authorizing_events": [
+      "arrow-some-other-order-999"
+     ]
+    },
+    "subject_id": "0xabc0000000000000000000000000000000000025",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-25 — action_target.authorizing_events cites an event not listed in related_events: the claimed authority is not part of the event's own record. Expected: reject with TRG-001."
+    }
+   }
+  },
+  {
+   "id": "F-26",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:RV:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "RV",
+     "name": "Reversed"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "F26 — post-closure reversal: Class 1 State RV citing the closure event specifically (LFC-007 reopening shape 1)",
+   "event": {
+    "event_id": "arrow-pilot-f26-2026-07-07",
+    "arrow_code": "1:ETH:RV:HL:1:A",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "ctx-closure-2026-07-07"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000026",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-26 — valid post-closure reversal: Class 1, State RV, citing the closure event specifically in related_events (LFC-007 reopening shape 1). Expected: pass."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "F-27",
+   "source": "Arrow fixture",
+   "arrow_code": "4:PCY:FN:HL:1:B",
+   "fields": {
+    "class": {
+     "code": "4",
+     "name": "CONTROL"
+    },
+    "origin": {
+     "code": "PCY",
+     "name": "Policy",
+     "regime": "bonded_quorum",
+     "regime_name": "Bonded Quorum"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "pass",
+    "violations": [],
+    "agreement": true
+   },
+   "description": "F27 — post-closure supersession: Class 4 CONTROL citing the closure event specifically (LFC-007 reopening shape 2)",
+   "event": {
+    "event_id": "arrow-pilot-f27-2026-07-07",
+    "arrow_code": "4:PCY:FN:HL:1:B",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "bonded_quorum",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "ctx-closure-2026-07-07"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000027",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-27 — valid post-closure supersession: Class 4 CONTROL citing the closure event specifically (LFC-007 reopening shape 2; control_subtype clause dormant until SEM-021). Expected: pass."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "F-28",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:FN:PR:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LFC-007",
+   "reason": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow.",
+   "violations": [
+    {
+     "rule_id": "LFC-007",
+     "field": "lifecycle_id",
+     "severity": "Error",
+     "message": "lifecycle `lfc-fixture-closed` is closed by event `ctx-closure-2026-07-07`; after closure only a Class 1 State RV reversal or a Class 4 (CONTROL) supersession citing the closure in related_events — sharing the closure's Origin, or a supersession from PCY — is valid (reason_code POST_CLOSURE_VIOLATION)",
+     "narrative": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LFC-007"
+    ],
+    "agreement": true
+   },
+   "description": "F28 — ordinary event appended to a closed lifecycle (LFC-007, reason POST_CLOSURE_VIOLATION)",
+   "event": {
+    "event_id": "arrow-pilot-f28-2026-07-07",
+    "arrow_code": "1:ETH:FN:PR:1:A",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "closure_eta": 0,
+    "closure_eta_type": "block_count",
+    "related_events": [
+     "ctx-closure-2026-07-07"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000028",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-28 — ordinary event appended after closure: neither reversal nor supersession, so lifecycle terminality would be silently broken. Expected: reject with LFC-007 (reason POST_CLOSURE_VIOLATION)."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "F-29",
+   "source": "Arrow fixture",
+   "arrow_code": "6:ETH:FN:CL:1:A",
+   "fields": {
+    "class": {
+     "code": "6",
+     "name": "CLOSE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "CL",
+     "name": "Closed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LFC-007",
+   "reason": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow.",
+   "violations": [
+    {
+     "rule_id": "LFC-007",
+     "field": "lifecycle_id",
+     "severity": "Error",
+     "message": "lifecycle `lfc-fixture-closed` is closed by event `ctx-closure-2026-07-07`; after closure only a Class 1 State RV reversal or a Class 4 (CONTROL) supersession citing the closure in related_events — sharing the closure's Origin, or a supersession from PCY — is valid (reason_code POST_CLOSURE_VIOLATION)",
+     "narrative": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LFC-007"
+    ],
+    "agreement": true
+   },
+   "description": "F29 — second closure for an already-closed lifecycle (LFC-007)",
+   "event": {
+    "event_id": "arrow-pilot-f29-2026-07-07",
+    "arrow_code": "6:ETH:FN:CL:1:A",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "ctx-closure-2026-07-07"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000029",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-29 — second closure for an already-closed lifecycle: a closure is neither of the two reopening shapes, and double-closing would let terminal semantics be re-stamped. Expected: reject with LFC-007."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "F-30",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:RV:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "RV",
+     "name": "Reversed"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LFC-007",
+   "reason": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow.",
+   "violations": [
+    {
+     "rule_id": "LFC-007",
+     "field": "lifecycle_id",
+     "severity": "Error",
+     "message": "lifecycle `lfc-fixture-closed` is closed by event `ctx-closure-2026-07-07`; after closure only a Class 1 State RV reversal or a Class 4 (CONTROL) supersession citing the closure in related_events — sharing the closure's Origin, or a supersession from PCY — is valid (reason_code POST_CLOSURE_VIOLATION)",
+     "narrative": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LFC-007"
+    ],
+    "agreement": true
+   },
+   "description": "F30 — reversal shape not citing the closure event in related_events (LFC-007: reopening must name what it reopens)",
+   "event": {
+    "event_id": "arrow-pilot-f30-2026-07-07",
+    "arrow_code": "1:ETH:RV:HL:1:A",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [],
+    "subject_id": "0xabc0000000000000000000000000000000000030",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-30 — reversal shape that does NOT cite the closure event in related_events: the reopening must name exactly what it reopens (architect ruling 2026-07-07). Expected: reject with LFC-007."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "F-31",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ETH:FN:PR:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ETH",
+     "name": "Ethereum",
+     "regime": "native_canonical",
+     "regime_name": "Native Canonical"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LFC-008",
+   "reason": "Every lifecycle owes the ledger a dated closure: a settled event must say when its lifecycle is due to close.",
+   "violations": [
+    {
+     "rule_id": "LFC-008",
+     "field": "closure_eta",
+     "severity": "Error",
+     "message": "closure_eta and closure_eta_type are required for settled Class 1 events under bounded closure discipline `depth_exhaustion`",
+     "narrative": "Every lifecycle owes the ledger a dated closure: a settled event must say when its lifecycle is due to close."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LFC-008"
+    ],
+    "agreement": true
+   },
+   "description": "F31 — settled Class 1 under bounded closure discipline without closure_eta declaration (LFC-008, Universal Eventual Closure)",
+   "event": {
+    "event_id": "arrow-pilot-f31-2026-07-07",
+    "arrow_code": "1:ETH:FN:PR:1:A",
+    "lifecycle_id": "lfc-fixture-f31",
+    "object_id": "obj-fixture-f31",
+    "verification_regime": "native_canonical",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "subject_id": "0xabc0000000000000000000000000000000000031",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-31 — settled Class 1 observation under bounded closure discipline (native_canonical → depth_exhaustion) with no closure_eta declaration: the lifecycle owes the ledger a dated closure expectation (Universal Eventual Closure; an event that fails to close on schedule is possibly under attack). Expected: reject with LFC-008."
+    }
+   }
+  },
+  {
+   "id": "F-32",
+   "source": "Arrow fixture",
+   "arrow_code": "1:ARB:FN:HL:1:A",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "ARB",
+     "name": "Arbitrum",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "A",
+     "name": "Highest"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-015",
+   "reason": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling.",
+   "violations": [
+    {
+     "rule_id": "SEM-015",
+     "field": "timestamp",
+     "severity": "Error",
+     "message": "event timestamp `not-a-date` is not valid RFC 3339; settled-claim consistency against finality_eta cannot be verified",
+     "narrative": "The event claims more certainty than its verification method can support: Confidence is capped by the regime's ceiling — and, while a settlement window is still open, by the lower pre-settlement ceiling."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "SEM-015"
+    ],
+    "agreement": true
+   },
+   "description": "F32 — settled Confidence-A claim with dated window but malformed timestamp: SEM-015 eta-consistency rejects on unparseable input instead of skipping (fail-closed)",
+   "event": {
+    "event_id": "arrow-pilot-f32-2026-07-07",
+    "arrow_code": "1:ARB:FN:HL:1:A",
+    "lifecycle_id": "lfc-fixture-f32",
+    "object_id": "obj-fixture-f32",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "not-a-date",
+    "closure_eta": 1781913600,
+    "closure_eta_type": "unix_ts",
+    "finality_eta": 1781913600,
+    "finality_eta_type": "unix_ts",
+    "subject_id": "0xabc0000000000000000000000000000000000032",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-32 — settled Confidence-A claim carrying a dated window but a malformed (non-RFC-3339) timestamp: the eta-consistency check cannot be disarmed by unparseable input; malformed rejects, never skips. Expected: reject with SEM-015 (field timestamp)."
+    }
+   }
+  },
+  {
+   "id": "F-33",
+   "source": "Arrow fixture",
+   "arrow_code": "1:BSE:RV:HL:1:B",
+   "fields": {
+    "class": {
+     "code": "1",
+     "name": "OBSERVE"
+    },
+    "origin": {
+     "code": "BSE",
+     "name": "Base",
+     "regime": "optimistic_settled",
+     "regime_name": "Optimistic Settled"
+    },
+    "state": {
+     "code": "RV",
+     "name": "Reversed"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "B",
+     "name": "High"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "LFC-007",
+   "reason": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow.",
+   "violations": [
+    {
+     "rule_id": "LFC-007",
+     "field": "lifecycle_id",
+     "severity": "Error",
+     "message": "lifecycle `lfc-fixture-closed` is closed by event `ctx-closure-2026-07-07`; after closure only a Class 1 State RV reversal or a Class 4 (CONTROL) supersession citing the closure in related_events — sharing the closure's Origin, or a supersession from PCY — is valid (reason_code POST_CLOSURE_VIOLATION)",
+     "narrative": "What is closed stays closed: after closure, only formal reversal or supersession — each citing the closure — may follow."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": {
+    "result": "reject",
+    "violations": [
+     "LFC-007"
+    ],
+    "agreement": true
+   },
+   "description": "F33 — cross-origin reversal citing another origin's closure: interim LFC-007 origin constraint rejects (only PCY supersessions may cross origins)",
+   "event": {
+    "event_id": "arrow-pilot-f33-2026-07-07",
+    "arrow_code": "1:BSE:RV:HL:1:B",
+    "lifecycle_id": "lfc-fixture-closed",
+    "object_id": "obj-fixture-closed",
+    "verification_regime": "optimistic_settled",
+    "timestamp": "2026-07-07T00:00:00Z",
+    "related_events": [
+     "ctx-closure-2026-07-07"
+    ],
+    "subject_id": "0xabc0000000000000000000000000000000000033",
+    "subject_type": "wallet_address",
+    "object_type": "token_transfer",
+    "metadata": {
+     "description": "F-33 — cross-origin reopening: a BSE-origin reversal citing an ETH lifecycle's closure. Interim LFC-007 origin constraint (post-review hardening): a reopening must share the closure's Origin; only a PCY supersession may cross origins. Expected: reject with LFC-007."
+    }
+   },
+   "context_note": "validated with lifecycle context (CTX-closed-lifecycle.json)"
+  },
+  {
+   "id": "PILOT-A",
+   "source": "Tarquin pilot",
+   "arrow_code": "2:LEG:PD:HL:0:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "HL",
+     "name": "Hold"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": null,
+   "description": "Late-payment pilot Stage A: non-final legal hold emitted from the LBRY attestation (e2e_slc_handoff step 3).",
+   "event": {
+    "arrow_code": "2:LEG:PD:HL:0:C",
+    "event_id": "leg-evt-a606e15b-ba59-4cdd-b04f-f0cbb2064b53",
+    "lifecycle_id": "leg:court-order-CIV-0421-2026-07",
+    "timestamp": "2026-06-09T20:42:16.261415+00:00",
+    "object_type": "legal_assertion",
+    "object_id": "lbry-3719b18145dc0c41",
+    "subject_id": "court-order-CIV-0421-2026-07",
+    "subject_type": "legal_case_reference",
+    "proof_type": null,
+    "proof_ref": "lbry:lbry-3719b18145dc0c41",
+    "verification_regime": "structured_legal_attestation",
+    "jurisdiction": "MX",
+    "reason_code": "CO",
+    "related_events": [],
+    "chain_id": null,
+    "metadata": {
+     "asserted_by": "did:key:z6MktkRL2kbdYNRyf4J2JvcTkQNjQTTSppMwd5TNrQgzb3gy",
+     "description": "explicit_authorization",
+     "jurisdiction": "MX"
+    },
+    "extensions": null,
+    "bridge_id": null,
+    "proof_semantics": null,
+    "economic_consistency": null,
+    "economic_consistency_audit_ref": null,
+    "finality_basis": "legal_appeal",
+    "leg_subtype": "JUD",
+    "leg_jurisdiction": {
+     "country": "MX"
+    }
+   },
+   "consumer_disposition": "Pending — held pending review (HL)"
+  },
+  {
+   "id": "PILOT-TWIN",
+   "source": "Tarquin pilot",
+   "arrow_code": "2:LEG:PD:PR:0:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "PD",
+     "name": "Pending"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "0",
+     "name": "Pending finality"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "FAIL",
+   "deciding_rule": "SEM-013",
+   "reason": "No enforcement before finality: a pending event (Finality 0) may not carry an executing Action.",
+   "violations": [
+    {
+     "rule_id": "SEM-013",
+     "field": "action",
+     "severity": "Error",
+     "message": "Finality=0 (FN+0) MUST NOT carry executing Action; got `PR` (permitted at Finality=0: BL, HL, RW)",
+     "narrative": "No enforcement before finality: a pending event (Finality 0) may not carry an executing Action."
+    }
+   ],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": null,
+   "description": "Late-payment pilot negative twin: the same pending event attempting Action PR at Finality 0 (e2e_slc_handoff step 4 — must reject).",
+   "event": {
+    "arrow_code": "2:LEG:PD:PR:0:C",
+    "event_id": "leg-evt-a606e15b-ba59-4cdd-b04f-f0cbb2064b53-twin",
+    "lifecycle_id": "leg:court-order-CIV-0421-2026-07",
+    "timestamp": "2026-06-09T20:42:16.261415+00:00",
+    "object_type": "legal_assertion",
+    "object_id": "lbry-3719b18145dc0c41",
+    "subject_id": "court-order-CIV-0421-2026-07",
+    "subject_type": "legal_case_reference",
+    "proof_type": null,
+    "proof_ref": "lbry:lbry-3719b18145dc0c41",
+    "verification_regime": "structured_legal_attestation",
+    "jurisdiction": "MX",
+    "reason_code": "CO",
+    "related_events": [],
+    "chain_id": null,
+    "metadata": {
+     "asserted_by": "did:key:z6MktkRL2kbdYNRyf4J2JvcTkQNjQTTSppMwd5TNrQgzb3gy",
+     "description": "explicit_authorization",
+     "jurisdiction": "MX"
+    },
+    "extensions": null,
+    "bridge_id": null,
+    "proof_semantics": null,
+    "economic_consistency": null,
+    "economic_consistency_audit_ref": null,
+    "finality_basis": "legal_appeal",
+    "leg_subtype": "JUD",
+    "leg_jurisdiction": {
+     "country": "MX"
+    }
+   }
+  },
+  {
+   "id": "PILOT-B",
+   "source": "Tarquin pilot",
+   "arrow_code": "2:LEG:FN:PR:1:C",
+   "fields": {
+    "class": {
+     "code": "2",
+     "name": "INSTRUCT"
+    },
+    "origin": {
+     "code": "LEG",
+     "name": "Legal",
+     "regime": "legal_attestation",
+     "regime_name": "Legal Attestation"
+    },
+    "state": {
+     "code": "FN",
+     "name": "Final"
+    },
+    "action": {
+     "code": "PR",
+     "name": "Proceed"
+    },
+    "finality": {
+     "code": "1",
+     "name": "Final"
+    },
+    "confidence": {
+     "code": "C",
+     "name": "Medium"
+    }
+   },
+   "verdict": "PASS",
+   "deciding_rule": null,
+   "reason": "Conforms: every applicable rule of the v1.6.0 surface passed.",
+   "violations": [],
+   "warnings_count": 0,
+   "forced_action": null,
+   "expected": null,
+   "description": "Late-payment pilot Stage B: final proceed after the disputed-001 recomputation (e2e_slc_handoff step 5). Valid at the gate, still human-gated at the consumer.",
+   "event": {
+    "arrow_code": "2:LEG:FN:PR:1:C",
+    "event_id": "leg-evt-a606e15b-ba59-4cdd-b04f-f0cbb2064b53-final",
+    "lifecycle_id": "leg:court-order-CIV-0421-2026-07",
+    "timestamp": "2026-06-09T20:42:16.261415+00:00",
+    "object_type": "legal_assertion",
+    "object_id": "lbry-3719b18145dc0c41",
+    "subject_id": "court-order-CIV-0421-2026-07",
+    "subject_type": "legal_case_reference",
+    "proof_type": null,
+    "proof_ref": "lbry:lbry-3719b18145dc0c41",
+    "verification_regime": "structured_legal_attestation",
+    "jurisdiction": "MX",
+    "reason_code": "CO",
+    "related_events": [],
+    "chain_id": null,
+    "metadata": {
+     "asserted_by": "did:key:z6MktkRL2kbdYNRyf4J2JvcTkQNjQTTSppMwd5TNrQgzb3gy",
+     "description": "explicit_authorization",
+     "jurisdiction": "MX"
+    },
+    "extensions": null,
+    "bridge_id": null,
+    "proof_semantics": null,
+    "economic_consistency": null,
+    "economic_consistency_audit_ref": null,
+    "finality_basis": null,
+    "leg_subtype": "JUD",
+    "leg_jurisdiction": {
+     "country": "MX"
+    }
+   },
+   "consumer_disposition": "Quarantined — held for explicit human ratification; execution is single-shot after ratification (e2e_pr_path)."
+  }
+ ],
+ "pipeline": [
+  {
+   "stage": "Orlog",
+   "role": "SLC foundry (upstream)",
+   "items": [
+    {
+     "label": "SLC bundle slc-late-payment-001 v0.1.0",
+     "status": "verified",
+     "detail": "Pinned at Orlog 2826aea; MC-006 content hash recomputed and matched by Tarquin's pinned_bundle_hash_verifies_and_drift_rejects test (sha256:c0ac8c5ead20d8f0…)."
+    },
+    {
+     "label": "Legal-grounding handoff (lex → Lex.Codex pin)",
+     "status": "pending",
+     "detail": "Orlog PRs #2/#3 (pilot legal verification, MX/NY e-signature grounding) are open; no content-hashed legal-grounding surface is pinned into Tarquin yet. Until then lex_refs are auditable pointers, not Tarquin-validated grounding."
+    }
+   ]
+  },
+  {
+   "stage": "Tarquin",
+   "role": "Lex.Codex · Lex.exe · Sibyl (runtime, AI-free)",
+   "items": [
+    {
+     "label": "Lex.Codex recomputation (late-payment pilot stub)",
+     "status": "live",
+     "detail": "Deterministic Rust recomputation of the pinned bundle's disputed-001 fixture (e2e_slc_handoff step 2). Scope: this one artifact; general compilation is future work."
+    },
+    {
+     "label": "Sibyl registry + LBRY attestation record",
+     "status": "live",
+     "detail": "Ed25519-signed structured legal-attestation record (lbry-3719b18145dc0c41) with canonical content hash; fail-closed registry validation."
+    },
+    {
+     "label": "Signed envelope transport + replay protection",
+     "status": "live",
+     "detail": "DID-keyed Ed25519 envelope (arrow-canonical-json-v0); consumer rejects replays and unsigned traffic."
+    },
+    {
+     "label": "Human ratification gate",
+     "status": "enforced",
+     "detail": "Execution stays blocked until explicit human ratification and is single-shot afterwards (e2e_pr_path). Signature validity never removes human review."
+    },
+    {
+     "label": "Docverify finding → LBRY → LEG lowering",
+     "status": "pending",
+     "detail": "The document-verification engine reduces and reports but does not yet lower findings into signed LBRY records or emit LEG events. Gated behind the legal-grounding pin and the frozen-stack acceptance test."
+    }
+   ]
+  },
+  {
+   "stage": "Arrow",
+   "role": "Protocol authority (LEG gate + consumers)",
+   "items": [
+    {
+     "label": "LEG gate validation (v1.6.0 surface)",
+     "status": "live",
+     "detail": "Every verdict in the feed above is the arrow-core pipeline's own output at generation time — registry-driven, deterministic, no clock input."
+    },
+    {
+     "label": "Consumer disposition (pilot)",
+     "status": "hold",
+     "detail": "Stage A sits in the review queue as Pending (held pending review, HL); Stage B is quarantined for human ratification. Nothing auto-executes."
+    },
+    {
+     "label": "TR (Trigger) primitive",
+     "status": "gated",
+     "detail": "Gated on TRG-001 — status \"live\" in the pinned rule surface. No TR primitives are implemented downstream until it is live."
+    },
+    {
+     "label": "CL post-closure lifecycle enforcement",
+     "status": "gated",
+     "detail": "Closure binding itself is live (SEM-005 + SEM-020), but post-closure lifecycle discipline is gated on LFC-007 — status \"live\" in the pinned rule surface."
+    },
+    {
+     "label": "Cross-repo pin recompute in CI (IFP-004)",
+     "status": "pending",
+     "detail": "Pins verify by test today; the automated three-repository CI recompute (ADR-0003 IFP-004) is not yet in place."
+    }
+   ]
+  }
+ ]
+};
+/*DATA:END*/
+</script>
+<main>
+  <header class="page">
+    <h1>Arrow Validation Surface</h1>
+    <div class="sub">What passes, what doesn't, and why — every verdict below is the real
+      <span class="code">arrow-core</span> validator's output, captured at generation time.</div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="filters" id="filters" role="group" aria-label="Filter verdicts"></div>
+
+  <div class="feed" id="feed" role="table" aria-label="Validation verdicts"></div>
+
+  <section>
+    <h2>Supply chain — Orlog → Tarquin → Arrow</h2>
+    <p class="lead">The late-payment pilot's path from sealed contract artifact to held legal event.
+      Statuses are read from the pinned artifacts and passing tests that actually exist —
+      <em>pending</em> and <em>gated</em> mean exactly that, not "coming soon".</p>
+    <div class="pipe" id="pipe"></div>
+  </section>
+
+  <footer id="foot"></footer>
+</main>
+<script>
+(function () {
+  "use strict";
+  if (!DATA) { document.getElementById("meta").textContent = "No data — run tools/generate-validation-surface.js"; return; }
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const $ = (id) => document.getElementById(id);
+
+  const ICONS = {
+    PASS: "✓", FAIL: "✕", live: "●", verified: "✓", enforced: "✓",
+    hold: "⏸", pending: "◌", gated: "⊘", warn: "△",
+  };
+  const chip = (status, label) =>
+    `<span class="chip ${esc(status)}"><span aria-hidden="true">${ICONS[status] || ""}</span>${esc(label || status)}</span>`;
+
+  // header meta
+  $("meta").innerHTML = [
+    `baseline ${esc(DATA.baseline)}`,
+    `generated ${esc(DATA.generated_at)}`,
+    `Arrow @ ${esc(DATA.arrow_commit)}`,
+    `Tarquin @ ${esc(DATA.tarquin_commit)}`,
+  ].map((s) => `<span>${s}</span>`).join("");
+
+  // tiles
+  const pass = DATA.rows.filter((r) => r.verdict === "PASS").length;
+  const fail = DATA.rows.length - pass;
+  const withExp = DATA.rows.filter((r) => r.expected);
+  const agree = withExp.filter((r) => r.expected.agreement).length;
+  $("tiles").innerHTML = `
+    <div class="tile pass"><div class="n">${pass}</div><div class="l">pass</div></div>
+    <div class="tile fail"><div class="n">${fail}</div><div class="l">fail</div></div>
+    <div class="tile"><div class="n">${agree}/${withExp.length}</div><div class="l">match expectations</div></div>
+    <div class="tile"><div class="n">${DATA.rows.filter((r) => r.source === "Tarquin pilot").length}</div><div class="l">pilot events</div></div>`;
+
+  // filters
+  const FILTERS = [
+    ["all", "All"], ["PASS", "Pass"], ["FAIL", "Fail"], ["pilot", "Pilot only"],
+  ];
+  let active = "all";
+  function renderFilters() {
+    $("filters").innerHTML = FILTERS.map(
+      ([k, l]) => `<button aria-pressed="${k === active}" data-f="${k}">${l}</button>`
+    ).join("");
+  }
+  $("filters").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]");
+    if (!b) return;
+    active = b.dataset.f;
+    renderFilters(); renderFeed();
+  });
+
+  function visible(r) {
+    if (active === "all") return true;
+    if (active === "pilot") return r.source === "Tarquin pilot";
+    return r.verdict === active;
+  }
+
+  const FIELD_ORDER = [
+    ["class", "Class"], ["origin", "Origin"], ["state", "State"],
+    ["action", "Action"], ["finality", "Finality"], ["confidence", "Confidence"],
+  ];
+
+  function drill(r) {
+    let h = "";
+    if (r.description) h += `<div class="srcline" style="font-size:12.5px">${esc(r.description)}</div>`;
+    if (r.fields) {
+      h += `<h4>Six-field breakdown</h4><div class="sixfields">` +
+        FIELD_ORDER.map(([k, label]) => {
+          const f = r.fields[k];
+          let gloss = f.name;
+          if (k === "origin" && f.regime_name) gloss += ` · ${f.regime_name}`;
+          return `<div class="sf"><div class="k">${label}</div><div class="v">${esc(f.code)}</div><div class="g">${esc(gloss)}</div></div>`;
+        }).join("") + `</div>`;
+    }
+    if (r.violations.length) {
+      h += `<h4>Findings (${r.violations.length})</h4>` + r.violations.map((v) => `
+        <div class="viol ${v.severity === "Error" ? "" : "warnv"}">
+          <div class="vr">${esc(v.rule_id)}${v.field ? ` · field: ${esc(v.field)}` : ""}${v.severity !== "Error" ? " · warning" : ""}</div>
+          <div class="vn">${esc(v.narrative)}</div>
+          <div class="vm">${esc(v.message)}</div>
+        </div>`).join("");
+    }
+    if (r.forced_action) h += `<div class="dispo"><b>Forced action:</b> ${esc(r.forced_action)} (non-overridable)</div>`;
+    if (r.consumer_disposition) h += `<div class="dispo"><b>Consumer disposition:</b> ${esc(r.consumer_disposition)}</div>`;
+    if (r.expected) {
+      const ok = r.expected.agreement;
+      h += `<div class="dispo"><b>Fixture expectation:</b> ${esc(r.expected.result)}` +
+        (r.expected.violations.length ? ` with ${r.expected.violations.map(esc).join(", ")}` : "") +
+        ` — ${ok ? chip("PASS", "validator agrees") : chip("FAIL", "DISAGREEMENT")}</div>`;
+    }
+    h += `<details class="raw"><summary>Raw event JSON</summary><pre>${esc(JSON.stringify(r.event, null, 2))}</pre></details>`;
+    return `<div class="drill">${h}</div>`;
+  }
+
+  function renderFeed() {
+    const rows = DATA.rows.filter(visible);
+    const head = `<div class="feed-head" role="row"><span>Verdict</span><span>Event</span><span>Rule</span><span>Why</span></div>`;
+    $("feed").innerHTML = head + rows.map((r, i) => `
+      <div class="feed-row" role="row" tabindex="0" data-i="${i}">
+        <span>${chip(r.verdict)}${r.warnings_count ? " " + chip("warn", r.warnings_count + "⚠") : ""}</span>
+        <span><span class="code">${esc(r.arrow_code)}</span><div class="srcline">${esc(r.id)} · ${esc(r.source)}</div></span>
+        <span class="rule">${esc(r.deciding_rule || "—")}</span>
+        <span class="reason">${esc(r.reason)}</span>
+        ${drill(r)}
+      </div>`).join("");
+    const shown = rows;
+    $("feed").querySelectorAll(".feed-row").forEach((el) => {
+      const toggle = (e) => {
+        if (e.target.closest("details,pre,a")) return;
+        el.classList.toggle("open");
+      };
+      el.addEventListener("click", toggle);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); el.classList.toggle("open"); }
+      });
+    });
+  }
+
+  // pipeline
+  function renderPipe() {
+    const cols = [];
+    DATA.pipeline.forEach((st, i) => {
+      if (i) cols.push(`<div class="arrow-col" aria-hidden="true">→</div>`);
+      cols.push(`
+        <div class="stage">
+          <h3>${esc(st.stage)}</h3>
+          <div class="role">${esc(st.role)}</div>
+          ${st.items.map((it) => `
+            <div class="item">
+              <div class="il"><span>${esc(it.label)}</span>${chip(it.status)}</div>
+              <div class="idet">${esc(it.detail)}</div>
+            </div>`).join("")}
+        </div>`);
+    });
+    $("pipe").innerHTML = cols.join("");
+    $("pipe").querySelectorAll(".item .il").forEach((el) => {
+      el.addEventListener("click", () => el.parentElement.classList.toggle("open"));
+    });
+  }
+
+  // footer
+  $("foot").innerHTML = `
+    <div>Provenance — Orlog SLC pin: <span class="mono">${esc(DATA.orlog_pin.source_commit)}</span>
+      (${esc(DATA.orlog_pin.hash)}, pinned ${esc(DATA.orlog_pin.pinned_at)}) ·
+      Arrow rule-surface pin: <span class="mono">${esc(DATA.arrow_pin.source_commit)}</span>
+      (${esc(DATA.arrow_pin.hash)}, pinned ${esc(DATA.arrow_pin.pinned_at)}).</div>
+    <div style="margin-top:6px">Generated by <span class="mono">tools/generate-validation-surface.js</span> —
+      verdicts are live validator output over <span class="mono">tests/fixtures/</span> and the Tarquin
+      late-payment pilot; nothing on this page is simulated. Statuses reflect repository state at
+      generation time. This page is generated — do not hand-edit.</div>`;
+
+  renderFilters();
+  renderFeed();
+  renderPipe();
+})();
+</script>
+</body>
+</html>

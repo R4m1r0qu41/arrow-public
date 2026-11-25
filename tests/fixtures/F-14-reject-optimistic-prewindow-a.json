@@ -1,0 +1,17 @@
+{
+  "event_id": "arrow-pilot-f14-2026-07-06",
+  "arrow_code": "1:ARB:PD:HL:0:A",
+  "lifecycle_id": "lfc-fixture-f14",
+  "object_id": "obj-fixture-f14",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "finality_basis": "optimistic_window",
+  "finality_eta": 1781913600,
+  "finality_eta_type": "unix_ts",
+  "subject_id": "0xabc0000000000000000000000000000000000014",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-14 — SEM-015 conditional ceiling, pre-window side. ARB origin, optimistic_settled regime, Finality=0 with finality_basis=optimistic_window and a dated window close (2026-06-20): the event is still inside its challenge window, so the pre-settlement ceiling B applies and the Confidence A claim must be rejected. Expected: reject with SEM-015."
+  }
+}

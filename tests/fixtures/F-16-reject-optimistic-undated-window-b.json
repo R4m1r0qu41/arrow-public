@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f16-2026-07-06",
+  "arrow_code": "1:ARB:PD:HL:0:B",
+  "lifecycle_id": "lfc-fixture-f16",
+  "object_id": "obj-fixture-f16",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "finality_basis": "optimistic_window",
+  "subject_id": "0xabc0000000000000000000000000000000000016",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-16 — unproven window: pending ARB event at the compliant pre-settlement Confidence B declares finality_basis=optimistic_window but omits finality_eta, so the window is undated. FB-001: a basis whose registry entry sets requires_finality_eta must carry finality_eta — without it the event holds no reproducible evidence of when settlement is due. Expected: reject with FB-001. (The Confidence-A twin of this shape is already rejected at message level by SEM-015, F-14.)"
+  }
+}

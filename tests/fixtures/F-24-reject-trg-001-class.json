@@ -1,0 +1,16 @@
+{
+  "event_id": "arrow-pilot-f24-2026-07-07",
+  "arrow_code": "1:ETH:FN:TR:1:A",
+  "lifecycle_id": "lfc-fixture-f24",
+  "object_id": "obj-fixture-f24",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "closure_eta": 0,
+  "closure_eta_type": "block_count",
+  "subject_id": "0xabc0000000000000000000000000000000000024",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-24 — TR on Class 1 OBSERVE: an observation cannot trigger. TRG-001 permits TR in Classes 2 (INSTRUCT) and 5 (TRANSFER) only. Expected: reject with TRG-001 (message-level class clause)."
+  }
+}

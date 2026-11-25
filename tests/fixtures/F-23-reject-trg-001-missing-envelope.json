@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f23-2026-07-07",
+  "arrow_code": "2:CST:FN:TR:1:C",
+  "lifecycle_id": "lfc-fixture-f23",
+  "object_id": "obj-fixture-f23",
+  "verification_regime": "institutional_attestation",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": ["arrow-authorizing-order-001"],
+  "subject_id": "0xabc0000000000000000000000000000000000023",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-23 — TR without its action_target envelope: a trigger that names no target, object, or authorizing instrument is 'a synonym with vibes' (RFC-008 F5). Expected: reject with TRG-001."
+  }
+}

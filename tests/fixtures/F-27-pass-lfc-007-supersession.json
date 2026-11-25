@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f27-2026-07-07",
+  "arrow_code": "4:PCY:FN:HL:1:B",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "bonded_quorum",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": ["ctx-closure-2026-07-07"],
+  "subject_id": "0xabc0000000000000000000000000000000000027",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-27 — valid post-closure supersession: Class 4 CONTROL citing the closure event specifically (LFC-007 reopening shape 2; control_subtype clause dormant until SEM-021). Expected: pass."
+  }
+}

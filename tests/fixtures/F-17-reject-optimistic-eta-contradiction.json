@@ -1,0 +1,16 @@
+{
+  "event_id": "arrow-pilot-f17-2026-07-06",
+  "arrow_code": "1:ARB:FN:HL:1:A",
+  "lifecycle_id": "lfc-fixture-f17",
+  "object_id": "obj-fixture-f17",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "finality_eta": 1782864000,
+  "finality_eta_type": "unix_ts",
+  "subject_id": "0xabc0000000000000000000000000000000000017",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-17 — settled-claim contradiction: ARB event asserts Finality=1 with Confidence A (post-settlement ceiling) while its own finality_eta (unix_ts 2026-07-01) postdates its own timestamp (2026-06-16) — the event claims a closed window and simultaneously dates the close in its future. Both operands are event-carried, so the rejection is fully reproducible. Expected: reject with SEM-015."
+  }
+}

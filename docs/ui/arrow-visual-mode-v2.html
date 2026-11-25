@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrow Visual Mode — v1.6.0</title>
+<style>
+  :root {
+    --bg: #07090f;
+    --ink: #b8ccd6;
+    --line: rgba(184,204,214,0.16);
+    --white: #c8d8e4;
+    --red: #c04848;
+    --green: #2db870;
+    --card: #0c1520;
+    --card-hi: #14202e;
+    --char: #c8d8e4;
+    --flap-w: clamp(30px, 3.6vw, 58px);
+    --flap-h: clamp(44px, 5.2vw, 82px);
+    --ghost-h: 30px;
+    --label-h: 16px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
+  /* Staal register: fine coordinate grid over dark field */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg,   transparent 0 39px, rgba(140,180,220,0.028) 39px 40px),
+      repeating-linear-gradient(90deg,  transparent 0 39px, rgba(140,180,220,0.028) 39px 40px);
+  }
+
+  button, select { font: inherit; }
+  button {
+    border: 1px solid var(--line);
+    background: rgba(140,200,255,0.055);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    padding: 38px clamp(16px, 3vw, 60px);
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 72px;
+    gap: clamp(12px, 2vw, 26px);
+  }
+
+  .rail {
+    min-height: calc(100vh - 76px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    color: rgba(184,204,214,0.44);
+  }
+  .rail-word, .right-word {
+    display: flex; flex-direction: column; gap: 13px; align-items: center;
+    font-size: clamp(14px, 1.4vw, 22px); font-weight: 700;
+  }
+  .rail-mark {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border: 1px solid rgba(184,204,214,0.24); background: rgba(140,200,255,0.04);
+  }
+
+  .stage { min-width: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; }
+
+  .topline {
+    display: flex; justify-content: space-between; gap: 18px; align-items: center;
+    color: rgba(184,204,214,0.52); font-size: 12px; text-transform: uppercase;
+  }
+  .topline b { color: var(--ink); font-size: 17px; }
+
+  /* ===== MACHINE ===== */
+  .machine {
+    position: relative; min-height: 760px;
+    border: 1px solid rgba(140,180,220,0.12);
+    background: linear-gradient(160deg, rgba(12,20,36,0.96), rgba(6,10,18,0.99));
+    box-shadow: inset 0 0 0 1px rgba(140,200,255,0.04);
+    overflow: hidden;
+  }
+  .machine.valid {
+    box-shadow: inset 0 0 0 1px rgba(140,200,255,0.04),
+                inset 0 -90px 160px rgba(45,184,112,0.065);
+  }
+  .machine.invalid {
+    box-shadow: inset 0 0 0 1px rgba(140,200,255,0.04),
+                inset 0 -90px 160px rgba(192,72,72,0.055);
+  }
+  .machine.invalid { --char: #d88; }
+  .machine.valid   { --char: #7de8aa; }
+
+  /* ===== DEPTH WELL ===== */
+  .well {
+    position: absolute; inset: 0;
+    perspective: 1800px; perspective-origin: 50% 38%;
+  }
+  .well-inner {
+    position: absolute; inset: 0; transform-style: preserve-3d;
+    transform: rotateX(calc(var(--ty,0deg))) rotateY(calc(var(--tx,0deg)));
+    transition: transform 380ms cubic-bezier(.2,.7,.2,1);
+  }
+  .deck {
+    position: absolute; left: 50%; top: 57%;
+    transform: translate(-50%, -50%) translateZ(var(--z));
+    border: 1px solid rgba(140,180,220,0.07);
+    background: rgba(10,18,36,0.1);
+    box-shadow: inset 0 0 0 1px rgba(140,200,255,0.03);
+    pointer-events: none;
+  }
+  .deck .deck-tag {
+    position: absolute; top: -1px; left: -1px;
+    padding: 3px 8px; font-size: 9px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(184,204,214,0.45);
+    background: rgba(8,14,26,0.72);
+  }
+  .deck-gates {
+    --z: -80px;
+    width: min(440px, 52%); height: min(440px, 52vw); min-height: 320px;
+    background: transparent; border: none; box-shadow: none;
+  }
+  .deck-threads { --z: -380px; top: 60%; width: min(540px, 54%); height: 270px; opacity: 0.5; }
+  .deck-core    { --z: -580px; width: min(470px, 48%); height: 230px; opacity: 0.55; overflow: hidden; }
+
+  .machine.invalid .deck { border-color: rgba(192,72,72,0.12); }
+  .machine.valid   .deck { border-color: rgba(45,184,112,0.12); }
+
+  /* ===== RING-NODE ORBITAL SYSTEM ===== */
+  .ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .ring-path {
+    fill: none; stroke: rgba(140,180,220,0.1); stroke-width: 0.8;
+    transition: stroke 400ms;
+  }
+  .machine.valid   .ring-path { stroke: rgba(45,184,112,0.18); }
+  .machine.invalid .ring-path { stroke: rgba(192,72,72,0.08); }
+
+  /* Alignment pulse — expands outward when all pass */
+  .ring-pulse {
+    fill: none; stroke-width: 1.2; stroke: rgba(45,184,112,0); opacity: 0;
+    transform-box: fill-box; transform-origin: center center;
+  }
+  .machine.valid .ring-pulse {
+    animation: ringPulse 3s ease-out infinite;
+    opacity: 1;
+  }
+  @keyframes ringPulse {
+    0%   { stroke: rgba(45,184,112,0.65); stroke-width: 1.4; transform: scale(1);    opacity: 1; }
+    100% { stroke: rgba(45,184,112,0);    stroke-width: 0.4; transform: scale(1.38); opacity: 0; }
+  }
+
+  /* Edge lines between semantically related nodes */
+  .gate-edge { fill: none; stroke-width: 0.9; opacity: 0.7; }
+
+  /* Node wrapper — the positioned outer group (SVG translate attr handles position) */
+  /* Node inner — the CSS-animated inner group */
+  .gate-node {
+    transform-box: fill-box;
+    transform-origin: 0 0;
+  }
+  .gate-node .node-bg {
+    transition: fill 380ms ease, stroke 380ms ease, filter 380ms ease;
+    fill: rgba(184,204,214,0.07);
+    stroke: rgba(184,204,214,0.28);
+    stroke-width: 1;
+  }
+  .gate-node.pass .node-bg {
+    fill: rgba(45,184,112,0.2);
+    stroke: rgba(45,184,112,0.82);
+    filter: drop-shadow(0 0 4px rgba(45,184,112,0.45));
+  }
+  .gate-node.fail .node-bg {
+    fill: rgba(192,72,72,0.18);
+    stroke: rgba(192,72,72,0.72);
+  }
+
+  .gate-node .node-label {
+    fill: rgba(184,204,214,0.42);
+    font: 600 7px ui-monospace, monospace;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    transition: fill 380ms;
+    pointer-events: none;
+    letter-spacing: 0.02em;
+  }
+  .gate-node.pass .node-label { fill: rgba(100,220,150,0.92); }
+  .gate-node.fail .node-label { fill: rgba(220,110,110,0.88); }
+
+  /* Roll animation: tangential nudge along ring + slight rotation */
+  @keyframes nodeRoll {
+    0%   { transform: translate(0px, 0px)                              rotate(0deg);   }
+    28%  { transform: translate(var(--rx, 4px), var(--ry, -4px))       rotate(-10deg); }
+    65%  { transform: translate(calc(var(--rx,4px)*-.45), calc(var(--ry,-4px)*-.45)) rotate(5deg);  }
+    100% { transform: translate(0px, 0px)                              rotate(0deg);   }
+  }
+  .gate-node.rolling { animation: nodeRoll 460ms cubic-bezier(.3,.7,.2,1); }
+
+  /* Ring readout */
+  .ring-readout {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; pointer-events: none; text-transform: uppercase;
+  }
+  .ring-readout .rw { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; color: rgba(184,204,214,0.65); }
+  .ring-readout .rc { display: block; font-size: 10px; margin-top: 3px; color: rgba(184,204,214,0.42); }
+
+  /* ===== THREAD TRAJECTORY DECK (replaces gears) ===== */
+  .thread-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .trajectory {
+    fill: none; stroke: rgba(140,200,255,0.16); stroke-width: 0.7;
+    animation: trajPulse var(--tp, 6s) ease-in-out infinite;
+  }
+  @keyframes trajPulse {
+    0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; }
+  }
+  .t-node {
+    fill: rgba(140,200,255,0.55);
+    animation: tNodePulse var(--tp, 6s) ease-in-out infinite;
+  }
+  @keyframes tNodePulse {
+    0%, 100% { opacity: 0.3; r: 1.6; } 50% { opacity: 0.9; r: 2.6; }
+  }
+  .machine.invalid .trajectory { stroke: rgba(192,100,100,0.14); }
+  .machine.invalid .t-node     { fill: rgba(192,100,100,0.4); }
+  .machine.valid   .trajectory { stroke: rgba(45,184,112,0.22); }
+  .machine.valid   .t-node     { fill: rgba(45,184,112,0.65); }
+
+  /* ===== CORE DECK ===== */
+  .core-frame {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    border: 1px solid rgba(140,180,220,0.08);
+  }
+  .core-glyphs { position: absolute; inset: 0; font-size: 10px; color: rgba(140,200,255,0.25); }
+  .core-glyphs span {
+    position: absolute;
+    animation: glyphDrift var(--gd, 9s) linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes glyphDrift {
+    0%   { transform: translateY(118px); opacity: 0; }
+    18%  { opacity: 0.65; }
+    82%  { opacity: 0.65; }
+    100% { transform: translateY(-130px); opacity: 0; }
+  }
+
+  /* ===== SPLIT-FLAP ===== */
+  .flap-plane {
+    position: absolute; left: 50%; top: 30%; transform: translate(-50%, -50%);
+    z-index: 4; display: grid; gap: 12px; justify-items: center;
+    width: max-content; max-width: calc(100% - 32px);
+  }
+  .flap-line { display: flex; align-items: flex-start; gap: clamp(8px, 1.1vw, 18px); }
+  .ff { display: grid; gap: 6px; justify-items: center; }
+  .ff-label { height: var(--label-h); font-size: 10px; text-transform: uppercase; color: rgba(184,204,214,0.52); white-space: nowrap; }
+
+  .ghost {
+    height: var(--ghost-h); min-width: calc(var(--flap-w) * 1.4); padding: 0 8px;
+    border: 1px solid rgba(140,180,220,0.15); background: rgba(140,200,255,0.04);
+    font-size: 9px; text-transform: uppercase; color: rgba(184,204,214,0.52);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: calc(var(--flap-w) * 3 + 12px);
+  }
+  .ghost.g-prev { transform: perspective(280px) rotateX(34deg); transform-origin: bottom; }
+  .ghost.g-next { transform: perspective(280px) rotateX(-34deg); transform-origin: top; }
+  .ghost:hover  { background: rgba(140,200,255,0.09); }
+
+  .ff-flaps { display: flex; gap: 3px; }
+  .flap {
+    position: relative; width: var(--flap-w); height: var(--flap-h);
+    perspective: 320px; border-radius: 4px; background: var(--card);
+    box-shadow: 0 14px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(140,200,255,0.07);
+  }
+  .flap .half {
+    position: absolute; left: 0; right: 0; height: 50%; overflow: hidden;
+    background: linear-gradient(var(--card-hi), var(--card));
+  }
+  .flap .half.t { top: 0; border-radius: 4px 4px 0 0; }
+  .flap .half.b { bottom: 0; border-radius: 0 0 4px 4px; background: linear-gradient(var(--card), #05090f); }
+  .flap .half i {
+    position: absolute; left: 0; width: 100%; height: 200%;
+    display: grid; place-items: center; font-style: normal; font-weight: 800;
+    font-size: calc(var(--flap-h) * 0.56); color: var(--char);
+    text-shadow: 0 0 16px rgba(140,200,255,0.2); transition: color 260ms;
+  }
+  .flap .half.t i { top: 0; }
+  .flap .half.b i { bottom: 0; }
+  .flap .leaf { display: none; z-index: 3; backface-visibility: hidden; }
+  .flap .leaf-o { top: 0; transform-origin: bottom; border-radius: 4px 4px 0 0; }
+  .flap .leaf-n { bottom: 0; transform-origin: top; border-radius: 0 0 4px 4px; background: linear-gradient(var(--card), #05090f); }
+  .flap .hinge {
+    position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; z-index: 4;
+    background: rgba(0,0,0,0.7); box-shadow: 0 1px 0 rgba(140,200,255,0.05);
+  }
+  .ff-name { font-size: 10px; text-transform: uppercase; color: rgba(184,204,214,0.58); white-space: nowrap; }
+  .sep {
+    height: var(--flap-h); margin-top: calc(var(--label-h) + var(--ghost-h) + 12px);
+    display: grid; place-items: center; font-size: calc(var(--flap-h) * 0.5);
+    font-weight: 800; color: rgba(184,204,214,0.32);
+  }
+  .status-strip {
+    display: grid; grid-template-columns: repeat(3, auto); gap: 26px;
+    font-size: 10px; text-transform: uppercase; color: rgba(184,204,214,0.52);
+  }
+  .status-strip span { border-top: 1px solid rgba(140,180,220,0.18); padding-top: 5px; }
+
+  /* ===== SIDE GATE PANELS ===== */
+  .gate-rail {
+    position: absolute; top: 56px; bottom: 130px;
+    width: clamp(150px, 16vw, 215px); z-index: 5;
+    display: grid; gap: 8px; align-content: center;
+  }
+  .gate-rail.left  { left: 12px; }
+  .gate-rail.right { right: 12px; }
+  .gate {
+    border: 1px solid rgba(140,180,220,0.12); background: rgba(140,200,255,0.035);
+    padding: 6px 8px; font-size: 10px; text-transform: uppercase;
+  }
+  .gate header { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-weight: 700; }
+  .gate .lamp {
+    width: 8px; height: 8px; border-radius: 50%; flex: none;
+    background: var(--red); box-shadow: 0 0 0 3px rgba(192,72,72,0.1);
+  }
+  .gate.pass { background: rgba(45,184,112,0.07); border-color: rgba(45,184,112,0.28); }
+  .gate.pass .lamp { background: var(--green); box-shadow: 0 0 0 3px rgba(45,184,112,0.12); }
+  .gate.fail { background: rgba(192,72,72,0.1); border-color: rgba(192,72,72,0.38); }
+  .gate em   { display: block; margin-top: 2px; font-style: normal; color: rgba(184,204,214,0.58); }
+  .gate .why { display: block; margin-top: 3px; font-size: 9px; text-transform: none; color: rgba(184,204,214,0.4); }
+
+  /* ===== ARROW LANE ===== */
+  .arrow-lane {
+    position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+    z-index: 6; width: min(920px, calc(100% - 40px)); height: 86px;
+    border-top: 1px solid rgba(140,180,220,0.18); border-bottom: 1px solid rgba(140,180,220,0.12);
+    overflow: hidden;
+  }
+  .lane-tag { position: absolute; left: 0; top: 6px; font-size: 9px; text-transform: uppercase; color: rgba(184,204,214,0.38); }
+  .compiled {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    padding: 8px 16px; min-width: 270px; text-align: center;
+    border: 1px solid rgba(140,180,220,0.2); background: rgba(140,200,255,0.05);
+    font-size: clamp(12px, 1.3vw, 15px); white-space: nowrap; color: var(--ink);
+  }
+  .compiled.reducible { border-color: rgba(45,184,112,0.72); background: rgba(45,184,112,0.09); color: #7de8aa; }
+  .compiled.blocked   { border-color: rgba(192,72,72,0.65); background: rgba(192,72,72,0.09); color: #e08; }
+  .compiled.blocked   { color: rgba(220,120,120,0.9); }
+
+  .trail {
+    position: absolute; top: 50%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(45,184,112,0.82));
+    opacity: 0; pointer-events: none;
+  }
+  .arrow-head-mark { position: absolute; right: 10px; top: 50%; width: 60px; height: 1px; background: rgba(140,180,220,0.45); }
+  .arrow-head-mark::after {
+    content: ""; position: absolute; right: 0; top: -5px; width: 10px; height: 10px;
+    border-top: 1px solid rgba(140,180,220,0.45); border-right: 1px solid rgba(140,180,220,0.45);
+    transform: rotate(45deg);
+  }
+
+  /* ===== PAPER DART ===== */
+  .paper-plane {
+    position: absolute; z-index: 7; display: grid; place-items: center;
+    min-width: 270px; padding: 8px 16px;
+    border: 1px solid rgba(45,184,112,0.72); background: rgba(12,28,20,0.97);
+    color: #7de8aa; font-weight: 800; font-size: clamp(12px, 1.3vw, 15px);
+    white-space: nowrap; transform-style: preserve-3d; pointer-events: none; opacity: 0;
+    will-change: transform, clip-path, opacity;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.5), 0 0 18px rgba(45,184,112,0.18);
+  }
+  .paper-plane .paper-crease {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: linear-gradient(180deg, rgba(140,200,255,0.18), transparent 48%, rgba(0,0,0,0.24) 52%, transparent);
+  }
+
+  /* ===== CONTROLS ===== */
+  .controls { display: grid; grid-template-columns: repeat(6, minmax(118px, 1fr)) auto; gap: 10px; align-items: end; }
+  .select-wrap { display: grid; gap: 5px; }
+  .select-wrap label { font-size: 10px; text-transform: uppercase; color: rgba(184,204,214,0.52); }
+  select {
+    min-width: 0; width: 100%; height: 36px;
+    border: 1px solid rgba(140,180,220,0.2); background: rgba(140,200,255,0.055);
+    color: var(--ink); padding: 0 8px;
+  }
+  select option { background: #0c1520; color: var(--ink); }
+  .actions { display: flex; gap: 8px; }
+  .actions button { height: 36px; min-width: 44px; padding: 0 14px; text-transform: uppercase; font-size: 11px; }
+  #reduceBtn.armed  { border-color: rgba(45,184,112,0.75); background: rgba(45,184,112,0.1); color: #7de8aa; font-weight: 700; }
+  #reduceBtn.locked { cursor: not-allowed; border-color: rgba(192,72,72,0.62); background: rgba(192,72,72,0.09); color: rgba(220,120,120,0.9); }
+
+  .side-notes { display: grid; align-content: center; gap: 20px; min-height: calc(100vh - 76px); }
+  .right-word { color: rgba(184,204,214,0.65); }
+  .micro { writing-mode: vertical-rl; justify-self: center; font-size: 10px; color: rgba(184,204,214,0.38); text-transform: uppercase; }
+
+  @media (max-width: 1280px) { .gate-rail { display: none; } .deck-gates { width: 78%; } }
+  @media (max-width: 1100px) {
+    .shell { grid-template-columns: 42px minmax(0, 1fr); }
+    .side-notes { display: none; }
+    .controls { grid-template-columns: repeat(3, minmax(110px, 1fr)); }
+    .actions { grid-column: 1 / -1; }
+  }
+  @media (max-width: 820px) {
+    .shell { grid-template-columns: 1fr; padding: 18px 10px 26px; }
+    .rail  { display: none; }
+    .machine { min-height: 640px; }
+    :root { --flap-w: clamp(20px, 6.6vw, 34px); --flap-h: clamp(32px, 9.4vw, 50px); }
+    .ghost { display: none; }
+    .sep { margin-top: var(--label-h); }
+    .ff-name { display: none; }
+    .flap-plane { top: 24%; }
+    .controls { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <aside class="rail" aria-hidden="true">
+    <div class="rail-mark">#</div>
+    <div class="rail-word"><span>A</span><span>R</span><span>R</span><span>O</span><span>W</span></div>
+    <div>1</div>
+  </aside>
+
+  <section class="stage" aria-label="Arrow visual mode prototype">
+    <div class="topline">
+      <span><b>Arrow visual mode</b> / v1.6.0 surface</span>
+      <span>Class:Origin:State:Action:Finality:Confidence</span>
+    </div>
+
+    <section class="machine" id="machine">
+      <div class="well" id="well">
+        <div class="well-inner" id="wellInner">
+          <div class="deck deck-core">
+            <span class="deck-tag">Deck 03 · Registry core</span>
+            <div class="core-glyphs" id="coreGlyphs"></div>
+          </div>
+          <div class="deck deck-threads">
+            <span class="deck-tag">Deck 02 · Trajectory field</span>
+            <svg class="thread-svg" id="threadSvg" viewBox="0 0 540 270" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div class="deck deck-gates">
+            <span class="deck-tag">Deck 01 · Orbital gate ring</span>
+            <svg class="ring-svg" id="ringSvg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
+              <circle class="ring-pulse" id="ringPulse" cx="200" cy="200" r="155"/>
+              <circle class="ring-path" cx="200" cy="200" r="155"/>
+              <circle class="ring-path" cx="200" cy="200" r="105"/>
+              <circle class="ring-path" cx="200" cy="200" r="58"/>
+              <g id="edgeLayer"></g>
+              <g id="nodeLayer"></g>
+            </svg>
+            <div class="ring-readout">
+              <div class="rw" id="ringWord"></div>
+              <span class="rc" id="ringCount"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flap-plane">
+        <div class="flap-line" id="flapLine" aria-live="polite"></div>
+        <div class="status-strip">
+          <span id="parseState">parse locked</span>
+          <span id="compileState">compile ready</span>
+          <span id="reduceState">reduce idle</span>
+        </div>
+      </div>
+
+      <aside class="gate-rail left"  id="gateRailLeft"></aside>
+      <aside class="gate-rail right" id="gateRailRight"></aside>
+
+      <div class="arrow-lane">
+        <span class="lane-tag">reduction lane</span>
+        <div class="compiled" id="compiled">event not reduced</div>
+        <div class="trail" id="trail"></div>
+        <div class="arrow-head-mark" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <form class="controls" id="controls"></form>
+  </section>
+
+  <aside class="side-notes" aria-hidden="true">
+    <div class="right-word"><span>T</span><span>A</span><span>R</span><span>Q</span><span>U</span><span>I</span><span>N</span></div>
+    <div class="micro">Contract_Labs instrument panel</div>
+  </aside>
+</main>
+
+<script>
+/* ====== DATA — v1.6.0 registries ====== */
+const fields = [
+  { key:"class",      label:"Class",      width:1, values:[["1","Observe"],["2","Instruct"],["3","Condition"],["4","Control"],["5","Transfer"],["6","Close"]] },
+  { key:"origin",     label:"Origin",     width:3, values:[["BTC","Bitcoin"],["ETH","Ethereum"],["SOL","Solana"],["CST","Custodian"],["LEG","Legal"],["PCY","Policy"],["ARB","Arbitrum"],["BSE","Base"],["THR","Threshold"],["EMG","Emergency"],["ORC","Oracle"]] },
+  { key:"state",      label:"State",      width:2, values:[["PD","Pending"],["FN","Final"],["CD","Conditional"],["RV","Reversed"],["TL","Timelocked"]] },
+  { key:"action",     label:"Action",     width:2, values:[["PR","Proceed"],["HL","Hold"],["BL","Block"],["TR","Trigger"],["CL","Closed"],["RW","Review Warranted"]] },
+  { key:"finality",   label:"Finality",   width:1, values:[["0","Open"],["1","Locked"]] },
+  { key:"confidence", label:"Confidence", width:1, values:[["A","Highest"],["B","High"],["C","Medium"],["D","Low"],["E","Floor"]] }
+];
+
+const state = { class:"1", origin:"ETH", state:"FN", action:"RW", finality:"0", confidence:"C" };
+const executing    = new Set(["PR","TR","CL"]);
+const nonExecuting = new Set(["BL","HL","RW"]);
+
+const charPools = fields.map(f =>
+  Array.from({length: f.width}, (_, i) => [...new Set(f.values.map(v => v[0][i] || " "))])
+);
+
+const machine    = document.getElementById("machine");
+const flapLine   = document.getElementById("flapLine");
+const gRailL     = document.getElementById("gateRailLeft");
+const gRailR     = document.getElementById("gateRailRight");
+const controls   = document.getElementById("controls");
+const compiled   = document.getElementById("compiled");
+const trail      = document.getElementById("trail");
+const parseState = document.getElementById("parseState");
+const compileState = document.getElementById("compileState");
+const reduceState = document.getElementById("reduceState");
+const ringWord   = document.getElementById("ringWord");
+const ringCount  = document.getElementById("ringCount");
+
+let isReducible = false;
+let firing      = false;
+let prevGateStates = {};
+
+function currentCode() {
+  return [state.class, state.origin, state.state, state.action, state.finality, state.confidence].join(":");
+}
+function valueIndex(field) { return field.values.findIndex(v => v[0] === state[field.key]); }
+function neighbor(field, d) { const i = valueIndex(field); return field.values[(i+d+field.values.length)%field.values.length]; }
+
+/* ====== SEMANTIC GATES ====== */
+function evaluate() {
+  const {class:cls, action:act, state:st, finality:fin, confidence:conf} = state;
+  return [
+    {id:"MSG-001",  pass: currentCode().split(":").length===6,            text:"six fields / five delimiters",        why:"the shape is the parse contract"},
+    {id:"SEM-001",  pass: fin==="0" || st==="FN" || st==="RV",            text:"Finality 1 requires FN or RV",        why:"a locked event must assert a terminal state"},
+    {id:"SEM-002/4",pass: !(["PD","CD","TL"].includes(st) && fin!=="0"),  text:"PD, CD, TL require Finality 0",       why:"open-ended states cannot be locked"},
+    {id:"SEM-005",  pass: cls!=="6" || act==="CL",                        text:"Class 6 requires Action CL",          why:"a close event must act as closure"},
+    {id:"SEM-006",  pass: cls!=="3" || nonExecuting.has(act),             text:"Class 3 is non-executing",            why:"conditions gate execution; they never execute"},
+    {id:"SEM-007",  pass: cls!=="5" || ["TR","PR"].includes(act),         text:"Class 5 requires TR or PR",           why:"a transfer must move or trigger movement"},
+    {id:"SEM-009",  pass: !(conf==="E" && ["PR","TR"].includes(act)),      text:"Confidence E cannot execute",         why:"floor confidence cannot authorize execution"},
+    {id:"SEM-012",  pass: cls!=="6" || st==="FN",                         text:"Class 6 requires State FN",           why:"you cannot close on a non-final state"},
+    {id:"SEM-013",  pass: fin!=="0" || nonExecuting.has(act),             text:"Finality 0 blocks PR, TR, CL",        why:"executing actions require a locked event"},
+    {id:"SEM-020",  pass: act!=="CL" || cls==="6",                        text:"Action CL requires Class 6",          why:"closure reserved for close class; converse of SEM-005"}
+  ];
+}
+
+/* ====== SPLIT-FLAP ====== */
+const flapRefs = {};
+
+function makeFlap(ch) {
+  const f = document.createElement("span");
+  f.className = "flap"; f.dataset.ch = ch;
+  f.innerHTML = `<span class="half t h-tn"><i>${ch}</i></span><span class="half b h-bo"><i>${ch}</i></span><span class="half leaf leaf-o"><i>${ch}</i></span><span class="half leaf leaf-n"><i>${ch}</i></span><span class="hinge"></span>`;
+  return f;
+}
+
+function flip(flap, ch, dur=105) {
+  return new Promise(resolve => {
+    const old = flap.dataset.ch;
+    if (old===ch) { resolve(); return; }
+    const tNew=flap.querySelector(".h-tn i"), bOld=flap.querySelector(".h-bo i");
+    const lo=flap.querySelector(".leaf-o"), ln=flap.querySelector(".leaf-n");
+    tNew.textContent=ch; lo.firstElementChild.textContent=old; ln.firstElementChild.textContent=ch;
+    lo.style.display="block"; ln.style.display="block";
+    const a1=lo.animate([{transform:"rotateX(0deg)"},{transform:"rotateX(-88deg)"}],{duration:dur*.5,easing:"cubic-bezier(.55,0,.85,.36)",fill:"forwards"});
+    const a2=ln.animate([{transform:"rotateX(88deg)"},{transform:"rotateX(0deg)"}],{duration:dur*.5,delay:dur*.5,easing:"cubic-bezier(.15,.65,.25,1)",fill:"forwards"});
+    a2.onfinish=()=>{ bOld.textContent=ch; flap.dataset.ch=ch; lo.style.display="none"; ln.style.display="none"; a1.cancel(); a2.cancel(); resolve(); };
+  });
+}
+
+async function spinTo(flap, target, pool, steps, delayMs) {
+  await new Promise(r=>setTimeout(r, delayMs));
+  const start=pool.indexOf(flap.dataset.ch);
+  for (let i=1;i<=steps;i++) await flip(flap, pool[(start+i)%pool.length]);
+  if (flap.dataset.ch!==target) await flip(flap, target, 90);
+}
+
+function buildFlapLine() {
+  fields.forEach(field => {
+    if (field!==fields[0]) { const s=document.createElement("div"); s.className="sep"; s.textContent=":"; flapLine.appendChild(s); }
+    const ff=document.createElement("div"); ff.className="ff";
+    const gP=document.createElement("div"); gP.className="ghost g-prev";
+    const lbl=document.createElement("div"); lbl.className="ff-label"; lbl.textContent=field.label;
+    const fs=document.createElement("div"); fs.className="ff-flaps";
+    const fEls=[]; const init=state[field.key].padEnd(field.width," ");
+    for (let i=0;i<field.width;i++) { const f=makeFlap(init[i]); fs.appendChild(f); fEls.push(f); }
+    const nm=document.createElement("div"); nm.className="ff-name"; nm.textContent=field.values[valueIndex(field)][1];
+    const gN=document.createElement("div"); gN.className="ghost g-next";
+    ff.append(gP,lbl,fs,nm,gN); flapLine.appendChild(ff);
+    flapRefs[field.key]={flaps:fEls, gPrev:gP, gNext:gN, nameEl:nm};
+  });
+}
+
+/* ====== GATE RAIL PANELS ====== */
+function buildGateContainers(gates) {
+  const half=Math.ceil(gates.length/2);
+  gates.forEach((g,i) => {
+    const rail=i<half?gRailL:gRailR;
+    const el=document.createElement("div"); el.className="gate"; el.id=`gate-${g.id}`;
+    el.innerHTML=`<header><span>${g.id}</span><span class="lamp"></span></header><em>${g.text}</em><span class="why">${g.why}</span>`;
+    rail.appendChild(el);
+  });
+}
+function paintGates(gates) {
+  gates.forEach(g => {
+    const el=document.getElementById(`gate-${g.id}`);
+    if (!el) return;
+    el.classList.toggle("pass", g.pass);
+    el.classList.toggle("fail", !g.pass);
+  });
+}
+
+/* ====== ORBITAL RING-NODE SYSTEM ====== */
+/* 
+   Layout based on Rubik's group-theory diagram:
+   three concentric orbital rings, nodes cluster on paths,
+   edges encode semantic dependencies between gate rules.
+   
+   Outer  ring r=155 — 4 nodes (parse + finality tier)
+   Middle ring r=105 — 3 nodes (class-type tier)
+   Inner  ring r=58  — 3 nodes (execution tier)
+*/
+const CX=200, CY=200;
+
+const nodeLayout = [
+  /* Outer ring — parse / state / finality family */
+  {id:"MSG-001",   ring:0, r:155, angle:-65,  label:"M·001"},
+  {id:"SEM-001",   ring:0, r:155, angle:-10,  label:"001"},
+  {id:"SEM-002/4", ring:0, r:155, angle:115,  label:"002"},
+  {id:"SEM-005",   ring:0, r:155, angle:200,  label:"005"},
+  /* Middle ring — class-type family */
+  {id:"SEM-006",   ring:1, r:105, angle:-45,  label:"006"},
+  {id:"SEM-007",   ring:1, r:105, angle:85,   label:"007"},
+  {id:"SEM-009",   ring:1, r:105, angle:205,  label:"009"},
+  /* Inner ring — execution / closure family */
+  {id:"SEM-012",   ring:2, r:58,  angle:-25,  label:"012"},
+  {id:"SEM-013",   ring:2, r:58,  angle:105,  label:"013"},
+  {id:"SEM-020",   ring:2, r:58,  angle:235,  label:"020"},
+];
+
+/* Edge families with distinct cold palette colors */
+const edgeDefs = [
+  {a:"MSG-001", b:"SEM-001",   color:"rgba(140,200,255,0.22)"},  /* parse chain */
+  {a:"SEM-001", b:"SEM-002/4", color:"rgba(220,200,80,0.22)"},   /* finality family */
+  {a:"SEM-005", b:"SEM-020",   color:"rgba(200,140,255,0.22)"},  /* closure converse */
+  {a:"SEM-005", b:"SEM-006",   color:"rgba(200,140,255,0.18)"},  /* class gate chain */
+  {a:"SEM-006", b:"SEM-007",   color:"rgba(80,220,180,0.22)"},   /* class-type family */
+  {a:"SEM-009", b:"SEM-013",   color:"rgba(255,160,120,0.22)"},  /* execution family */
+  {a:"SEM-012", b:"SEM-005",   color:"rgba(200,140,255,0.16)"},  /* close chain */
+  {a:"SEM-007", b:"SEM-012",   color:"rgba(80,220,180,0.16)"},   /* class→close chain */
+];
+
+function nPos(layout) {
+  const rad=(layout.angle-90)*Math.PI/180;
+  return {x: CX+layout.r*Math.cos(rad), y: CY+layout.r*Math.sin(rad)};
+}
+const nodeR={0:15, 1:12, 2:11};
+
+function buildRings() {
+  const nl=document.getElementById("nodeLayer");
+  const el=document.getElementById("edgeLayer");
+  const posMap={};
+  nodeLayout.forEach(n => { posMap[n.id]=nPos(n); });
+
+  /* Draw edges */
+  edgeDefs.forEach(({a,b,color}) => {
+    if (!posMap[a]||!posMap[b]) return;
+    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("class","gate-edge");
+    line.setAttribute("x1",posMap[a].x); line.setAttribute("y1",posMap[a].y);
+    line.setAttribute("x2",posMap[b].x); line.setAttribute("y2",posMap[b].y);
+    line.setAttribute("stroke",color);
+    el.appendChild(line);
+  });
+
+  /* Draw nodes */
+  nodeLayout.forEach(n => {
+    const {x,y}=posMap[n.id];
+    const r=nodeR[n.ring];
+    /* Tangential roll vector */
+    const rad=(n.angle-90)*Math.PI/180;
+    const tx=(-Math.sin(rad)*6).toFixed(1);
+    const ty=(Math.cos(rad)*6).toFixed(1);
+
+    /* Outer positioning group (SVG attribute) */
+    const posG=document.createElementNS("http://www.w3.org/2000/svg","g");
+    posG.setAttribute("transform",`translate(${x},${y})`);
+
+    /* Inner animatable group (CSS) */
+    const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.setAttribute("class","gate-node");
+    g.setAttribute("id",`ring-node-${n.id}`);
+    g.style.setProperty("--rx",`${tx}px`);
+    g.style.setProperty("--ry",`${ty}px`);
+
+    const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("class","node-bg"); circle.setAttribute("r",r);
+    g.appendChild(circle);
+
+    const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+    text.setAttribute("class","node-label"); text.textContent=n.label;
+    g.appendChild(text);
+
+    posG.appendChild(g);
+    nl.appendChild(posG);
+  });
+}
+
+function paintRings(gates, changedIds=[]) {
+  const passCount=gates.filter(g=>g.pass).length;
+  const allPass=passCount===gates.length;
+  ringWord.textContent=allPass?"aligned":"locked";
+  ringWord.style.color=allPass?"rgba(120,220,160,0.82)":"rgba(184,204,214,0.65)";
+  ringCount.textContent=`${passCount} / ${gates.length} gates`;
+
+  gates.forEach(g => {
+    const node=document.getElementById(`ring-node-${g.id}`);
+    if (!node) return;
+    node.classList.toggle("pass", g.pass);
+    node.classList.toggle("fail", !g.pass);
+    if (changedIds.includes(g.id)) {
+      node.classList.remove("rolling");
+      void node.offsetWidth; // reflow
+      node.classList.add("rolling");
+      node.addEventListener("animationend",()=>node.classList.remove("rolling"),{once:true});
+    }
+  });
+}
+
+/* ====== THREAD TRAJECTORY DECK ====== */
+function buildThreads() {
+  const svg=document.getElementById("threadSvg");
+  const cx=290, cy=135;
+  const sources=[[0,20],[0,100],[0,190],[90,270],[210,270],[390,270],[540,240],[540,60],[270,0],[120,0]];
+  const jitter=(v,a)=>v+(Math.random()-0.5)*a;
+
+  sources.forEach(([ sx,sy],i)=>{
+    const tx=cx+jitter(0,18), ty=cy+jitter(0,14);
+    const mx=(sx+tx)/2+jitter(0,70), my=(sy+ty)/2+jitter(0,50);
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("class","trajectory");
+    path.setAttribute("d",`M${sx},${sy} Q${mx},${my} ${tx},${ty}`);
+    path.style.setProperty("--tp",`${4.5+i*0.65}s`);
+    path.style.animationDelay=`${-i*0.85}s`;
+    svg.appendChild(path);
+
+    const node=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    node.setAttribute("class","t-node");
+    node.setAttribute("cx",mx); node.setAttribute("cy",my); node.setAttribute("r","2");
+    node.style.setProperty("--tp",`${4.5+i*0.65}s`);
+    node.style.animationDelay=`${-i*0.85}s`;
+    svg.appendChild(node);
+  });
+
+  const hub=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  hub.setAttribute("cx",cx); hub.setAttribute("cy",cy); hub.setAttribute("r","5");
+  hub.setAttribute("fill","rgba(140,200,255,0.55)");
+  hub.setAttribute("stroke","rgba(140,200,255,0.25)"); hub.setAttribute("stroke-width","1.5");
+  hub.setAttribute("id","threadHub");
+  svg.appendChild(hub);
+}
+
+/* ====== CORE DECK ====== */
+function buildCore() {
+  const host=document.getElementById("coreGlyphs");
+  const deck=host.parentElement;
+  for (let i=1;i<=4;i++) {
+    const fr=document.createElement("div"); fr.className="core-frame";
+    fr.style.width=`${100-i*18}%`; fr.style.height=`${100-i*18}%`; fr.style.opacity=`${0.9-i*0.16}`;
+    deck.appendChild(fr);
+  }
+  for (let i=0;i<9;i++) {
+    const gl=document.createElement("span"); gl.className="core-glyph";
+    gl.style.left=`${6+((i*23)%82)}%`; gl.style.setProperty("--gd",`${7+(i%5)*2.4}s`);
+    gl.style.animationDelay=`${i*-1.7}s`; host.appendChild(gl);
+  }
+}
+function paintCore() {
+  document.querySelectorAll(".core-glyph").forEach((gl,i)=>{
+    gl.textContent=i%2===0?currentCode():currentCode().split("").reverse().join("");
+  });
+}
+
+/* ====== CONTROLS ====== */
+let reduceBtn;
+function buildControls() {
+  fields.forEach(field=>{
+    const wrap=document.createElement("div"); wrap.className="select-wrap";
+    const lbl=document.createElement("label"); lbl.htmlFor=`select-${field.key}`; lbl.textContent=field.label;
+    const sel=document.createElement("select"); sel.id=`select-${field.key}`;
+    field.values.forEach(([code,name])=>{ const o=document.createElement("option"); o.value=code; o.textContent=`${code} - ${name}`; sel.appendChild(o); });
+    sel.value=state[field.key];
+    sel.addEventListener("change",()=>{ state[field.key]=sel.value; update([field.key]); });
+    wrap.append(lbl,sel); controls.appendChild(wrap);
+  });
+
+  const acts=document.createElement("div"); acts.className="actions";
+  reduceBtn=document.createElement("button"); reduceBtn.type="button"; reduceBtn.id="reduceBtn";
+  reduceBtn.addEventListener("click", fire);
+
+  const sampleBtn=document.createElement("button"); sampleBtn.type="button"; sampleBtn.textContent="sample";
+  sampleBtn.addEventListener("click",()=>{
+    const examples=[
+      /* valid */
+      {v:true,  e:["1","ETH","FN","RW","0","C"]},
+      {v:true,  e:["5","ARB","FN","TR","1","A"]},
+      {v:true,  e:["3","LEG","FN","HL","0","C"]},
+      {v:true,  e:["6","CST","FN","CL","1","B"]},
+      {v:true,  e:["4","PCY","FN","PR","1","B"]},
+      {v:true,  e:["2","ORC","FN","PR","1","B"]},
+      /* blocked — deliberate gate failures */
+      {v:false, e:["3","ETH","FN","TR","1","A"]}, /* SEM-006: Class 3 non-executing */
+      {v:false, e:["5","LEG","PD","TR","0","C"]}, /* SEM-013: Finality 0 + executing action */
+    ];
+    const pick=examples[Math.floor(Math.random()*examples.length)];
+    const changed=[];
+    fields.forEach((field,i)=>{ if(state[field.key]!==pick.e[i]) changed.push(field.key); state[field.key]=pick.e[i]; });
+    update(changed);
+    if (!pick.v) {
+      sampleBtn.textContent="blocked ↯";
+      sampleBtn.style.cssText="border-color:rgba(192,72,72,0.7);color:rgba(220,120,120,0.9);";
+      setTimeout(()=>{ sampleBtn.textContent="sample"; sampleBtn.style.cssText=""; }, 1400);
+    }
+  });
+
+  acts.append(reduceBtn, sampleBtn); controls.appendChild(acts);
+}
+
+/* ====== FIRE SEQUENCE ====== */
+let paper;
+function ensurePaper() {
+  if (paper) return paper;
+  paper=document.createElement("div"); paper.className="paper-plane";
+  paper.innerHTML=`<span class="paper-code"></span><span class="paper-crease"></span>`;
+  compiled.parentElement.appendChild(paper); return paper;
+}
+
+async function fire() {
+  if (!isReducible||firing) return;
+  firing=true;
+  const lane=compiled.parentElement;
+  const dx=lane.clientWidth/2-24;
+  const p=ensurePaper();
+  p.querySelector(".paper-code").textContent=currentCode();
+  p.style.left="50%"; p.style.top="50%"; p.style.opacity="1";
+  const crease=p.querySelector(".paper-crease");
+  compiled.animate([{opacity:1},{opacity:0}],{duration:130,fill:"forwards"});
+  const rect="polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+  const band="polygon(0% 24%, 100% 24%, 100% 76%, 0% 76%)";
+  const dartA="polygon(0% 32%, 56% 32%, 56% 10%, 100% 50%, 56% 90%, 56% 68%, 0% 68%)";
+  const dartB="polygon(26% 41%, 60% 41%, 60% 28%, 100% 50%, 60% 72%, 60% 59%, 26% 59%)";
+  const tf=(x,rx,ry,s)=>`translate(calc(-50% + ${x}px), -50%) perspective(820px) rotateX(${rx}deg) rotateY(${ry}deg) scale(${s})`;
+  const dur=1180;
+  const fold=p.animate([
+    {clipPath:rect,  transform:tf(0,0,0,1),           opacity:1, offset:0},
+    {clipPath:band,  transform:tf(0,40,0,0.96),       opacity:1, offset:0.18},
+    {clipPath:dartA, transform:tf(0,12,-20,0.88),     opacity:1, offset:0.36},
+    {clipPath:dartB, transform:tf(-18,0,-4,0.8),      opacity:1, offset:0.5},
+    {clipPath:dartB, transform:tf(dx*.5,0,0,0.78),    opacity:1, offset:0.72},
+    {clipPath:dartB, transform:tf(dx,0,0,0.72),       opacity:1, offset:0.9},
+    {clipPath:dartB, transform:tf(dx+80,0,0,0.6),     opacity:0, offset:1}
+  ],{duration:dur, easing:"cubic-bezier(.45,.05,.2,1)", fill:"forwards"});
+  crease.animate([{opacity:0,offset:0},{opacity:0.9,offset:0.2},{opacity:0.55,offset:0.42},{opacity:0,offset:0.52}],{duration:dur,fill:"forwards"});
+  trail.style.left="50%"; trail.style.width="0px"; trail.style.opacity="0";
+  setTimeout(()=>{
+    trail.style.opacity="1";
+    trail.animate([{width:"0px",opacity:0.85},{width:`${Math.max(0,dx)}px`,opacity:0.5,offset:0.9},{width:`${Math.max(0,dx)}px`,opacity:0}],
+      {duration:500,easing:"cubic-bezier(.4,0,.2,1)",fill:"forwards"});
+  },dur*0.52);
+  await fold.finished;
+  p.style.opacity="0"; p.getAnimations().forEach(a=>a.cancel());
+  await compiled.animate([{opacity:0},{opacity:1}],{duration:300,easing:"cubic-bezier(.2,.9,.3,1.1)",fill:"forwards"}).finished;
+  compiled.getAnimations().forEach(a=>a.cancel()); compiled.style.opacity="1";
+  trail.style.opacity="0"; firing=false;
+}
+
+/* ====== UPDATE ====== */
+function update(changedKeys=[]) {
+  const gates=evaluate();
+  const allPass=gates.every(g=>g.pass);
+  isReducible=allPass;
+
+  /* Track which gate pass-states actually changed for targeted roll animation */
+  const changedGateIds=gates.filter(g=>prevGateStates[g.id]!==g.pass).map(g=>g.id);
+  prevGateStates=Object.fromEntries(gates.map(g=>[g.id,g.pass]));
+
+  machine.classList.toggle("invalid",!allPass);
+  machine.classList.toggle("valid",  allPass);
+  compiled.classList.toggle("blocked",   !allPass);
+  compiled.classList.toggle("reducible",  allPass);
+  parseState.textContent   = allPass?"parse locked":"parse rejected";
+  compileState.textContent = allPass?"compile green":"compile red";
+  reduceState.textContent  = allPass?"reduction path open":"reduction halted";
+  compiled.textContent     = (allPass?"armed ":"blocked ")+currentCode();
+  reduceBtn.disabled       = !allPass;
+  reduceBtn.textContent    = allPass?"reduce":"blocked";
+  reduceBtn.className      = allPass?"armed":"locked";
+  reduceBtn.title          = allPass?"Compile and shoot the reduced Arrow event":"Red lock: at least one semantic gate fails";
+
+  paintGates(gates);
+  paintRings(gates, changedGateIds);
+  paintCore();
+
+  fields.forEach((field,fi)=>{
+    const refs=flapRefs[field.key];
+    refs.nameEl.textContent=field.values[valueIndex(field)][1];
+    const prev=neighbor(field,-1), next=neighbor(field,1);
+    refs.gPrev.textContent=`${prev[0]} · ${prev[1]}`;
+    refs.gNext.textContent=`${next[0]} · ${next[1]}`;
+    const code=state[field.key].padEnd(field.width," ");
+    refs.flaps.forEach((flap,ci)=>{
+      if (flap.dataset.ch===code[ci]) return;
+      const steps=changedKeys.includes(field.key)?2+Math.floor(Math.random()*2):1;
+      spinTo(flap,code[ci],charPools[fi][ci],steps,ci*55);
+    });
+    const sel=document.getElementById(`select-${field.key}`);
+    if (sel&&sel.value!==state[field.key]) sel.value=state[field.key];
+  });
+}
+
+/* ====== PARALLAX ====== */
+const wellInner=document.getElementById("wellInner");
+machine.addEventListener("pointermove",e=>{
+  const r=machine.getBoundingClientRect();
+  const nx=(e.clientX-r.left)/r.width-.5, ny=(e.clientY-r.top)/r.height-.5;
+  wellInner.style.setProperty("--tx",`${(nx*7).toFixed(2)}deg`);
+  wellInner.style.setProperty("--ty",`${(4-ny*6).toFixed(2)}deg`);
+});
+machine.addEventListener("pointerleave",()=>{
+  wellInner.style.setProperty("--tx","0deg");
+  wellInner.style.setProperty("--ty","3deg");
+});
+wellInner.style.setProperty("--ty","3deg");
+
+/* ====== BOOT ====== */
+buildFlapLine();
+buildGateContainers(evaluate());
+buildRings();
+buildThreads();
+buildCore();
+buildControls();
+update();
+</script>
+</body>
+</html>

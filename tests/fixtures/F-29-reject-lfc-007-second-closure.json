@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f29-2026-07-07",
+  "arrow_code": "6:ETH:FN:CL:1:A",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": ["ctx-closure-2026-07-07"],
+  "subject_id": "0xabc0000000000000000000000000000000000029",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-29 — second closure for an already-closed lifecycle: a closure is neither of the two reopening shapes, and double-closing would let terminal semantics be re-stamped. Expected: reject with LFC-007."
+  }
+}

@@ -1,0 +1,24 @@
+[package]
+name = "arrow-consume-base"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arrow Protocol Consumption Adapter for Base — RecordOnly in v0.1; no live Base settlement."
+
+license.workspace = true
+[lib]
+name = "arrow_consume_base"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-consume-evm = { path = "../arrow-consume-evm" }
+arrow-adapter     = { path = "../arrow-adapter" }
+arrow-core        = { path = "../arrow-core" }
+arrow-identity    = { path = "../arrow-identity" }
+arrow-transport   = { path = "../arrow-transport", features = ["replay-sqlite"] }
+anyhow            = "1"
+base64            = "0.22"
+
+[dev-dependencies]
+arrow-core        = { path = "../arrow-core" }
+arrow-origin-base = { path = "../arrow-origin-base" }

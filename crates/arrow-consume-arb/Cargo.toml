@@ -1,0 +1,24 @@
+[package]
+name = "arrow-consume-arb"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arrow Protocol Consumption Adapter for Arbitrum One — RecordOnly in v0.1; no live Arbitrum settlement."
+
+license.workspace = true
+[lib]
+name = "arrow_consume_arb"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-consume-evm = { path = "../arrow-consume-evm" }
+arrow-adapter     = { path = "../arrow-adapter" }
+arrow-core        = { path = "../arrow-core" }
+arrow-identity    = { path = "../arrow-identity" }
+arrow-transport   = { path = "../arrow-transport", features = ["replay-sqlite"] }
+anyhow            = "1"
+base64            = "0.22"
+
+[dev-dependencies]
+arrow-core       = { path = "../arrow-core" }
+arrow-origin-arb = { path = "../arrow-origin-arb" }

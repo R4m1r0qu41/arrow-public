@@ -1,0 +1,18 @@
+{
+  "event_id": "arrow-pilot-f32-2026-07-07",
+  "arrow_code": "1:ARB:FN:HL:1:A",
+  "lifecycle_id": "lfc-fixture-f32",
+  "object_id": "obj-fixture-f32",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "not-a-date",
+  "closure_eta": 1781913600,
+  "closure_eta_type": "unix_ts",
+  "finality_eta": 1781913600,
+  "finality_eta_type": "unix_ts",
+  "subject_id": "0xabc0000000000000000000000000000000000032",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-32 — settled Confidence-A claim carrying a dated window but a malformed (non-RFC-3339) timestamp: the eta-consistency check cannot be disarmed by unparseable input; malformed rejects, never skips. Expected: reject with SEM-015 (field timestamp)."
+  }
+}

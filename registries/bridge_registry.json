@@ -1,0 +1,96 @@
+{
+  "registry": "bridge_registry",
+  "version": "1.6.0",
+  "description": "Arrow Protocol Bridge Registry. Defines trust classification and event-consequence posture for cross-chain bridge instances. This registry is a protocol-level trust classification primitive. It is not an audit certification, bridge governance mechanism, or general-purpose safety rating for investment, custody, insurance, or operational-risk purposes.",
+  "governance": "Editor-controlled for v1.x. Registry extension process to be defined in v2.0.",
+  "target_version": "v1.5-draft",
+  "validation_rules": [
+    "BRG-001",
+    "BRG-002",
+    "BRG-003",
+    "BRG-004",
+    "BRG-005",
+    "BRG-006"
+  ],
+  "schema_notes": {
+    "bridge_trust_flag": "Integer 0 or 1. 0 = disabled; all events from this bridge forced to Action BL regardless of other fields (BRG-001). 1 = active. Must not be boolean.",
+    "bridge_status": "Controlled enum: active | disabled | degraded | under_review | restored",
+    "classification_profile.classification_verified": "Boolean. If false, events from this bridge MUST NOT exceed Confidence C (SEM-017).",
+    "classification_profile.classification_binding_method": "Reference to classification_binding_methods.json entry.",
+    "restoration_confidence_ceiling": "Null when not in restoration period. A–E when bridge has been restored after a trust failure. Per BRG-005, restoration to Confidence A is unavailable until restoration ceiling period has elapsed and a subsequent review is recorded.",
+    "bridge_contract_address": "Null for native or non-contract bridges. String for Ethereum-style contract address."
+  },
+  "entries": [
+    {
+      "bridge_id": "VRSC-ETH-001",
+      "bridge_name": "Verus-Ethereum Bridge",
+      "description": "Cross-chain bridge between Verus PBaaS and Ethereum mainnet. Disabled following semantic classification exploit on 2026-05-18.",
+      "source_chain_id": "VRSC-1",
+      "destination_chain_id": "ETH-1",
+      "bridge_contract_address": null,
+      "verification_regime": "bonded_quorum",
+      "bridge_trust_flag": 0,
+      "bridge_status": "disabled",
+      "bridge_status_reason": "Semantic classification exploit — Ethereum bridge contract accepted a proof-backed import without proving source-side classification of the proven object. Approximately USD 11.5M–11.7M drained across ETH, tBTC, and USDC.",
+      "bridge_status_effective_from": "2026-05-18T00:00:00Z",
+      "classification_profile": {
+        "classification_verified": false,
+        "classification_confidence_ceiling": "C",
+        "classification_binding_method": "context_inference",
+        "classification_audit_ref": null,
+        "requires_subprofile": false,
+        "classification_notes": "Bridge accepted proof of source-chain data existence without proving source-chain classification of that data. Destination-side contract accepted proven data as an active primary export instruction when source-side classified it as an inactive supplemental export output. Context inference is the highest binding method available for this bridge at time of exploit. This is the reference case for SEM-017."
+      },
+      "economic_consistency_profile": {
+        "economic_consistency_required": true,
+        "economic_consistency_verified": false,
+        "economic_consistency_audit_ref": null,
+        "economic_consistency_notes": "Source-side value, authority, and destination-side payout were not proven to be economically consistent under the bridge verification regime. This is the reference case for SEM-019."
+      },
+      "restoration_confidence_ceiling": null,
+      "restoration_ceiling_effective_until": null,
+      "restoration_conditions_met": false,
+      "restoration_notes": "Not eligible for restoration until: (1) patched or redeployed contract version is documented; (2) classification-binding mechanism is implemented and audited; (3) economic consistency mechanism is implemented and audited; (4) independent review or audit reference is provided; (5) effective deployment block and date are recorded. Per BRG-005, restoration ceiling must be B or lower, with a governance-defined minimum hold period before Confidence A is available.",
+      "version": "1.4.0",
+      "added_version": "1.4.0",
+      "status": "active",
+      "notes": "Canonical reference case. This entry documents the exploit pattern that motivated SEM-017, MSG-005, SEM-019, and BRG-001 through BRG-006. The Verus PBaaS chain itself (VRSC-1) retains chain_trust_flag: 1 in the Chain Registry — the chain is not compromised, only the bridge contract."
+    },
+    {
+      "bridge_id": "TEST-BRIDGE-001",
+      "bridge_name": "Arrow Pilot Fixture Bridge",
+      "description": "Synthetic pilot-only bridge entry. Used exclusively by Pilot v1.0 fixture tests F-02 and F-06. Not a real bridge. Not a trust classification of any deployed system. Added to provide an active bridge reference (bridge_trust_flag=1) against which BRG-001 non-blocking and SEM-017 rejection can be tested in isolation.",
+      "source_chain_id": "ETH-1",
+      "destination_chain_id": "ARB-1",
+      "bridge_contract_address": null,
+      "verification_regime": "bonded_quorum",
+      "bridge_trust_flag": 1,
+      "bridge_status": "active",
+      "bridge_status_reason": null,
+      "bridge_status_effective_from": null,
+      "classification_profile": {
+        "classification_verified": false,
+        "classification_confidence_ceiling": "C",
+        "classification_binding_method": "context_inference",
+        "classification_audit_ref": null,
+        "requires_subprofile": false,
+        "classification_notes": "Pilot fixture bridge. classification_verified is intentionally false to exercise SEM-017 in F-06: a Confidence A claim against this bridge must be rejected with reason code PROOF_TYPE_UNBOUND. classification_confidence_ceiling is C, consistent with classification_verified=false per SEM-017. This is not a real classification assessment."
+      },
+      "economic_consistency_profile": {
+        "economic_consistency_required": false,
+        "economic_consistency_verified": false,
+        "economic_consistency_audit_ref": null,
+        "economic_consistency_notes": "Economic consistency not required for pilot fixture. SEM-019 not the target of any fixture using this bridge entry."
+      },
+      "restoration_confidence_ceiling": null,
+      "restoration_ceiling_effective_until": null,
+      "restoration_conditions_met": false,
+      "restoration_notes": "Not applicable. Bridge is active. Restoration fields are null.",
+      "version": "1.4.0",
+      "added_version": "1.4.0",
+      "introduced_in": "pilot-v1.0-fixtures",
+      "status": "pilot-fixture",
+      "notes": "PILOT FIXTURE ONLY. This entry must not be treated as a trust classification of any real bridge, protocol, or deployed contract. It exists solely to support deterministic test execution for Arrow Pilot v1.0. Remove or gate behind a feature flag before any production or external-facing registry deployment."
+    }
+  ]
+}

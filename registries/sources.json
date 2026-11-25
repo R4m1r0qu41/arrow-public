@@ -1,0 +1,10 @@
+{
+  "registry": "sources",
+  "version": "1.6.0",
+  "entries": [
+    { "source_type": "chain_rpc", "name": "Chain RPC", "description": "Direct RPC call to a blockchain node" },
+    { "source_type": "oracle", "name": "Oracle", "description": "Third-party oracle service" },
+    { "source_type": "manual_admin_action", "name": "Manual Admin Action", "description": "Manual intervention by an admin" },
+    { "source_type": "legal_filing", "name": "Legal Filing", "description": "Legal document or court filing" }
+  ]
+}

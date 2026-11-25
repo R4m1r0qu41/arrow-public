@@ -1,0 +1,11 @@
+{
+  "registry": "proof_types",
+  "version": "1.6.0",
+  "entries": [
+    { "code": "merkle_proof", "name": "Merkle Proof", "description": "Merkle inclusion proof" },
+    { "code": "tx_hash", "name": "Transaction Hash", "description": "On-chain transaction hash" },
+    { "code": "legal_attestation", "name": "Legal Attestation", "description": "Legal document attestation" },
+    { "code": "committee_signature", "name": "Committee Signature", "description": "M-of-N committee signature" },
+    { "code": "manual_admin_action", "name": "Manual Admin Action", "description": "Administrative manual action" }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "ARB",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "mainnet",
+    "network_name": "mainnet",
+    "chain_family": "evm",
+    "chain_id_observed": "42161",
+    "tx_ref": {
+      "type": "evm_tx_hash",
+      "value": "0x401abd713b25a8a037132091f26369b19c42aa34b46e0eee0686336ed7709652"
+    },
+    "finality_model": "optimistic_rollup",
+    "finality_basis": "optimistic_window",
+    "arrow_code": "1:ARB:PD:HL:0:B",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model",
+      "protocol_required.finality_basis_default",
+      "protocol_required.challenge_window_seconds"
+    ],
+    "value": "1",
+    "settlement_chain": "ETH"
+  },
+  "observation": {
+    "observed_at": "2026-06-15T05:20:23.927800+00:00",
+    "observer_head": 473645403,
+    "confirmations_at_observation": 14,
+    "finality_timing": {
+      "type": "unix_ts",
+      "value": 1782105618
+    }
+  },
+  "extraction_artifact_hash": "sha256:5d3567bee90d29cb4dfc2fc0c13412a14ecd000f9f34d7ee9909ed6dd7935770"
+}

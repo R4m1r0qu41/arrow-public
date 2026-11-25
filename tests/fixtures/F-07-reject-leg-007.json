@@ -1,0 +1,20 @@
+{
+  "event_id": "arrow-pilot-f07-2026-05-31",
+  "arrow_code": "2:LEG:FN:PR:1:C",
+  "lifecycle_id": "lfc-fixture-f07",
+  "object_id": "obj-fixture-f07",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "SUPRA",
+  "reason_code": "SA",
+  "leg_jurisdiction": {
+    "supra": "UNSC"
+  },
+  "timestamp": "2026-05-31T00:00:00Z",
+  "subject_id": "unscr-2026-0042",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "jurisdiction": "UNSC",
+    "description": "F-07 — LEG-007 supranational sanctions force-block. SUPRA + reason_code=SA + Finality=1 with a non-BL claimed Action (PR). Expected: LEG-007 fires, Action is forced to BL (non-overridable, same structural position as BRG-001/SAN-001), reason code LEG_SUPRA_SANCTIONS_FORCE. LEG-006 range check is skipped under the force path."
+  }
+}

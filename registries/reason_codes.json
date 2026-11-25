@@ -1,0 +1,184 @@
+{
+  "registry": "reason_codes",
+  "version": "1.6.0",
+  "description": "Arrow Protocol Reason Codes Registry. Controlled vocabulary for reason_code field on Arrow Event Objects. Entries from v1.3.1 are preserved unchanged. v1.4 adds five codes for cross-domain semantic consistency. v1.5 adds LEG range, SUPRA sanctions, and LEG subtype reason codes. v1.5.1 updates the rule-number references in LEG-* descriptions to reflect the v1.5.1 LEG renumbering (LEG-007→LEG-006, LEG-008→LEG-007, LEG-006→MSG-006). v1.6.0 aligns field-4 metadata and the LEG range reason-code identifier with the final Action name.",
+  "governance": "Editor-controlled for v1.x.",
+  "entries": [
+    {
+      "code": "DIVERGENCE_DETECTED",
+      "name": "Divergence Detected",
+      "description": "Observation sources have diverged. Two or more sources report contradictory state for the same on-chain fact.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "OBSERVATION_CONDITIONAL",
+      "name": "Observation Conditional",
+      "description": "Observation placed in conditional state. Confidence is bounded until condition resolves.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "OBSERVATION_HALTED",
+      "name": "Observation Halted",
+      "description": "Observation halted. No new events from this origin or lifecycle accepted until restored.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "OBSERVATION_DEGRADED",
+      "name": "Observation Degraded",
+      "description": "Observation degraded. Source quality or availability is reduced; Confidence ceiling is lowered.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "OBSERVATION_RESTORED",
+      "name": "Observation Restored",
+      "description": "Observation restored to normal operating state after halt or degradation.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "DIVERGENCE_RESOLVED",
+      "name": "Divergence Resolved",
+      "description": "Divergence between sources resolved. Authoritative state has been established.",
+      "added_version": "1.3.0",
+      "status": "active"
+    },
+    {
+      "code": "TRAVEL_RULE_ACKNOWLEDGED",
+      "name": "Travel Rule Acknowledged",
+      "description": "Travel Rule information has been transmitted and acknowledged by the receiving VASP.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "TRAVEL_RULE_REJECTED",
+      "name": "Travel Rule Rejected",
+      "description": "Travel Rule information was rejected by the receiving VASP. Transfer must not proceed.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "SANCTIONS_CLEARED",
+      "name": "Sanctions Cleared",
+      "description": "Sanctions and AML screening completed. No match found. Transfer may proceed subject to other conditions.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "SANCTIONS_HIT",
+      "name": "Sanctions Hit",
+      "description": "Sanctions screening returned a confirmed hit. Transfer must be blocked. Action BL is required.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "COMPLIANCE_HOLD",
+      "name": "Compliance Hold",
+      "description": "Event placed under compliance hold pending further review. Action HL is applied.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "COMPLIANCE_RELEASED",
+      "name": "Compliance Released",
+      "description": "Compliance hold has been lifted. Event may proceed subject to other validation.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "LEGAL_INSTRUMENT_VOID",
+      "name": "Legal Instrument Void",
+      "description": "The referenced legal instrument has been voided, rescinded, or declared invalid. Any dependent events must be reversed or blocked.",
+      "added_version": "1.3.1",
+      "status": "active"
+    },
+    {
+      "code": "PROOF_TYPE_UNBOUND",
+      "name": "Proof Type Unbound",
+      "description": "A proof-backed event asserts a destination-side operational type or claim that is not bound to the source-domain classification of the proven object. The proof demonstrates existence but not semantic type. Triggered by SEM-017. Expected response: Class 3 (Restrict), Action BL, State CD or FN.",
+      "expected_class": 3,
+      "expected_action": "BL",
+      "expected_states": ["CD", "FN"],      "added_version": "1.4.0",
+      "status": "active"
+    },
+    {
+      "code": "CLASSIFICATION_REGIME_CEILING",
+      "name": "Classification Regime Ceiling",
+      "description": "The applicable verification regime or bridge profile does not verify source-domain classification and therefore cannot support Confidence A or B. An event claiming A or B under a non-classification-bound regime is rejected. Triggered by SEM-017. Expected response: Class 3 (Restrict), Action BL, State FN.",
+      "expected_class": 3,
+      "expected_action": "BL",
+      "expected_states": ["FN"],      "added_version": "1.4.0",
+      "status": "active"
+    },
+    {
+      "code": "ECONOMIC_CONSISTENCY_UNBOUND",
+      "name": "Economic Consistency Unbound",
+      "description": "A value-releasing or settlement-triggering event does not prove or attest that source-side value, authority, and destination-side payout are economically consistent under the applicable bridge or verification regime. Triggered by SEM-019. Expected response: Class 3 (Restrict), Action BL, State CD or FN.",
+      "expected_class": 3,
+      "expected_action": "BL",
+      "expected_states": ["CD", "FN"],      "added_version": "1.4.0",
+      "status": "active"
+    },
+    {
+      "code": "BRIDGE_TRUST_REVOKED",
+      "name": "Bridge Trust Revoked",
+      "description": "The referenced bridge has bridge_trust_flag: 0 in the Bridge Registry. All events from this bridge are forced to Action BL regardless of other field values. This is non-overridable per BRG-001. Expected response: Class 4 (CONTROL) or Class 3 (Restrict), Action BL, State FN.",
+      "expected_class": 3,
+      "expected_action": "BL",
+      "expected_states": ["FN"],      "added_version": "1.4.0",
+      "status": "active"
+    },
+    {
+      "code": "BRIDGE_RESTORATION_BLOCKED",
+      "name": "Bridge Restoration Blocked",
+      "description": "A bridge restoration attempt failed because BRG-005 restoration conditions were not satisfied. The bridge cannot be restored to bridge_trust_flag: 1 until all required conditions are documented: patched/redeployed version, classification-binding mechanism, economic consistency mechanism, independent audit reference, effective deployment block/date, and restoration confidence ceiling.",
+      "expected_class": 4,
+      "expected_action": "BL",
+      "expected_states": ["FN"],      "added_version": "1.4.0",
+      "status": "active"
+    },
+    {
+      "code": "LEG_ACTION_RANGE_VIOLATION",
+      "name": "LEG Action Range Violation",
+      "description": "The submitted Action falls outside the permitted action range for the leg_subtype + Finality=1 combination (LEG-006 in v1.5.1; was LEG-007 in v1.5). The Finality=0 row is governed protocol-wide by SEM-013. Silent downgrade is prohibited; the submission must be re-stated. Triggered by LEG-006.",
+      "introduced_in": "leg-amendment-v0.1",
+      "added_version": "1.5",
+      "status": "draft"
+    },
+    {
+      "code": "LEG_SUPRA_SANCTIONS_FORCE",
+      "name": "LEG Supra Sanctions Force",
+      "description": "A SUPRA-origin event with reason_code=SA and Finality=1 submitted an Action other than BL. Action has been forced to BL per LEG-007 (in v1.5.1; was LEG-008 in v1.5). This is non-overridable and mirrors the BRG-001 and SAN-001 force-BL paths. Triggered by LEG-007.",
+      "introduced_in": "leg-amendment-v0.1",
+      "added_version": "1.5",
+      "status": "draft"
+    },
+    {
+      "code": "LEG_SUBTYPE_ABSENT",
+      "name": "LEG Subtype Absent",
+      "description": "An event with origin=LEG is missing the leg_subtype field, or the value is not in the controlled vocabulary {JUD, ADM, SUPRA, LEG_TEXT, PREC}. Triggered by MSG-006 (in v1.5.1; was LEG-006 in v1.5 — reclassified as a schema constraint).",
+      "introduced_in": "leg-amendment-v0.1",
+      "added_version": "1.5",
+      "status": "draft"
+    },
+    {
+      "code": "POST_CLOSURE_VIOLATION",
+      "name": "Post-Closure Violation",
+      "description": "Event appended to a closed lifecycle outside the two permitted reopening shapes (Class 1 State RV reversal or Class 4 CONTROL supersession, each citing the closure event in related_events). Enforced by LFC-007 (RFC-010 Part 2, Universal Eventual Closure).",
+      "introduced_in": "rfc-010",
+      "added_version": "1.6.0",
+      "status": "active"
+    },
+    {
+      "code": "NON_CONSUMMATION",
+      "name": "Non-Consummation Closure",
+      "description": "The lifecycle's settlement window lapsed without settlement; the closure emitter of record (origin watcher) terminates it as non-consummated rather than leaving it open (RFC-010 Part 2A: abandoned lifecycles must not linger as dormant attack surface). Carried on the Class 6 closure event itself.",
+      "introduced_in": "rfc-010",
+      "added_version": "1.6.0",
+      "status": "active"
+    }
+  ]
+}

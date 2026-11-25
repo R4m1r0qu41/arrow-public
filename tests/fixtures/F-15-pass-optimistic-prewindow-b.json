@@ -1,0 +1,17 @@
+{
+  "event_id": "arrow-pilot-f15-2026-07-06",
+  "arrow_code": "1:ARB:PD:HL:0:B",
+  "lifecycle_id": "lfc-fixture-f15",
+  "object_id": "obj-fixture-f15",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "finality_basis": "optimistic_window",
+  "finality_eta": 1781913600,
+  "finality_eta_type": "unix_ts",
+  "subject_id": "0xabc0000000000000000000000000000000000015",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-15 — SEM-015 conditional ceiling, pre-window compliant twin of F-14. Same pending ARB event shape but claiming Confidence B, exactly at the pre-settlement ceiling. Mirrors the canonical L2 lifecycle emission (1:ARB:PD:HL:0:B + optimistic_window + finality_eta). Expected: pass."
+  }
+}

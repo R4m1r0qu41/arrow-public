@@ -1,0 +1,23 @@
+{
+  "event_id": "arrow-pilot-f02-2026-05-24",
+  "arrow_code": "1:THR:PD:HL:0:C",
+  "lifecycle_id": "lfc-fixture-f02",
+  "object_id": "obj-fixture-f02",
+  "verification_regime": "bonded_quorum",
+  "bridge_id": "TEST-BRIDGE-001",
+  "finality_basis": "protocol_pending",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000002",
+  "subject_type": "wallet_address",
+  "object_type": "cross_chain_observation",
+  "proof_semantics": {
+    "proven_content": "0xabc0000000000000000000000000000000000002",
+    "source_claim_type": "cross_chain_observation",
+    "destination_claim_type": "cross_chain_observation",
+    "classification_binding_method": "context_inference",
+    "classification_verified": false
+  },
+  "metadata": {
+    "description": "F-02 — THR origin, bonded_quorum regime (ceiling B), active bridge (TEST-BRIDGE-001 trust_flag=1), Confidence C. BRG-001 not triggered. SEM-017 satisfied: proof_semantics present, classification_verified=false, Confidence C (not > C cap). FB-001 satisfied: finality_basis=protocol_pending. SEM-015 pass: C <= B ceiling."
+  }
+}

@@ -1,0 +1,19 @@
+[package]
+name = "arrow-reduce"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Arrow Protocol reduction layer — R(event_log) → disposition + canonical Action (RFC-003 §7)."
+
+license.workspace = true
+[lib]
+name = "arrow_reduce"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-core = { path = "../arrow-core" }
+serde      = { version = "1", features = ["derive"] }
+thiserror  = "2"
+
+[dev-dependencies]
+arrow-core = { path = "../arrow-core" }

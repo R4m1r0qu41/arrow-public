@@ -1,0 +1,29 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "SOL",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "testnet",
+    "network_name": "devnet",
+    "chain_family": "svm",
+    "chain_id_observed": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "tx_ref": {
+      "type": "sol_signature",
+      "value": "u4vKrDnkhjqTbAWJJ5pFKkjsPJZ8YLYVxDhrC3piSCKui71Tnr6vcT3LstFGy1huFD5fJFQUqgqF3xb4JLkx99v"
+    },
+    "finality_model": "bft_consensus",
+    "finality_basis": null,
+    "arrow_code": "1:SOL:FN:PR:1:A",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model"
+    ],
+    "value": "1000000000"
+  },
+  "observation": {
+    "observed_at": "2026-06-14T20:41:57.982501+00:00",
+    "observer_head": 469448447
+  },
+  "extraction_artifact_hash": "sha256:1285a69ba88562200e14341b6341ccf351340c09686333735759744e70e8de15"
+}

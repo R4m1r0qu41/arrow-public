@@ -1,0 +1,22 @@
+{
+  "event_id": "arrow-pilot-f06-2026-05-24",
+  "arrow_code": "2:ETH:FN:PR:1:A",
+  "lifecycle_id": "lfc-fixture-f06",
+  "object_id": "obj-fixture-f06",
+  "verification_regime": "bonded_quorum",
+  "bridge_id": "TEST-BRIDGE-001",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000006",
+  "subject_type": "wallet_address",
+  "object_type": "cross_chain_transfer",
+  "proof_semantics": {
+    "proven_content": "0xdeadbeef000000000000000000000000000000000000000000000000000000ff",
+    "source_claim_type": "supplemental_export_output",
+    "destination_claim_type": "primary_export_instruction",
+    "classification_binding_method": "context_inference",
+    "classification_verified": false
+  },
+  "metadata": {
+    "description": "F-06 — SEM-017 demo. ETH origin, active bridge TEST-BRIDGE-001 (bonded_quorum regime, trust_flag=1). classification_verified=false in proof_semantics. Confidence A claimed (overclaims C cap). Expected: SEM-017 violation, PROOF_TYPE_UNBOUND."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "event_id": "arrow-pilot-f33-2026-07-07",
+  "arrow_code": "1:BSE:RV:HL:1:B",
+  "lifecycle_id": "lfc-fixture-closed",
+  "object_id": "obj-fixture-closed",
+  "verification_regime": "optimistic_settled",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "related_events": ["ctx-closure-2026-07-07"],
+  "subject_id": "0xabc0000000000000000000000000000000000033",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-33 — cross-origin reopening: a BSE-origin reversal citing an ETH lifecycle's closure. Interim LFC-007 origin constraint (post-review hardening): a reopening must share the closure's Origin; only a PCY supersession may cross origins. Expected: reject with LFC-007."
+  }
+}

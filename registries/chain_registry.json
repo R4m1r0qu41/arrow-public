@@ -1,0 +1,311 @@
+{
+  "registry": "chain_registry",
+  "registry_version": "2.0",
+  "schema_version": "2.0",
+  "description": "Arrow Protocol Chain Registry. v2.0 schema introduces four structured blocks per entry: protocol_required, advisory, provenance, and anchoring. The 'code' field is the canonical chain identifier and map key. Chain identifiers are distinct from the three-character canonical Origin field.",
+  "v2_0_changes": [
+    "Replaced flat chain_id/origin_code/chain_name/chain_trust_flag/chain_status fields with structured blocks.",
+    "protocol_required: chain_trust_flag, finality_model, finality_basis_default, challenge_window_seconds, reorg_safety_confirmations, layer, settlement_chain.",
+    "advisory: description, consensus, native_asset, evm_compatible.",
+    "provenance: source_type, source_ref, source_version, verified_by, verified_at, review_cadence, next_review_due, notes.",
+    "anchoring: entry_hash, registry_version_hash, onchain_anchor (deferred, all null).",
+    "code replaces chain_id as the canonical Chain Registry identifier. It is distinct from the canonical message Origin field.",
+    "Populated priority chains: ETH, BTC, SOL, BASE.",
+    "Migrated ARB from v1.3 flat schema."
+  ],
+  "entries": [
+    {
+      "code": "ETH",
+      "name": "Ethereum Mainnet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "protocol_required": {
+        "finality_model": "probabilistic",
+        "finality_basis_default": "probabilistic",
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": 12,
+        "chain_trust_flag": 1,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Ethereum mainnet (Proof-of-Stake since The Merge, September 2022). Economic finality accumulates with validator attestations; 12-block depth is the conventional safety threshold.",
+        "consensus": "proof_of_stake_casper_ffg",
+        "native_asset": "ETH",
+        "evm_compatible": true
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://ethereum.org/en/developers/docs/consensus-mechanisms/",
+        "source_version": "as of 2026-05-26",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-05-26T00:00:00Z",
+        "review_cadence": "90d",
+        "next_review_due": "2026-08-24",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": ""
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0x505bb0130e46b17e1adec44b288b7fc544fb31776f0f902d46bc475f14e77175"
+        },
+        "observed_at": "2026-06-15T05:10:45.187108+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.reorg_safety_confirmations"
+        ],
+        "extraction_artifact_hash": "sha256:ba36852ae91e758b70f916c6f7c190d14fcab27d62a3242cc36d37db497929cd",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:8abc63f8af92e604d7b588b8d8a4326480b694a968490e04c092b42674cc37f9",
+        "registry_version_hash": "sha256:e77c959a411b3a4dd5f52bd2a56dd296d408ac8957174e6539969664138fa0fc",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "BTC",
+      "name": "Bitcoin Mainnet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "protocol_required": {
+        "finality_model": "probabilistic",
+        "finality_basis_default": "probabilistic",
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": 6,
+        "chain_trust_flag": 1,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Bitcoin mainnet (Nakamoto proof-of-work). 6 confirmations is the conventional merchant safety threshold; deeper confirmation depth recommended for high-value transfers.",
+        "consensus": "proof_of_work_nakamoto",
+        "native_asset": "BTC",
+        "evm_compatible": false
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://developer.bitcoin.org/devguide/block_chain.html",
+        "source_version": "as of 2026-05-26",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-05-26T00:00:00Z",
+        "review_cadence": "90d",
+        "next_review_due": "2026-08-24",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": ""
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "btc_outpoint",
+          "value": "6c484f6a4ff467a72158f86cb29b08c9cf30d5e4f9f39ced55d940fa9aa72870:0"
+        },
+        "observed_at": "2026-06-16T04:10:00.195756+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.reorg_safety_confirmations"
+        ],
+        "extraction_artifact_hash": "sha256:5e4e506ffca506b44ddf342c883d10ef845b89f61e41bd184e02048acef28b4e",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:071d5ef9d8770f8fcfbf18536e99254c99b59e0ebb6777227716030b7deaf17e",
+        "registry_version_hash": "sha256:e77c959a411b3a4dd5f52bd2a56dd296d408ac8957174e6539969664138fa0fc",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "SOL",
+      "name": "Solana Mainnet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "protocol_required": {
+        "finality_model": "bft_consensus",
+        "finality_basis_default": null,
+        "challenge_window_seconds": null,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 1,
+        "layer": 1,
+        "settlement_chain": null
+      },
+      "advisory": {
+        "description": "Solana mainnet (Tower BFT, a variant of Practical BFT). Transactions achieve optimistic confirmation after ~400ms; full commitment ('finalized') after ~13 seconds and supermajority stake lock.",
+        "consensus": "tower_bft",
+        "native_asset": "SOL",
+        "evm_compatible": false
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.solana.com/cluster/commitments",
+        "source_version": "as of 2026-05-26",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-05-26T00:00:00Z",
+        "review_cadence": "90d",
+        "next_review_due": "2026-08-24",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": ""
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "sol_signature",
+          "value": "pbY7vFe5ZL1nUHpMPmKWYdUoMTVEBTutdDLYqd4PqdukX3XquJ9GMHKY7NajH6uLZBnFp77A1h47LtRsz9EKhGg"
+        },
+        "observed_at": "2026-06-15T05:57:00.280495+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model"
+        ],
+        "extraction_artifact_hash": "sha256:163c3e645e8b6aa2627c802ad3a84bdeb7d2682bc5ba34a248c7c6e268563479",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:bc24cadda836623d8a6a0c8c247dc37fcb46fa0e962653a16852c6e2885ff30e",
+        "registry_version_hash": "sha256:e77c959a411b3a4dd5f52bd2a56dd296d408ac8957174e6539969664138fa0fc",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "BASE",
+      "name": "Base Mainnet",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "protocol_required": {
+        "finality_model": "optimistic_rollup",
+        "finality_basis_default": "optimistic_window",
+        "challenge_window_seconds": 604800,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 1,
+        "layer": 2,
+        "settlement_chain": "ETH"
+      },
+      "advisory": {
+        "description": "Base is a Coinbase-operated Optimism Superchain L2. The 7-day (604800s) challenge window is the standard OP Stack fraud-proof window. Events with finality=0 on BASE should use finality_basis: optimistic_window.",
+        "consensus": "optimistic_rollup_op_stack",
+        "native_asset": "ETH",
+        "evm_compatible": true
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.base.org/docs/base-contracts",
+        "source_version": "as of 2026-05-26",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-05-26T00:00:00Z",
+        "review_cadence": "90d",
+        "next_review_due": "2026-08-24",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Additional fault-proof spec: https://github.com/ethereum-optimism/optimism/blob/develop/specs/fault-proof/"
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0x720648dfed963eba6b52e591b361f19368c8de56c201b6552a5ff0b4da9fba8a"
+        },
+        "observed_at": "2026-06-15T05:17:59.878205+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.challenge_window_seconds"
+        ],
+        "extraction_artifact_hash": "sha256:93c4d659cfd58d9d7e1d3723297ad2ba1ed91fcc2c7cbf7a1f365b1f834d854d",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:5d7af6eeea562e1093d7bb7a768f8a06427aa426998ed715f443c615cd89ae18",
+        "registry_version_hash": "sha256:e77c959a411b3a4dd5f52bd2a56dd296d408ac8957174e6539969664138fa0fc",
+        "onchain_anchor": null
+      }
+    },
+    {
+      "code": "ARB",
+      "name": "Arbitrum One",
+      "registry_version": "2.0",
+      "entry_version": "1.0",
+      "status": "active",
+      "protocol_required": {
+        "finality_model": "optimistic_rollup",
+        "finality_basis_default": "optimistic_window",
+        "challenge_window_seconds": 604800,
+        "reorg_safety_confirmations": null,
+        "chain_trust_flag": 1,
+        "layer": 2,
+        "settlement_chain": "ETH"
+      },
+      "advisory": {
+        "description": "Arbitrum One optimistic rollup L2, operated by Offchain Labs. 7-day challenge window with BoLD (Bounded Liquidity Delay) fraud-proof system.",
+        "consensus": "optimistic_rollup_bold",
+        "native_asset": "ETH",
+        "evm_compatible": true,
+        "governance_capability": {
+          "emergency_upgrade_authority": true,
+          "multisig_threshold": "9-of-12",
+          "upgrade_delay_seconds": 0,
+          "emergency_upgrade_exit_window_seconds": 0,
+          "historical_compelled_transfer": {
+            "status": "demonstrated",
+            "source_ref": "https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803",
+            "observed_at": "2026-04-21"
+          },
+          "sender_impersonation_via_upgrade": {
+            "status": "demonstrated",
+            "source_ref": "https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803",
+            "observed_at": "2026-04-21"
+          }
+        }
+      },
+      "provenance": {
+        "source_type": "dev_docs",
+        "source_ref": "https://docs.arbitrum.io/how-arbitrum-works/fraud-proofs/challenge-manager",
+        "source_version": "as of 2026-05-26",
+        "verified_by": "Arrow Registry Maintainer",
+        "verified_at": "2026-05-26T00:00:00Z",
+        "review_cadence": "90d",
+        "next_review_due": "2026-08-24",
+        "state_test_cadence": "30d",
+        "next_state_test_due": "2026-07-05",
+        "notes": "Migrated from v1.3 flat schema."
+      },
+      "lifecycle_test": {
+        "test_type": "minimal_value_transfer",
+        "performed_by": "Arrow Registry Maintainer",
+        "tx_ref": {
+          "type": "evm_tx_hash",
+          "value": "0x401abd713b25a8a037132091f26369b19c42aa34b46e0eee0686336ed7709652"
+        },
+        "observed_at": "2026-06-15T05:20:23.927800+00:00",
+        "maps_to_fields": [
+          "code",
+          "protocol_required.finality_model",
+          "protocol_required.finality_basis_default",
+          "protocol_required.challenge_window_seconds"
+        ],
+        "extraction_artifact_hash": "sha256:5d3567bee90d29cb4dfc2fc0c13412a14ecd000f9f34d7ee9909ed6dd7935770",
+        "next_state_test_due": "2026-07-15"
+      },
+      "anchoring": {
+        "entry_hash": "sha256:8bad0a4af34d86b624ef7dde504687aed78df5ff9323c5fa024a2b40685e8f2e",
+        "registry_version_hash": "sha256:e77c959a411b3a4dd5f52bd2a56dd296d408ac8957174e6539969664138fa0fc",
+        "onchain_anchor": null
+      }
+    }
+  ]
+}

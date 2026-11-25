@@ -1,0 +1,45 @@
+{
+  "manifest_id": "arrow-active-baseline",
+  "schema_version": 1,
+  "owning_repository": "Arrow",
+  "former_repository_names": ["arrow-protocol"],
+  "current_baseline": "arrow-v1.6.0",
+  "authority": "Arrow protocol authority",
+  "status": "active",
+  "liveness_model": "Live-only. This manifest indexes current normative documents only. Superseded packages are moved to archive/ and are not tracked here or scanned by AI agents (see archive/README.md). Per ADR-ARRW-001: documents are live or superseded; superseded documents are archived.",
+  "archived_documents_index": "archive/README.md",
+  "documents": [
+    {
+      "id": "arrow-protocol",
+      "title": "Arrow Protocol v1.6.0",
+      "status": "current",
+      "classification": "normative",
+      "owning_repository": "Arrow",
+      "path": "docs/protocol/arrow-protocol.md",
+      "authority": "Arrow protocol authority",
+      "arrow_compatibility": "arrow-v1.6.0",
+      "supersedes": ["arrow-protocol-v1.5.2-draft"],
+      "superseded_by": null,
+      "schema_dependencies": ["registries/index.json"],
+      "implementation_dependencies": ["crates/arrow-core"],
+      "test_references": ["tests/fixtures/index.json", "cargo test -p arrow-core --test fixtures"],
+      "sha256": "793148024619cbf6489a4216ffeef91772ba583d07124bc3b15ddff2d043d736"
+    },
+    {
+      "id": "arrow-validation-rules",
+      "title": "Arrow Protocol Validation Rules v1.6.0",
+      "status": "current",
+      "classification": "normative",
+      "owning_repository": "Arrow",
+      "path": "docs/protocol/validation-rules.md",
+      "authority": "Arrow protocol authority",
+      "arrow_compatibility": "arrow-v1.6.0",
+      "supersedes": ["arrow-validation-rules-v1.5.2-draft"],
+      "superseded_by": null,
+      "schema_dependencies": ["registries/index.json"],
+      "implementation_dependencies": ["crates/arrow-core"],
+      "test_references": ["tests/fixtures/index.json", "cargo test -p arrow-core --test fixtures"],
+      "sha256": "3c93a15b3676c10ec4c0489332490bb0f1bd053ddf1f71c3e59157c41d21c8c8"
+    }
+  ]
+}

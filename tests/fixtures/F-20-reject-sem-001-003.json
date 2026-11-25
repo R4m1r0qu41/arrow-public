@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-f-20-2026-07-06",
+  "arrow_code": "1:ETH:TL:HL:1:A",
+  "lifecycle_id": "lfc-fixture-f-20",
+  "object_id": "obj-fixture-f-20",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-07-06T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000020",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-20 — SEM-001 + SEM-003: a Timelocked state claiming Finality=1 — TL is by definition unsettled and requires Finality 0. Expected: reject."
+  }
+}

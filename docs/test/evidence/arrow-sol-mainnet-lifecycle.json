@@ -1,0 +1,29 @@
+{
+  "core": {
+    "artifact_version": "arrow-lifecycle-artifact-v0",
+    "registry_code": "SOL",
+    "entry_version": "1.0",
+    "registry_version": "2.0",
+    "network": "mainnet",
+    "network_name": "mainnet",
+    "chain_family": "svm",
+    "chain_id_observed": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+    "tx_ref": {
+      "type": "sol_signature",
+      "value": "pbY7vFe5ZL1nUHpMPmKWYdUoMTVEBTutdDLYqd4PqdukX3XquJ9GMHKY7NajH6uLZBnFp77A1h47LtRsz9EKhGg"
+    },
+    "finality_model": "bft_consensus",
+    "finality_basis": null,
+    "arrow_code": "1:SOL:FN:PR:1:A",
+    "maps_to_fields": [
+      "code",
+      "protocol_required.finality_model"
+    ],
+    "value": "4105036"
+  },
+  "observation": {
+    "observed_at": "2026-06-15T05:57:00.280495+00:00",
+    "observer_head": 426574628
+  },
+  "extraction_artifact_hash": "sha256:163c3e645e8b6aa2627c802ad3a84bdeb7d2682bc5ba34a248c7c6e268563479"
+}

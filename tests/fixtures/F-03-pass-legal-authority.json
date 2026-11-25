@@ -1,0 +1,21 @@
+{
+  "event_id": "arrow-pilot-f03-2026-05-24",
+  "arrow_code": "2:LEG:PD:HL:0:C",
+  "lifecycle_id": "lfc-fixture-f03",
+  "object_id": "obj-fixture-f03",
+  "verification_regime": "legal_attestation",
+  "leg_subtype": "JUD",
+  "jurisdiction": "MX",
+  "leg_jurisdiction": {
+    "country": "MX"
+  },
+  "finality_basis": "legal_appeal",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "subject_id": "case-ref-2026-001",
+  "subject_type": "legal_case_reference",
+  "object_type": "legal_assertion",
+  "metadata": {
+    "jurisdiction": "PROTOCOL",
+    "description": "F-03 — Legal domain assertion. LEG origin, legal_attestation regime (ceiling C). Confidence C. LEG-006 satisfied: leg_subtype=JUD. FB-001 satisfied: finality_basis=legal_appeal. SEM-015 pass: C <= C ceiling."
+  }
+}

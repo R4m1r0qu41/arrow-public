@@ -1,0 +1,14 @@
+{
+  "event_id": "arrow-pilot-e02-2026-06-16",
+  "arrow_code": "3:EMG:FN:HL:1:C",
+  "lifecycle_id": "lfc-fixture-e02",
+  "object_id": "obj-fixture-e02",
+  "verification_regime": "institutional_attestation",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "subject_id": "0xabc0000000000000000000000000000000000002",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "E2 — Emergency-authority hold. EMG origin, institutional_attestation regime (ceiling C). Class 3 CONDITION + non-executing HL passes corrected SEM-006 (action-only). Confidence C at ceiling."
+  }
+}

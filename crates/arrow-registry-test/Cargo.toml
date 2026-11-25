@@ -1,0 +1,40 @@
+[package]
+name = "arrow-registry-test"
+version = "0.1.0"
+edition = "2021"
+description = "Arrow Protocol on-chain lifecycle test harness — R-011 artifact generation, anchoring, and registry validation."
+
+license.workspace = true
+[[bin]]
+name = "arrow-registry-test"
+path = "src/bin/arrow-registry-test.rs"
+
+[lib]
+name = "arrow_registry_test"
+path = "src/lib.rs"
+
+[dependencies]
+arrow-core      = { path = "../arrow-core" }
+arrow-identity  = { path = "../arrow-identity" }
+arrow-origin-evm = { path = "../arrow-origin-evm" }
+arrow-origin-btc = { path = "../arrow-origin-btc" }
+arrow-origin-sol = { path = "../arrow-origin-sol" }
+serde           = { version = "1", features = ["derive"] }
+serde_json      = "1"
+# JCS canonicalization — same tool as arrow-transport for consistent hashing.
+serde_jcs       = "0.1"
+sha2            = "0.10"
+hex             = "0.4"
+anyhow          = "1"
+chrono          = { version = "0.4", features = ["serde"] }
+clap            = { version = "=4.4.18", features = ["derive"] }
+base64          = "0.22"
+bytes           = "1"
+http-body-util  = "0.1"
+tokio           = { version = "=1.44.2", features = ["full"] }
+hyper           = { version = "=1.10.1", features = ["http1", "client", "server"] }
+hyper-util      = { version = "0.1", features = ["client-legacy", "http1", "server", "tokio"] }
+
+[dev-dependencies]
+arrow-core         = { path = "../arrow-core" }
+arrow-consume-eth  = { path = "../arrow-consume-eth" }

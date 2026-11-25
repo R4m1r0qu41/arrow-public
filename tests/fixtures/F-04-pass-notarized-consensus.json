@@ -1,0 +1,16 @@
+{
+  "event_id": "arrow-pilot-f04-2026-05-24",
+  "arrow_code": "1:ETH:FN:PR:1:A",
+  "lifecycle_id": "lfc-fixture-f04",
+  "object_id": "obj-fixture-f04",
+  "verification_regime": "native_canonical",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "closure_eta": 0,
+  "closure_eta_type": "block_count",
+  "subject_id": "0xabc0000000000000000000000000000000000004",
+  "subject_type": "wallet_address",
+  "object_type": "token_transfer",
+  "metadata": {
+    "description": "F-04 — Ethereum finalized event. ETH origin, native_canonical regime (registry ceiling A). Confidence A. No bridge. SEM-015 pass: A <= A ceiling. No proof_semantics — SEM-017 not triggered."
+  }
+}

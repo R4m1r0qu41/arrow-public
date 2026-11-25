@@ -1,0 +1,29 @@
+[package]
+name = "arrow-conformance"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+description = "Cross-adapter conformance suite for the Arrow Protocol adapter expansion."
+
+license.workspace = true
+[lib]
+name = "arrow_conformance"
+path = "src/lib.rs"
+
+# All dependencies are dev-only: this crate contains only tests.
+[dev-dependencies]
+arrow-adapter    = { path = "../arrow-adapter" }
+arrow-core       = { path = "../arrow-core" }
+arrow-identity   = { path = "../arrow-identity" }
+arrow-transport  = { path = "../arrow-transport", features = ["replay-sqlite"] }
+arrow-reduce     = { path = "../arrow-reduce" }
+arrow-consume-eth = { path = "../arrow-consume-eth" }
+arrow-consume-base = { path = "../arrow-consume-base" }
+arrow-consume-arb  = { path = "../arrow-consume-arb" }
+arrow-consume-btc  = { path = "../arrow-consume-btc" }
+arrow-consume-sol  = { path = "../arrow-consume-sol" }
+arrow-consume-leg  = { path = "../arrow-consume-leg" }
+arrow-origin-leg   = { path = "../arrow-origin-leg" }
+base64 = "0.22"
+anyhow  = "1"
+uuid    = { version = "=1.4.1", features = ["v4"] }
