@@ -24,7 +24,7 @@ hyper-util      = { version = "0.1", features = ["client-legacy", "http1", "serv
 # §4.4 — EIP-155 raw transaction signing. k256 provides minimal secp256k1 ECDSA
 # without pulling a full Ethereum client. sha3 provides keccak256 for tx hashing.
 # Both are from the RustCrypto family (same maintainers as sha2 already in use).
-k256            = { version = "=0.13.3", features = ["ecdsa"] }
+k256            = { version = "=0.14.0", features = ["ecdsa"] }
 sha3            = "=0.10.8"
 
 [dev-dependencies]
